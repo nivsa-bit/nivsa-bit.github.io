@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmony - Create Your BDR Agent</title>
+<style>
+:root {
+  --primary: #4F46E5;
+  --primary-light: #6366F1;
+  --primary-lighter: #E0E7FF;
+  --primary-bg: #EEF2FF;
+  --emerald: #10B981;
+  --emerald-light: #D1FAE5;
+  --amber: #F59E0B;
+  --amber-light: #FEF3C7;
+  --red: #EF4444;
+  --red-light: #FEE2E2;
+  --bg: #F9FAFB;
+  --white: #FFFFFF;
+  --heading: #111827;
+  --body: #374151;
+  --secondary: #6B7280;
+  --border: #E5E7EB;
+  --border-focus: #A5B4FC;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 24px;
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --transition: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--body);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Top Bar */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.logo-icon {
+  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--primary-bg);
+  border-radius: var(--radius);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--white);
+}
+.btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.btn-emerald {
+  background: var(--emerald);
+  color: var(--white);
+}
+.btn-emerald:hover { background: #059669; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--body);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--bg); border-color: var(--secondary); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+.btn-outline:hover { background: var(--primary-bg); }
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red-light);
+}
+.btn-danger:hover { background: var(--red-light); }
+
+/* Progress Stepper */
+.stepper-wrap {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  overflow-x: auto;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  max-width: 900px;
+  margin: 0 auto;
+  min-width: 700px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.step-circle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  min-width: 60px;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid var(--border);
+  color: var(--secondary);
+  background: var(--white);
+  transition: all var(--transition);
+}
+
+.step-circle-wrap.active .step-circle {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--white);
+}
+
+.step-circle-wrap.completed .step-circle {
+  border-color: var(--emerald);
+  background: var(--emerald);
+  color: var(--white);
+}
+
+.step-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--secondary);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+  max-width: 70px;
+}
+
+.step-circle-wrap.active .step-label { color: var(--primary); }
+.step-circle-wrap.completed .step-label { color: var(--emerald); }
+
+.step-line {
+  width: 32px;
+  height: 2px;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.step-line.completed { background: var(--emerald); }
+
+/* Main Content */
+.main-content {
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 0 24px 120px;
+  position: relative;
+}
+
+.step-panel {
+  display: none;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity var(--transition-slow), transform var(--transition-slow);
+}
+
+.step-panel.active {
+  display: block;
+}
+
+.step-panel.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.step-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 32px;
+}
+
+.step-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 4px;
+}
+
+.step-subtitle {
+  font-size: 15px;
+  color: var(--secondary);
+  margin-bottom: 28px;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 6px;
+}
+
+.form-hint {
+  font-size: 13px;
+  color: var(--secondary);
+  margin-bottom: 8px;
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: var(--font);
+  color: var(--heading);
+  background: var(--white);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.form-input::placeholder, .form-textarea::placeholder { color: #9CA3AF; }
+
+.form-textarea { resize: vertical; line-height: 1.5; }
+
+.form-input.mono { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 13px; }
+
+/* Info Banner */
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-lighter);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--primary);
+}
+
+.info-banner-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.info-banner-neutral {
+  background: #F3F4F6;
+  border-color: var(--border);
+  color: var(--body);
+}
+
+/* Selectable Cards */
+.card-grid { display: grid; gap: 12px; }
+.card-grid-2 { grid-template-columns: 1fr 1fr; }
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 600px) {
+  .card-grid-4 { grid-template-columns: 1fr 1fr; }
+}
+
+.selectable-card {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--white);
+  text-align: center;
+}
+
+.selectable-card:hover {
+  border-color: var(--primary-lighter);
+  background: var(--primary-bg);
+}
+
+.selectable-card.selected {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.selectable-card .card-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.selectable-card .card-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 4px;
+}
+
+.selectable-card .card-desc {
+  font-size: 12px;
+  color: var(--secondary);
+  line-height: 1.4;
+}
+
+/* Toggle Switch */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle {
+  width: 44px;
+  height: 24px;
+  background: #D1D5DB;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.toggle.active { background: var(--primary); }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--white);
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle.active::after { transform: translateX(20px); }
+
+.toggle-label {
+  font-size: 14px;
+  color: var(--heading);
+  cursor: pointer;
+}
+
+/* Language Pills */
+.pills-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.pill {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--white);
+  color: var(--body);
+  user-select: none;
+}
+
+.pill:hover { border-color: var(--primary-lighter); background: var(--primary-bg); }
+.pill.selected { background: var(--primary); color: var(--white); border-color: var(--primary); }
+
+/* Parameter Table */
+.param-table { width: 100%; border-collapse: collapse; }
+.param-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 8px 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.param-table td {
+  padding: 8px 8px 8px 0;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+.param-table td:last-child { padding-right: 0; text-align: center; width: 40px; }
+
+.param-table .form-input, .param-table .form-select {
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.delete-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--secondary);
+  cursor: pointer;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all var(--transition);
+}
+.delete-btn:hover { background: var(--red-light); color: var(--red); }
+
+/* Question Cards (Step 4) */
+.question-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition);
+  position: relative;
+}
+.question-card:hover { box-shadow: var(--shadow); }
+
+.question-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.drag-handle {
+  color: #D1D5DB;
+  font-size: 18px;
+  cursor: grab;
+  padding: 4px 2px;
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.question-number {
+  width: 28px;
+  height: 28px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.stage-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+}
+
+.stage-qualification { background: #DBEAFE; color: #1D4ED8; }
+.stage-discovery { background: #FEF3C7; color: #92400E; }
+.stage-closing { background: #D1FAE5; color: #065F46; }
+.stage-custom { background: #F3E8FF; color: #6B21A8; }
+
+.question-body { margin-left: 68px; }
+
+.question-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.question-controls .form-select {
+  width: auto;
+  min-width: 140px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.condition-row {
+  margin-top: 12px;
+  padding: 12px;
+  background: #F9FAFB;
+  border-radius: var(--radius);
+  display: none;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.condition-row.visible { display: flex; }
+
+.condition-row .form-input, .condition-row .form-select {
+  width: auto;
+  min-width: 100px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.add-card {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--secondary);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all var(--transition);
+  background: transparent;
+  width: 100%;
+  font-family: var(--font);
+}
+.add-card:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+
+/* Objection Cards (Step 5) */
+.objection-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.objection-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .objection-pair { grid-template-columns: 1fr; }
+}
+
+.objection-pair .pair-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.objection-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  gap: 12px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.tab {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all var(--transition);
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font);
+}
+
+.tab:hover { color: var(--heading); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* FAQ / Rule Cards */
+.faq-card, .rule-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.rule-card.red { border-left: 3px solid var(--red); background: #FFF5F5; }
+.rule-card.green { border-left: 3px solid var(--emerald); background: #F0FFF4; }
+
+.rule-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rule-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rule-dot.red { background: var(--red); }
+.rule-dot.green { background: var(--emerald); }
+
+/* Two Column Layout (Step 7) */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 700px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+.outcome-col {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.outcome-col.qualified { border-color: var(--emerald); }
+.outcome-col.not-qualified { border-color: var(--amber); }
+
+.outcome-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.outcome-badge.green { background: var(--emerald-light); color: #065F46; }
+.outcome-badge.amber { background: var(--amber-light); color: #92400E; }
+
+/* Chip Toolbar (Step 2) */
+.chip-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  background: var(--primary-bg);
+  color: var(--primary);
+  cursor: pointer;
+  border: 1px solid var(--primary-lighter);
+  transition: all var(--transition);
+}
+.chip:hover { background: var(--primary); color: var(--white); }
+
+.textarea-with-toolbar {
+  border-radius: 0 0 var(--radius) var(--radius);
+  border-top: none;
+}
+
+/* Transfer Brief */
+.brief-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.brief-toggle .toggle { transform: scale(0.85); }
+
+.brief-preview {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.brief-preview-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.brief-preview-row:last-child { border-bottom: none; }
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 100;
+}
+
+.bottom-nav-inner {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.visible { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 640px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 32px;
+  position: relative;
+  animation: modalIn 300ms ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.modal-close:hover { background: var(--border); color: var(--heading); }
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 16px;
+}
+
+/* Preview Chat */
+.chat-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 16px 0;
+}
+
+.chat-msg {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  max-width: 85%;
+}
+
+.chat-msg.agent { align-self: flex-start; }
+.chat-msg.prospect { align-self: flex-end; margin-left: auto; }
+
+.chat-speaker {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.chat-msg.agent .chat-speaker { color: var(--primary); }
+.chat-msg.prospect .chat-speaker { color: var(--secondary); }
+
+.chat-bubble {
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.chat-msg.agent .chat-bubble {
+  background: var(--primary-bg);
+  color: var(--heading);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-msg.prospect .chat-bubble {
+  background: #F3F4F6;
+  color: var(--heading);
+  border-bottom-right-radius: 4px;
+}
+
+.chat-timestamp {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-top: 4px;
+}
+
+/* MC Options for Step 4 */
+.mc-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.mc-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+}
+
+.mc-option input {
+  width: auto;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: var(--font);
+  outline: none;
+  color: var(--heading);
+  min-width: 60px;
+}
+
+/* Auto-generate button */
+.btn-shimmer {
+  background: linear-gradient(135deg, var(--primary-bg), #F3E8FF, var(--primary-bg));
+  background-size: 200% 200%;
+  color: var(--primary);
+  border: 1px solid var(--primary-lighter);
+  animation: shimmer 3s ease infinite;
+}
+
+.btn-shimmer:hover {
+  background: linear-gradient(135deg, var(--primary-lighter), #E9D5FF, var(--primary-lighter));
+  background-size: 200% 200%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Settings section */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .settings-grid { grid-template-columns: 1fr; }
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setting-item .form-input {
+  width: 100%;
+}
+
+.setting-note {
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+/* Stage dropdown */
+.stage-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  min-width: 160px;
+  padding: 4px;
+  display: none;
+}
+
+.stage-dropdown.visible { display: block; }
+
+.stage-dropdown-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+
+.stage-dropdown-item:hover { background: var(--bg); }
+
+/* Conditional appearance for fields */
+.conditional-field {
+  display: none;
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.conditional-field.visible { display: block; }
+
+/* Success notification */
+.success-toast {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  background: var(--emerald);
+  color: var(--white);
+  padding: 14px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 300;
+  display: none;
+  animation: slideInRight 300ms ease;
+}
+
+.success-toast.visible { display: block; }
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Warning message */
+.warning-msg {
+  font-size: 13px;
+  color: var(--amber);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.warning-msg.visible { opacity: 1; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .step-card { padding: 20px; }
+  .main-content { padding: 16px 16px 120px; }
+  .topbar { padding: 0 16px; }
+  .card-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* Option pills for MC */
+.mc-pill-delete {
+  cursor: pointer;
+  color: var(--secondary);
+  font-size: 14px;
+  padding: 0 2px;
+  transition: color var(--transition);
+}
+.mc-pill-delete:hover { color: var(--red); }
+
+/* spinner */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--white);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="logo">
+    <span class="logo-icon">&#x2666;</span>
+    Harmony
+  </div>
+  <button class="btn btn-outline btn-sm" onclick="openPreview()">&#9654; Preview Agent</button>
+</header>
+
+<!-- Progress Stepper -->
+<nav class="stepper-wrap">
+  <div class="stepper" id="stepper"></div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content" id="mainContent"></main>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="btn btn-ghost" id="btnBack" onclick="goBack()">&#8592; Back</button>
+    <button class="btn btn-primary" id="btnNext" onclick="goNext()">Continue &#8594;</button>
+  </div>
+</div>
+
+<!-- Paste Script Modal -->
+<div class="modal-overlay" id="pasteModal">
+  <div class="modal" style="max-width:700px;">
+    <button class="modal-close" onclick="closeModal('pasteModal')">&times;</button>
+    <div class="modal-title">Paste Your Existing Script</div>
+    <p style="color:var(--secondary); font-size:14px; margin-bottom:16px;">We'll analyze your script and pre-fill the wizard steps for you.</p>
+    <textarea class="form-textarea" id="pasteScriptArea" rows="12" placeholder="Paste your existing call script here... We'll analyze it and pre-fill all the wizard steps."></textarea>
+    <div style="margin-top:16px; display:flex; justify-content:flex-end;">
+      <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeScript()">&#9733; Analyze Script</button>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Agent Modal -->
+<div class="modal-overlay" id="previewModal">
+  <div class="modal" style="max-width:560px;">
+    <button class="modal-close" onclick="closeModal('previewModal')">&times;</button>
+    <div class="modal-title">Agent Preview</div>
+    <p style="color:var(--secondary); font-size:13px; margin-bottom:8px;">Sample conversation based on your configuration</p>
+    <hr style="border:none; border-top:1px solid var(--border); margin-bottom:16px;">
+    <div class="chat-container" id="chatPreview"></div>
+  </div>
+</div>
+
+<!-- Success Toast -->
+<div class="success-toast" id="successToast"></div>
+
+<script>
+// ======================== STATE ========================
+const STEPS = [
+  { id: 'identity', label: 'Identity', title: 'Who is your agent?', subtitle: 'Define your agent\'s personality and basic information.' },
+  { id: 'context', label: 'Call Context', title: 'What\'s the call about?', subtitle: 'Set up the context and purpose of every call.' },
+  { id: 'params', label: 'Parameters', title: 'What data feeds the call?', subtitle: 'Define the data fields your CRM sends before each call.' },
+  { id: 'flow', label: 'Call Flow', title: 'Design your call flow', subtitle: 'Build the conversation flow your agent will follow.' },
+  { id: 'objections', label: 'Objections', title: 'Handle objections', subtitle: 'Teach your agent how to respond to pushback.' },
+  { id: 'knowledge', label: 'Knowledge', title: 'What can your agent answer?', subtitle: 'Set up FAQs and knowledge boundaries.' },
+  { id: 'outcomes', label: 'Outcomes', title: 'What happens after the call?', subtitle: 'Configure routing for qualified and unqualified prospects.' },
+  { id: 'guardrails', label: 'Guardrails', title: 'Set the guardrails', subtitle: 'Define compliance rules and safety limits.' }
+];
+
+let currentStep = 0;
+let completedSteps = new Set();
+
+const state = {
+  // Step 1
+  agentName: '', agentRole: '', companyName: '', companyDesc: '',
+  tone: 'professional', aiDisclose: true,
+  languages: ['English'],
+  // Step 2
+  callType: 'outbound-warm', callPurpose: '', openingLine: '',
+  recordedLine: false, recordedLineText: 'This call is being recorded for quality purposes.',
+  // Step 3
+  params: [
+    { name: 'prospect_name', type: 'Text', desc: 'Full name of the prospect' },
+    { name: 'email', type: 'Email', desc: 'Prospect email address' },
+    { name: 'phone', type: 'Phone', desc: 'Phone number' }
+  ],
+  // Step 4
+  questions: [
+    { stage: 'qualification', question: 'Are you currently using any solution for this?', type: 'yes-no', required: true, options: [], condition: null },
+    { stage: 'qualification', question: 'How many people would use this day-to-day?', type: 'numeric', required: false, options: [], condition: null }
+  ],
+  // Step 5
+  objections: [
+    { trigger: "I'm not interested right now", response: "Totally understand — a lot of people start here. Would it help if I shared what makes us different in 30 seconds?", then: 'return' },
+    { trigger: "Can you just email me the info?", response: "Of course! But a quick call with our expert will save you time. Would you prefer to schedule a brief chat instead?", then: 'return' }
+  ],
+  // Step 6
+  activeKnowledgeTab: 'can-answer',
+  faqs: [
+    { q: 'How much does it cost?', a: 'Pricing depends on your specific needs. Our specialist can walk you through the options.' }
+  ],
+  restricted: ['Specific competitor pricing', 'Legal advice'],
+  restrictedResponse: "That's a great question — let me connect you with someone who can give you the most accurate answer.",
+  // Step 7
+  qualifiedOutcome: 'hot-transfer',
+  briefFields: { name: true, company: true, keyNeed: true, qualScore: true, timeline: false },
+  unavailableAction: 'schedule-callback',
+  calendarLink: '',
+  notQualifiedOutcome: 'soft-letdown',
+  closingMessage: "Thank you for your time! If anything changes, don't hesitate to reach out.",
+  offerAlt: false, altText: '',
+  // Step 8
+  neverSay: ['We guarantee results', 'Our competitors are worse'],
+  alwaysSay: ['This call may be recorded'],
+  silenceTimeout: 8, maxDuration: 15,
+  silenceResponse: "I'm still here — would you like me to repeat that?"
+};
+
+// ======================== RENDER ========================
+function renderStepper() {
+  const el = document.getElementById('stepper');
+  el.innerHTML = STEPS.map((s, i) => {
+    const isActive = i === currentStep;
+    const isCompleted = completedSteps.has(i);
+    let cls = 'step-circle-wrap';
+    if (isActive) cls += ' active';
+    if (isCompleted && !isActive) cls += ' completed';
+    const line = i < STEPS.length - 1
+      ? `<div class="step-line${completedSteps.has(i) ? ' completed' : ''}"></div>`
+      : '';
+    return `
+      <div class="step-item">
+        <div class="${cls}" onclick="goToStep(${i})">
+          <div class="step-circle">${isCompleted && !isActive ? '&#10003;' : (i + 1)}</div>
+          <div class="step-label">${s.label}</div>
+        </div>
+        ${line}
+      </div>`;
+  }).join('');
+}
+
+function renderStep() {
+  const main = document.getElementById('mainContent');
+  const step = STEPS[currentStep];
+
+  // Remove previous
+  const prev = main.querySelector('.step-panel');
+  if (prev) {
+    prev.classList.remove('visible');
+    setTimeout(() => { prev.remove(); }, 300);
+  }
+
+  const panel = document.createElement('div');
+  panel.className = 'step-panel active';
+  panel.innerHTML = `
+    <div class="step-card">
+      <h2 class="step-title">${step.title}</h2>
+      <p class="step-subtitle">${step.subtitle}</p>
+      <div id="stepContent"></div>
+    </div>`;
+  main.appendChild(panel);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { panel.classList.add('visible'); });
+  });
+
+  const content = panel.querySelector('#stepContent');
+  const renderers = [renderStep1, renderStep2, renderStep3, renderStep4, renderStep5, renderStep6, renderStep7, renderStep8];
+  renderers[currentStep](content);
+
+  // Update buttons
+  document.getElementById('btnBack').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+  const btnNext = document.getElementById('btnNext');
+  if (currentStep === STEPS.length - 1) {
+    btnNext.className = 'btn btn-emerald';
+    btnNext.innerHTML = '&#10003; Create Agent';
+  } else {
+    btnNext.className = 'btn btn-primary';
+    btnNext.innerHTML = 'Continue &#8594;';
+  }
+}
+
+// ======================== STEP RENDERERS ========================
+
+function renderStep1(el) {
+  el.innerHTML = `
+    <div class="info-banner" style="margin-bottom:24px; cursor:pointer;" onclick="openModal('pasteModal')">
+      <span class="info-banner-icon">&#128196;</span>
+      <span style="flex:1;">Have an existing script? Paste it and we'll set everything up for you.</span>
+      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openModal('pasteModal')">Paste Script</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Agent Name</label>
+      <input class="form-input" placeholder="e.g., Sarah, Alex, Megan" value="${esc(state.agentName)}" onchange="state.agentName=this.value">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Agent Role</label>
+      <input class="form-input" placeholder="e.g., Qualification Specialist, AI Assistant" value="${esc(state.agentRole)}" onchange="state.agentRole=this.value">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Company Name</label>
+      <input class="form-input" placeholder="Your company name" value="${esc(state.companyName)}" onchange="state.companyName=this.value">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Company Description</label>
+      <textarea class="form-textarea" rows="3" placeholder="Briefly describe what your company does and what you offer..." onchange="state.companyDesc=this.value">${esc(state.companyDesc)}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Tone</label>
+      <div class="card-grid card-grid-2">
+        ${toneCard('friendly', '&#9788;', 'Friendly & Casual', 'Warm, chatty, and approachable. Great for D2C.')}
+        ${toneCard('professional', '&#9889;', 'Professional & Warm', 'Polished yet personable. The safe default.')}
+        ${toneCard('direct', '&#9678;', 'Direct & Confident', 'Sharp, concise, no-nonsense. Great for SaaS.')}
+        ${toneCard('sophisticated', '&#9733;', 'Sophisticated & Assertive', 'Authoritative with dry wit. Great for professional services.')}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-row">
+        <div class="toggle${state.aiDisclose ? ' active' : ''}" onclick="state.aiDisclose=!state.aiDisclose; renderStep()"></div>
+        <span class="toggle-label">Disclose that this is an AI agent</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Languages</label>
+      <div class="pills-wrap">
+        ${['English','Spanish','French','Hebrew','German','Portuguese'].map(l =>
+          `<span class="pill${state.languages.includes(l) ? ' selected' : ''}" onclick="toggleLang('${l}')">${l}</span>`
+        ).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function toneCard(val, icon, label, desc) {
+  return `<div class="selectable-card${state.tone === val ? ' selected' : ''}" onclick="state.tone='${val}'; renderStep()">
+    <span class="card-icon">${icon}</span>
+    <div class="card-label">${label}</div>
+    <div class="card-desc">${desc}</div>
+  </div>`;
+}
+
+function toggleLang(lang) {
+  const idx = state.languages.indexOf(lang);
+  if (idx >= 0) { if (state.languages.length > 1) state.languages.splice(idx, 1); }
+  else state.languages.push(lang);
+  renderStep();
+}
+
+function renderStep2(el) {
+  const callTypes = [
+    { val: 'inbound', icon: '&#9742;', label: 'Inbound', desc: 'Prospect called you' },
+    { val: 'outbound-cold', icon: '&#128227;', label: 'Outbound Cold', desc: 'First contact' },
+    { val: 'outbound-warm', icon: '&#9990;', label: 'Outbound Warm', desc: 'Follow-up on inquiry' },
+    { val: 'confirmation', icon: '&#9745;', label: 'Confirmation', desc: 'Confirm appointment' }
+  ];
+
+  el.innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Call Type</label>
+      <div class="card-grid card-grid-4">
+        ${callTypes.map(ct => `
+          <div class="selectable-card${state.callType === ct.val ? ' selected' : ''}" onclick="state.callType='${ct.val}'; renderStep()">
+            <span class="card-icon">${ct.icon}</span>
+            <div class="card-label">${ct.label}</div>
+            <div class="card-desc">${ct.desc}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Call Purpose</label>
+      <textarea class="form-textarea" rows="3" placeholder="Why is this call happening? e.g., 'Qualify inbound leads who submitted a demo request form and route qualified prospects to an account executive.'" onchange="state.callPurpose=this.value">${esc(state.callPurpose)}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Opening Line</label>
+      <div class="chip-toolbar">
+        <span class="chip" onclick="insertChip('openingLineArea', '{prospect_name}')">{prospect_name}</span>
+        <span class="chip" onclick="insertChip('openingLineArea', '{company}')">{company}</span>
+        <span class="chip" onclick="insertChip('openingLineArea', '{product}')">{product}</span>
+        <span class="chip" onclick="insertChip('openingLineArea', '{custom}')">{custom...}</span>
+      </div>
+      <textarea class="form-textarea textarea-with-toolbar" rows="3" id="openingLineArea" placeholder="Hi {prospect_name}, this is [Agent Name] from [Company]..." onchange="state.openingLine=this.value">${esc(state.openingLine)}</textarea>
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-row">
+        <div class="toggle${state.recordedLine ? ' active' : ''}" onclick="state.recordedLine=!state.recordedLine; renderStep()"></div>
+        <span class="toggle-label">Recorded line disclosure</span>
+      </div>
+      <div class="conditional-field${state.recordedLine ? ' visible' : ''}">
+        <input class="form-input" value="${esc(state.recordedLineText)}" onchange="state.recordedLineText=this.value">
+      </div>
+    </div>
+  `;
+}
+
+function insertChip(textareaId, text) {
+  const ta = document.getElementById(textareaId);
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const before = ta.value.substring(0, start);
+  const after = ta.value.substring(end);
+  ta.value = before + text + after;
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = start + text.length;
+  state.openingLine = ta.value;
+}
+
+function renderStep3(el) {
+  el.innerHTML = `
+    <div class="info-banner info-banner-neutral">
+      <span class="info-banner-icon">&#9432;</span>
+      These are the data fields your CRM will send before each call. They can be used as variables in your script.
+    </div>
+    <table class="param-table">
+      <thead>
+        <tr><th>Variable</th><th>Type</th><th>Description</th><th></th></tr>
+      </thead>
+      <tbody id="paramRows">
+        ${state.params.map((p, i) => paramRow(p, i)).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:16px;">
+      <button class="add-card" onclick="addParam()" style="padding:14px;">+ Add parameter</button>
+    </div>
+  `;
+}
+
+function paramRow(p, i) {
+  const types = ['Text','Number','Date','Boolean','Email','Phone'];
+  return `<tr>
+    <td><input class="form-input mono" value="${esc(p.name)}" onchange="state.params[${i}].name=this.value"></td>
+    <td><select class="form-select" onchange="state.params[${i}].type=this.value">
+      ${types.map(t => `<option${p.type === t ? ' selected' : ''}>${t}</option>`).join('')}
+    </select></td>
+    <td><input class="form-input" value="${esc(p.desc)}" onchange="state.params[${i}].desc=this.value" placeholder="Description"></td>
+    <td><button class="delete-btn" onclick="state.params.splice(${i},1); renderStep()">&times;</button></td>
+  </tr>`;
+}
+
+function addParam() {
+  state.params.push({ name: '', type: 'Text', desc: '' });
+  renderStep();
+}
+
+function renderStep4(el) {
+  el.innerHTML = `
+    <div id="questionList">
+      ${state.questions.map((q, i) => questionCard(q, i)).join('')}
+    </div>
+    <button class="add-card" onclick="addQuestion()" style="margin-top:8px; padding:20px;">+ Add question</button>
+  `;
+}
+
+function questionCard(q, i) {
+  const stages = { qualification: 'stage-qualification', discovery: 'stage-discovery', closing: 'stage-closing', custom: 'stage-custom' };
+  const stageClass = stages[q.stage] || 'stage-qualification';
+  const stageLabel = q.stage.charAt(0).toUpperCase() + q.stage.slice(1);
+  const types = [
+    { val: 'yes-no', label: 'Yes / No' },
+    { val: 'free-text', label: 'Free Text' },
+    { val: 'multiple-choice', label: 'Multiple Choice' },
+    { val: 'numeric', label: 'Numeric' },
+    { val: 'date', label: 'Date' }
+  ];
+
+  let mcSection = '';
+  if (q.type === 'multiple-choice') {
+    const opts = q.options.length ? q.options : ['Option 1', 'Option 2'];
+    if (!q.options.length) q.options = opts.slice();
+    mcSection = `
+      <div class="mc-options" style="margin-top:8px;">
+        ${q.options.map((o, oi) => `
+          <div class="mc-option">
+            <input value="${esc(o)}" onchange="state.questions[${i}].options[${oi}]=this.value">
+            <span class="mc-pill-delete" onclick="state.questions[${i}].options.splice(${oi},1); renderStep()">&times;</span>
+          </div>`).join('')}
+        <button class="btn btn-ghost btn-sm" onclick="state.questions[${i}].options.push('Option'); renderStep()">+ Add</button>
+      </div>`;
+  }
+
+  const condVis = q.condition ? ' visible' : '';
+
+  return `
+    <div class="question-card">
+      <div class="question-header">
+        <span class="drag-handle">&#8801;</span>
+        <span class="question-number">${i + 1}</span>
+        <div style="position:relative;">
+          <span class="stage-pill ${stageClass}" onclick="toggleStageDropdown(${i})">${stageLabel} &#9662;</span>
+          <div class="stage-dropdown" id="stageDd${i}">
+            <div class="stage-dropdown-item" onclick="setStage(${i},'qualification')">Qualification</div>
+            <div class="stage-dropdown-item" onclick="setStage(${i},'discovery')">Discovery</div>
+            <div class="stage-dropdown-item" onclick="setStage(${i},'closing')">Closing</div>
+            <div class="stage-dropdown-item" onclick="setStage(${i},'custom')">Custom</div>
+          </div>
+        </div>
+        <div style="flex:1;"></div>
+        <button class="delete-btn" onclick="state.questions.splice(${i},1); renderStep()">&times;</button>
+      </div>
+      <div class="question-body">
+        <textarea class="form-textarea" rows="2" placeholder="Type your question..." onchange="state.questions[${i}].question=this.value">${esc(q.question)}</textarea>
+        ${mcSection}
+        <div class="question-controls">
+          <select class="form-select" onchange="state.questions[${i}].type=this.value; renderStep()">
+            ${types.map(t => `<option value="${t.val}"${q.type === t.val ? ' selected' : ''}>${t.label}</option>`).join('')}
+          </select>
+          <div class="toggle-row" style="gap:8px;">
+            <div class="toggle${q.required ? ' active' : ''}" style="transform:scale(0.8);" onclick="state.questions[${i}].required=!state.questions[${i}].required; renderStep()"></div>
+            <span style="font-size:13px; color:var(--secondary);">Required</span>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="toggleCondition(${i})" style="font-size:12px;">
+            ${q.condition ? '&#9660;' : '&#9654;'} Condition
+          </button>
+        </div>
+        <div class="condition-row${condVis}" id="cond${i}">
+          <span style="color:var(--secondary);">If answer is</span>
+          <input class="form-input" value="${esc(q.condition?.value || '')}" onchange="ensureCondition(${i}); state.questions[${i}].condition.value=this.value" placeholder="value">
+          <span style="color:var(--secondary);">then</span>
+          <select class="form-select" onchange="ensureCondition(${i}); state.questions[${i}].condition.action=this.value">
+            <option value="continue"${q.condition?.action === 'continue' ? ' selected' : ''}>Continue</option>
+            <option value="skip"${q.condition?.action === 'skip' ? ' selected' : ''}>Skip to step</option>
+            <option value="disqualify"${q.condition?.action === 'disqualify' ? ' selected' : ''}>Disqualify</option>
+          </select>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleStageDropdown(i) {
+  const dd = document.getElementById('stageDd' + i);
+  dd.classList.toggle('visible');
+}
+
+function setStage(i, stage) {
+  state.questions[i].stage = stage;
+  renderStep();
+}
+
+function toggleCondition(i) {
+  if (state.questions[i].condition) {
+    state.questions[i].condition = null;
+  } else {
+    state.questions[i].condition = { value: '', action: 'continue' };
+  }
+  renderStep();
+}
+
+function ensureCondition(i) {
+  if (!state.questions[i].condition) {
+    state.questions[i].condition = { value: '', action: 'continue' };
+  }
+}
+
+function addQuestion() {
+  state.questions.push({ stage: 'qualification', question: '', type: 'free-text', required: false, options: [], condition: null });
+  renderStep();
+}
+
+function renderStep5(el) {
+  el.innerHTML = `
+    <div id="objectionList">
+      ${state.objections.map((o, i) => objectionCard(o, i)).join('')}
+    </div>
+    <div style="display:flex; gap:12px; margin-top:8px; flex-wrap:wrap;">
+      <button class="add-card" onclick="addObjection()" style="flex:1; min-width:200px; padding:18px;">+ Add objection</button>
+      <button class="btn btn-shimmer" onclick="showToast('Auto-generating objections from company info...');" style="padding:12px 20px;">
+        &#10024; Auto-generate from company info
+      </button>
+    </div>
+  `;
+}
+
+function objectionCard(o, i) {
+  return `
+    <div class="objection-card">
+      <div class="objection-pair">
+        <div>
+          <div class="pair-label">When prospect says...</div>
+          <textarea class="form-textarea" rows="2" onchange="state.objections[${i}].trigger=this.value">${esc(o.trigger)}</textarea>
+        </div>
+        <div>
+          <div class="pair-label">Agent responds...</div>
+          <textarea class="form-textarea" rows="2" onchange="state.objections[${i}].response=this.value">${esc(o.response)}</textarea>
+        </div>
+      </div>
+      <div class="objection-footer">
+        <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+          <span style="color:var(--secondary);">Then:</span>
+          <select class="form-select" style="min-width:140px; padding:6px 10px; font-size:13px;" onchange="state.objections[${i}].then=this.value">
+            <option value="return"${o.then === 'return' ? ' selected' : ''}>Return to flow</option>
+            <option value="transfer"${o.then === 'transfer' ? ' selected' : ''}>Transfer</option>
+            <option value="callback"${o.then === 'callback' ? ' selected' : ''}>Schedule callback</option>
+          </select>
+        </div>
+        <button class="delete-btn" onclick="state.objections.splice(${i},1); renderStep()">&times;</button>
+      </div>
+    </div>`;
+}
+
+function addObjection() {
+  state.objections.push({ trigger: '', response: '', then: 'return' });
+  renderStep();
+}
+
+function renderStep6(el) {
+  const isCanAnswer = state.activeKnowledgeTab === 'can-answer';
+  el.innerHTML = `
+    <div class="tabs">
+      <button class="tab${isCanAnswer ? ' active' : ''}" onclick="state.activeKnowledgeTab='can-answer'; renderStep()">Can Answer</button>
+      <button class="tab${!isCanAnswer ? ' active' : ''}" onclick="state.activeKnowledgeTab='must-not'; renderStep()">Must Not Answer</button>
+    </div>
+    <div id="knowledgeContent"></div>
+  `;
+
+  const kc = el.querySelector('#knowledgeContent');
+
+  if (isCanAnswer) {
+    kc.innerHTML = `
+      ${state.faqs.map((f, i) => `
+        <div class="faq-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+            <label class="form-label" style="margin:0;">Question</label>
+            <button class="delete-btn" onclick="state.faqs.splice(${i},1); renderStep()">&times;</button>
+          </div>
+          <input class="form-input" value="${esc(f.q)}" onchange="state.faqs[${i}].q=this.value" placeholder="What will prospects ask?" style="margin-bottom:10px;">
+          <label class="form-label">Answer</label>
+          <textarea class="form-textarea" rows="3" onchange="state.faqs[${i}].a=this.value" placeholder="How should the agent respond?">${esc(f.a)}</textarea>
+        </div>`).join('')}
+      <button class="add-card" onclick="addFaq()" style="padding:16px;">+ Add FAQ</button>
+    `;
+  } else {
+    kc.innerHTML = `
+      ${state.restricted.map((r, i) => `
+        <div class="rule-card red">
+          <div class="rule-row">
+            <span class="rule-dot red"></span>
+            <input class="form-input" value="${esc(r)}" onchange="state.restricted[${i}]=this.value" style="flex:1;">
+            <button class="delete-btn" onclick="state.restricted.splice(${i},1); renderStep()">&times;</button>
+          </div>
+        </div>`).join('')}
+      <button class="add-card" onclick="addRestricted()" style="padding:14px; margin-bottom:20px;">+ Add restricted topic</button>
+      <div class="form-group" style="margin-top:16px;">
+        <label class="form-label">When asked about restricted topics, respond with:</label>
+        <textarea class="form-textarea" rows="2" onchange="state.restrictedResponse=this.value">${esc(state.restrictedResponse)}</textarea>
+      </div>
+    `;
+  }
+}
+
+function addFaq() {
+  state.faqs.push({ q: '', a: '' });
+  renderStep();
+}
+
+function addRestricted() {
+  state.restricted.push('');
+  renderStep();
+}
+
+function renderStep7(el) {
+  el.innerHTML = `
+    <div class="two-col">
+      <div class="outcome-col qualified">
+        <span class="outcome-badge green">&#10003; Qualified</span>
+        <div class="form-group">
+          <label class="form-label">Outcome Type</label>
+          <select class="form-select" onchange="state.qualifiedOutcome=this.value; renderStep()">
+            <option value="hot-transfer"${state.qualifiedOutcome === 'hot-transfer' ? ' selected' : ''}>Hot Transfer</option>
+            <option value="schedule-meeting"${state.qualifiedOutcome === 'schedule-meeting' ? ' selected' : ''}>Schedule Meeting</option>
+            <option value="send-followup"${state.qualifiedOutcome === 'send-followup' ? ' selected' : ''}>Send Follow-up</option>
+          </select>
+        </div>
+        ${renderQualifiedDetails()}
+      </div>
+      <div class="outcome-col not-qualified">
+        <span class="outcome-badge amber">&#8212; Not Qualified</span>
+        <div class="form-group">
+          <label class="form-label">Outcome Type</label>
+          <select class="form-select" onchange="state.notQualifiedOutcome=this.value; renderStep()">
+            <option value="soft-letdown"${state.notQualifiedOutcome === 'soft-letdown' ? ' selected' : ''}>Soft Letdown</option>
+            <option value="raise-ticket"${state.notQualifiedOutcome === 'raise-ticket' ? ' selected' : ''}>Raise Ticket</option>
+            <option value="close-file"${state.notQualifiedOutcome === 'close-file' ? ' selected' : ''}>Close File</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Closing Message</label>
+          <textarea class="form-textarea" rows="3" onchange="state.closingMessage=this.value">${esc(state.closingMessage)}</textarea>
+        </div>
+        <div class="form-group">
+          <div class="toggle-row">
+            <div class="toggle${state.offerAlt ? ' active' : ''}" onclick="state.offerAlt=!state.offerAlt; renderStep()"></div>
+            <span class="toggle-label">Offer alternative</span>
+          </div>
+          <div class="conditional-field${state.offerAlt ? ' visible' : ''}">
+            <input class="form-input" value="${esc(state.altText)}" onchange="state.altText=this.value" placeholder="e.g., link, email, resource URL">
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderQualifiedDetails() {
+  if (state.qualifiedOutcome === 'hot-transfer') {
+    const fields = [
+      { key: 'name', label: 'Name' },
+      { key: 'company', label: 'Company' },
+      { key: 'keyNeed', label: 'Key Need' },
+      { key: 'qualScore', label: 'Qualification Score' },
+      { key: 'timeline', label: 'Timeline' }
+    ];
+    const activeFields = Object.entries(state.briefFields).filter(([_, v]) => v);
+    return `
+      <div class="form-group">
+        <label class="form-label">Transfer Brief Template</label>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          ${fields.map(f => `
+            <div class="brief-toggle">
+              <div class="toggle${state.briefFields[f.key] ? ' active' : ''}" onclick="state.briefFields['${f.key}']=!state.briefFields['${f.key}']; renderStep()"></div>
+              <span style="font-size:13px;">${f.label}</span>
+            </div>`).join('')}
+        </div>
+        ${activeFields.length ? `
+          <div class="brief-preview">
+            <div style="font-size:12px; font-weight:600; color:var(--secondary); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Brief Preview</div>
+            ${activeFields.map(([k]) => {
+              const labels = { name: 'Name', company: 'Company', keyNeed: 'Key Need', qualScore: 'Score', timeline: 'Timeline' };
+              const vals = { name: '{prospect_name}', company: '{company}', keyNeed: 'To be captured', qualScore: '8/10', timeline: 'Q3 2026' };
+              return `<div class="brief-preview-row"><span style="font-weight:600; color:var(--heading); font-size:13px;">${labels[k]}</span><span style="color:var(--secondary); font-size:13px;">${vals[k]}</span></div>`;
+            }).join('')}
+          </div>` : ''}
+      </div>
+      <div class="form-group">
+        <label class="form-label">If agent unavailable:</label>
+        <select class="form-select" onchange="state.unavailableAction=this.value">
+          <option value="schedule-callback"${state.unavailableAction === 'schedule-callback' ? ' selected' : ''}>Schedule callback</option>
+          <option value="voicemail"${state.unavailableAction === 'voicemail' ? ' selected' : ''}>Leave voicemail</option>
+          <option value="retry"${state.unavailableAction === 'retry' ? ' selected' : ''}>Try again later</option>
+        </select>
+      </div>`;
+  } else if (state.qualifiedOutcome === 'schedule-meeting') {
+    return `
+      <div class="form-group">
+        <label class="form-label">Calendar Link</label>
+        <input class="form-input" value="${esc(state.calendarLink)}" onchange="state.calendarLink=this.value" placeholder="https://calendly.com/...">
+      </div>
+      <div class="form-group">
+        <div class="toggle-row">
+          <div class="toggle active"></div>
+          <span class="toggle-label">Confirm receipt</span>
+        </div>
+      </div>`;
+  } else {
+    return `
+      <div class="form-group">
+        <label class="form-label" style="color:var(--secondary);">Follow-up details will be configured in your CRM integration settings.</label>
+      </div>`;
+  }
+}
+
+function renderStep8(el) {
+  el.innerHTML = `
+    <div class="form-group">
+      <label class="form-label" style="font-size:16px; margin-bottom:12px;">&#9888; Never Say</label>
+      ${state.neverSay.map((r, i) => `
+        <div class="rule-card red" style="margin-bottom:8px;">
+          <div class="rule-row">
+            <span class="rule-dot red"></span>
+            <input class="form-input" value="${esc(r)}" onchange="state.neverSay[${i}]=this.value" style="flex:1;">
+            <button class="delete-btn" onclick="state.neverSay.splice(${i},1); renderStep()">&times;</button>
+          </div>
+        </div>`).join('')}
+      <button class="add-card" onclick="state.neverSay.push(''); renderStep()" style="padding:12px; margin-bottom:24px;">+ Add rule</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" style="font-size:16px; margin-bottom:12px;">&#10003; Always Say</label>
+      ${state.alwaysSay.map((r, i) => `
+        <div class="rule-card green" style="margin-bottom:8px;">
+          <div class="rule-row">
+            <span class="rule-dot green"></span>
+            <input class="form-input" value="${esc(r)}" onchange="state.alwaysSay[${i}]=this.value" style="flex:1;">
+            <button class="delete-btn" onclick="state.alwaysSay.splice(${i},1); renderStep()">&times;</button>
+          </div>
+        </div>`).join('')}
+      <button class="add-card" onclick="state.alwaysSay.push(''); renderStep()" style="padding:12px; margin-bottom:24px;">+ Add rule</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" style="font-size:16px; margin-bottom:16px;">Settings</label>
+      <div class="settings-grid">
+        <div class="setting-item">
+          <label class="form-label">Silence Timeout (sec)</label>
+          <input class="form-input" type="number" value="${state.silenceTimeout}" onchange="state.silenceTimeout=parseInt(this.value)" min="1" max="30">
+          <span class="setting-note">Re-engage after this many seconds of silence</span>
+        </div>
+        <div class="setting-item">
+          <label class="form-label">Max Duration (min)</label>
+          <input class="form-input" type="number" value="${state.maxDuration}" onchange="state.maxDuration=parseInt(this.value)" min="1" max="60">
+        </div>
+        <div class="setting-item">
+          <label class="form-label">Silence Response</label>
+          <input class="form-input" value="${esc(state.silenceResponse)}" onchange="state.silenceResponse=this.value">
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ======================== NAVIGATION ========================
+
+function goNext() {
+  if (currentStep === STEPS.length - 1) {
+    showToast('Agent created successfully! Redirecting to dashboard...');
+    return;
+  }
+  completedSteps.add(currentStep);
+  currentStep++;
+  renderStepper();
+  renderStep();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goBack() {
+  if (currentStep > 0) {
+    currentStep--;
+    renderStepper();
+    renderStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function goToStep(i) {
+  if (i <= Math.max(...completedSteps, currentStep, 0)) {
+    currentStep = i;
+    renderStepper();
+    renderStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// ======================== MODALS ========================
+
+function openModal(id) {
+  document.getElementById(id).classList.add('visible');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('visible');
+}
+
+function openPreview() {
+  const agentName = state.agentName || 'Sarah';
+  const company = state.companyName || 'Harmony';
+  const chat = document.getElementById('chatPreview');
+  chat.innerHTML = `
+    <div class="chat-msg agent">
+      <span class="chat-speaker">${esc(agentName)} (Agent)</span>
+      <div class="chat-bubble">Hi there! This is ${esc(agentName)} from ${esc(company)}. I noticed you recently checked out our platform ${'—'} I'd love to take a couple minutes to understand what you're looking for. Is now a good time?</div>
+      <span class="chat-timestamp">0:00</span>
+    </div>
+    <div class="chat-msg prospect">
+      <span class="chat-speaker">Prospect</span>
+      <div class="chat-bubble">Yeah, sure. We've been evaluating a few solutions actually. What makes you different?</div>
+      <span class="chat-timestamp">0:12</span>
+    </div>
+    <div class="chat-msg agent">
+      <span class="chat-speaker">${esc(agentName)} (Agent)</span>
+      <div class="chat-bubble">Great question! Before I dive into that, I'd love to learn more about you. Are you currently using any solution for this?</div>
+      <span class="chat-timestamp">0:18</span>
+    </div>
+    <div class="chat-msg prospect">
+      <span class="chat-speaker">Prospect</span>
+      <div class="chat-bubble">We have something basic in place, but honestly it's not great. Can you just email me the info?</div>
+      <span class="chat-timestamp">0:28</span>
+    </div>
+    <div class="chat-msg agent">
+      <span class="chat-speaker">${esc(agentName)} (Agent)</span>
+      <div class="chat-bubble">Of course! But a quick call with our expert will save you time ${'—'} they can walk you through exactly how we'd help with your current setup. Would you prefer to schedule a brief chat instead?</div>
+      <span class="chat-timestamp">0:35</span>
+    </div>
+    <div class="chat-msg prospect">
+      <span class="chat-speaker">Prospect</span>
+      <div class="chat-bubble">Yeah, actually that works. How about Thursday morning?</div>
+      <span class="chat-timestamp">0:48</span>
+    </div>
+    <div class="chat-msg agent">
+      <span class="chat-speaker">${esc(agentName)} (Agent)</span>
+      <div class="chat-bubble">Thursday morning works perfectly. I'll have our specialist reach out to confirm the time. Thanks so much for your time today ${'—'} talk soon!</div>
+      <span class="chat-timestamp">0:55</span>
+    </div>
+  `;
+  openModal('previewModal');
+}
+
+function analyzeScript() {
+  const btn = document.getElementById('analyzeBtn');
+  btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+  btn.disabled = true;
+  setTimeout(() => {
+    closeModal('pasteModal');
+    btn.innerHTML = '&#9733; Analyze Script';
+    btn.disabled = false;
+    showToast('Script analyzed! We\'ve pre-filled 6 of 8 steps. Review each step to fine-tune.');
+  }, 2000);
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('successToast');
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => { toast.classList.remove('visible'); }, 4000);
+}
+
+// ======================== UTILS ========================
+
+function esc(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('visible');
+  });
+});
+
+// Close dropdowns on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('stage-pill')) {
+    document.querySelectorAll('.stage-dropdown.visible').forEach(dd => dd.classList.remove('visible'));
+  }
+});
+
+// ======================== INIT ========================
+renderStepper();
+renderStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,1684 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BDR Agent Builder — Playbook Analysis & Wizard Design | Harmony | May 12, 2026</title>
+<style>
+  :root {
+    --bg: #f8f9fc;
+    --bg-sidebar: #1a1a2e;
+    --bg-sidebar-hover: #252547;
+    --bg-sidebar-active: #4361ee;
+    --paper: #ffffff;
+    --ink: #1a1a2e;
+    --ink-secondary: #4a5068;
+    --ink-muted: #7a8099;
+    --accent: #4361ee;
+    --accent-light: #e8ecff;
+    --accent-dark: #2d44b8;
+    --border: #e2e5ef;
+    --border-light: #eef0f6;
+    --code-bg: #f1f3f9;
+    --callout-bg: #fef9ec;
+    --callout-border: #f0c946;
+    --callout-icon: #d4a012;
+    --success: #16a34a;
+    --success-bg: #ecfdf5;
+    --success-border: #86efac;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --danger-border: #fca5a5;
+    --tag-bg: #e8ecff;
+    --tag-color: #3b52c9;
+    --shadow-sm: 0 1px 3px rgba(26,26,46,.06);
+    --shadow-md: 0 4px 12px rgba(26,26,46,.08);
+    --shadow-lg: 0 8px 24px rgba(26,26,46,.12);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
+    --sidebar-width: 280px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* --- SIDEBAR --- */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--bg-sidebar);
+    color: #c8cce0;
+    overflow-y: auto;
+    z-index: 100;
+    padding: 28px 0 40px 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.15) transparent;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 5px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+
+  .sidebar-brand {
+    padding: 0 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-brand h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .sidebar-brand .date {
+    font-size: 12px;
+    color: #8b8faa;
+    font-weight: 500;
+  }
+
+  .toc-section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: #6b70a0;
+    font-weight: 700;
+    padding: 12px 24px 6px;
+    margin-top: 8px;
+  }
+
+  .toc-link {
+    display: block;
+    padding: 6px 24px 6px 28px;
+    font-size: 13px;
+    color: #a0a4c0;
+    text-decoration: none;
+    line-height: 1.4;
+    transition: all .15s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .toc-link:hover {
+    color: #fff;
+    background: var(--bg-sidebar-hover);
+  }
+
+  .toc-link.active {
+    color: #fff;
+    background: rgba(67,97,238,.15);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .toc-link.sub {
+    padding-left: 40px;
+    font-size: 12px;
+  }
+
+  /* --- MAIN CONTENT --- */
+  .main {
+    margin-left: var(--sidebar-width);
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  /* --- HERO --- */
+  .hero {
+    background: linear-gradient(135deg, var(--bg-sidebar) 0%, #2a2a5e 50%, #3a3a7e 100%);
+    color: #fff;
+    padding: 72px 64px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(67,97,238,.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    color: rgba(255,255,255,.5);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 16px;
+    letter-spacing: -0.02em;
+    max-width: 700px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: #7b93ff;
+  }
+
+  .hero-subtitle {
+    font-size: 17px;
+    color: rgba(255,255,255,.65);
+    max-width: 600px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+    font-size: 13px;
+    color: rgba(255,255,255,.45);
+  }
+
+  .hero-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* --- CONTENT AREA --- */
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 48px 80px;
+  }
+
+  /* --- PART HEADERS --- */
+  .part-header {
+    margin: 64px 0 36px;
+    padding: 24px 32px;
+    background: linear-gradient(135deg, var(--bg-sidebar) 0%, #2e2e5a 100%);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .part-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(67,97,238,.15));
+    pointer-events: none;
+  }
+
+  .part-header h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .part-header p {
+    font-size: 14px;
+    color: rgba(255,255,255,.55);
+    margin: 0;
+  }
+
+  /* --- SECTION HEADINGS --- */
+  h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 48px 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+    letter-spacing: -0.01em;
+  }
+
+  h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 28px 0 10px;
+  }
+
+  h5 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink-secondary);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin: 24px 0 8px;
+  }
+
+  /* --- PARAGRAPHS & TEXT --- */
+  p {
+    margin: 0 0 14px;
+    color: var(--ink-secondary);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  strong { color: var(--ink); font-weight: 600; }
+
+  /* --- CARDS --- */
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin: 16px 0;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card h4 {
+    margin-top: 0;
+    color: var(--ink);
+  }
+
+  .card p:last-child { margin-bottom: 0; }
+
+  /* --- CALLOUT (Design Recommendation) --- */
+  .callout {
+    background: var(--callout-bg);
+    border: 1px solid var(--callout-border);
+    border-left: 4px solid var(--callout-border);
+    border-radius: var(--radius);
+    padding: 16px 20px 16px 48px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .callout::before {
+    content: "\2261";
+    position: absolute;
+    left: 16px;
+    top: 15px;
+    font-size: 20px;
+    color: var(--callout-icon);
+    font-weight: 700;
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 14px;
+    color: #7a6520;
+    line-height: 1.55;
+  }
+
+  .callout strong {
+    color: #5a4a10;
+  }
+
+  /* --- TABLES --- */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--paper);
+  }
+
+  thead th {
+    background: var(--bg-sidebar);
+    color: #fff;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+  }
+
+  thead th:first-child { border-radius: var(--radius) 0 0 0; }
+  thead th:last-child { border-radius: 0 var(--radius) 0 0; }
+
+  tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--ink-secondary);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #f4f6fa; }
+
+  /* --- CODE BLOCKS --- */
+  pre {
+    background: var(--bg-sidebar);
+    color: #d1d5e8;
+    padding: 20px 24px;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 16px 0;
+    box-shadow: var(--shadow-md);
+  }
+
+  pre .comment { color: #6b7394; }
+  pre .keyword { color: #7b93ff; }
+  pre .string { color: #86efac; }
+  pre .variable { color: #fbbf24; }
+  pre .section-header { color: #c084fc; font-weight: 700; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-dark);
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+  }
+
+  /* --- LISTS --- */
+  ul, ol {
+    padding-left: 20px;
+    margin: 8px 0 16px;
+  }
+
+  li {
+    font-size: 15px;
+    color: var(--ink-secondary);
+    line-height: 1.65;
+    margin-bottom: 6px;
+  }
+
+  li strong { color: var(--ink); }
+
+  /* --- TAGS --- */
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-color);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .tag.green { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+  .tag.red { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+  /* --- COLLAPSIBLE --- */
+  details {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 10px 0;
+    box-shadow: var(--shadow-sm);
+  }
+
+  details[open] { box-shadow: var(--shadow-md); }
+
+  summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  summary::-webkit-details-marker { display: none; }
+
+  summary::before {
+    content: "\25B6";
+    font-size: 10px;
+    color: var(--accent);
+    transition: transform .2s ease;
+    flex-shrink: 0;
+  }
+
+  details[open] summary::before {
+    transform: rotate(90deg);
+  }
+
+  .details-content {
+    padding: 0 20px 16px;
+    font-size: 14px;
+    color: var(--ink-secondary);
+    line-height: 1.65;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .details-content ul { padding-left: 18px; }
+  .details-content li { font-size: 14px; margin-bottom: 4px; }
+
+  /* --- FLOW STAGES --- */
+  .flow-stages {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 20px 0;
+  }
+
+  .flow-stage {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+    padding: 12px 0;
+  }
+
+  .flow-stage:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 17px;
+    top: 40px;
+    bottom: -2px;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .flow-num {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .flow-body h4 {
+    margin: 4px 0 4px;
+    font-size: 15px;
+  }
+
+  .flow-body p {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  /* --- WIZARD STEPS --- */
+  .wizard-step {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px 32px;
+    margin: 20px 0;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    border-left: 4px solid var(--accent);
+  }
+
+  .wizard-step-num {
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 14px;
+    border-radius: 20px;
+    letter-spacing: .05em;
+  }
+
+  .wizard-step h4 {
+    margin-top: 6px;
+    font-size: 17px;
+    color: var(--ink);
+  }
+
+  .wizard-step .field-list {
+    background: var(--code-bg);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 12px 0;
+  }
+
+  .wizard-step .field-list li {
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+
+  /* --- TWO-COLUMN --- */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .two-col .col {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .two-col .col.qualified {
+    border-top: 3px solid var(--success);
+  }
+
+  .two-col .col.unqualified {
+    border-top: 3px solid var(--danger);
+  }
+
+  /* --- FOOTER --- */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--ink-muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  /* --- MOBILE TOGGLE --- */
+  .sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 200;
+    background: var(--bg-sidebar);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* --- PRINT --- */
+  @media print {
+    .sidebar, .sidebar-toggle { display: none !important; }
+    .main { margin-left: 0 !important; }
+    .hero { padding: 40px; background: #1a1a2e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .content { padding: 20px; max-width: 100%; }
+    .part-header { break-before: page; }
+    pre { white-space: pre-wrap; font-size: 11px; }
+    .card, details, .wizard-step { break-inside: avoid; }
+    .footer { break-before: avoid; }
+    body { font-size: 12px; }
+    h3 { font-size: 18px; }
+    h4 { font-size: 14px; }
+    p, li { font-size: 12px; }
+  }
+
+  /* --- RESPONSIVE --- */
+  @media (max-width: 1024px) {
+    .sidebar { transform: translateX(-100%); transition: transform .3s ease; }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-toggle { display: block; }
+    .main { margin-left: 0; }
+    .hero { padding: 48px 32px 40px; }
+    .hero h1 { font-size: 32px; }
+    .content { padding: 32px 24px 60px; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 36px 20px 28px; }
+    .hero h1 { font-size: 26px; }
+    .content { padding: 24px 16px 48px; }
+    .wizard-step { padding: 20px; }
+    .card { padding: 18px; }
+    table { font-size: 12px; }
+    thead th, tbody td { padding: 8px 10px; }
+  }
+
+  /* --- SCROLL-SPY INDICATOR --- */
+  .main { scroll-behavior: smooth; }
+
+  /* --- SECTION ANCHOR OFFSET --- */
+  [id] {
+    scroll-margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar Toggle (mobile) -->
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+
+<!-- Sidebar TOC -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <h2>Harmony</h2>
+    <div class="date">BDR Agent Builder Analysis &middot; May 12, 2026</div>
+  </div>
+
+  <div class="toc-section-title">Playbooks Analyzed</div>
+  <a class="toc-link" href="#playbooks">9 Customer Playbooks</a>
+
+  <div class="toc-section-title">Part 1 &mdash; Deep Analysis</div>
+  <a class="toc-link" href="#flow-architecture">1.1 Universal Call Flow Architecture</a>
+  <a class="toc-link" href="#data-taxonomy">1.2 Data Taxonomy</a>
+  <a class="toc-link" href="#branching-patterns">1.3 Branching Patterns</a>
+  <a class="toc-link" href="#tone-personality">1.4 Tone &amp; Personality Patterns</a>
+  <a class="toc-link" href="#objection-handling">1.5 Objection Handling Patterns</a>
+  <a class="toc-link" href="#transfer-handoff">1.6 Transfer &amp; Handoff Patterns</a>
+  <a class="toc-link" href="#formatting-structure">1.7 Formatting &amp; Structure</a>
+
+  <div class="toc-section-title">Part 2 &mdash; Agent Builder Wizard</div>
+  <a class="toc-link" href="#parameter-list">Flat Parameter List</a>
+  <a class="toc-link" href="#wizard-step1">Step 1: Identity</a>
+  <a class="toc-link" href="#wizard-step2">Step 2: Call Context</a>
+  <a class="toc-link" href="#wizard-step3">Step 3: Pre-Call Data</a>
+  <a class="toc-link" href="#wizard-step4">Step 4: Call Flow Builder</a>
+  <a class="toc-link" href="#wizard-step5">Step 5: Objection Handling</a>
+  <a class="toc-link" href="#wizard-step6">Step 6: FAQs &amp; Knowledge</a>
+  <a class="toc-link" href="#wizard-step7">Step 7: Outcomes &amp; Routing</a>
+  <a class="toc-link" href="#wizard-step8">Step 8: Compliance &amp; Guardrails</a>
+  <a class="toc-link" href="#design-summary">Design Recommendations</a>
+
+  <div class="toc-section-title">Part 3 &mdash; LLM Prompt Structure</div>
+  <a class="toc-link" href="#prompt-template">System Prompt Template</a>
+  <a class="toc-link" href="#prompt-decisions">Key Design Decisions</a>
+  <a class="toc-link" href="#prompt-sizing">Prompt Size Considerations</a>
+  <a class="toc-link" href="#wizard-prompt-mapping">Wizard-to-Prompt Mapping</a>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-eyebrow">Harmony &middot; Product &amp; Design</div>
+    <h1>BDR Agent Builder<br><em>Playbook Analysis &amp; Wizard Design</em></h1>
+    <p class="hero-subtitle">
+      A comprehensive analysis of 9 real customer playbooks, distilled into a universal call flow architecture, a step-by-step wizard specification, and an LLM prompt structure for voice AI agents.
+    </p>
+    <div class="hero-meta">
+      <span>May 12, 2026</span>
+      <span>9 playbooks analyzed</span>
+      <span>8-step wizard design</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ============================================== -->
+    <!-- PLAYBOOK SUMMARIES                              -->
+    <!-- ============================================== -->
+    <h3 id="playbooks">The 9 Playbooks Analyzed</h3>
+    <p>Each collapsible section below summarizes a real customer script that was analyzed to produce this document. These span D2C, SaaS, financial services, auto, and professional services verticals.</p>
+
+    <details>
+      <summary><span class="tag">Outbound Cold</span>&ensp;1. LavieLabs (Skincare D2C)</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> Megan</li>
+          <li><strong>Goal:</strong> Offer complimentary anti-aging cream, qualify, transfer to specialist</li>
+          <li><strong>Flow:</strong> Greeting with {Name} &rarr; Skin type question (dry/oily/combination) &rarr; Tailored response per skin type &rarr; Transfer to manager &rarr; While waiting: ask about current brand + desired result</li>
+          <li><strong>Parameters:</strong> {Name}</li>
+          <li><strong>Tone:</strong> Warm, chatty, reassuring</li>
+          <li><strong>Notable:</strong> Very short script, simple linear flow, personalized responses per skin type, hold conversation instructions</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag">Inbound Qualification</span>&ensp;2. Honeycomb (Insurance D2C)</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> [Bot Name]</li>
+          <li><strong>Goal:</strong> Qualify property insurance prospects &rarr; hot transfer to advisor OR schedule callback</li>
+          <li><strong>Flow:</strong> Intro (recorded line disclosure) &rarr; Confirm coverage type &rarr; Confirm property details &rarr; Qualification (current coverage? effective date? broker? decision maker?) &rarr; Premium comparison &rarr; Transfer or schedule</li>
+          <li><strong>Parameters:</strong> Prospect name, desired effective date, non-binding premium estimate, calendar link, type of property, CRM update hook</li>
+          <li><strong>Objection handling:</strong> 5 objections with responses and goals (shopping around, already have coverage, email me, no time, need to check with someone)</li>
+          <li><strong>Transfer brief template:</strong> Name, Property, Premium, Current insurance, Decision maker, Timeline</li>
+          <li><strong>Notable:</strong> Has two script versions (V1 and V2), has "Use Cases" sheet with lead volume/conversion data, has website reference pages, has "knockout" flags, columns for "Consider" vs "Unnecessary" data</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag">Inbound Qualification</span>&ensp;3. Amanda (monday.com SaaS)</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> Amanda</li>
+          <li><strong>Goal:</strong> Qualify sales leads &rarr; route to Enrichment or Soft Letdown</li>
+          <li><strong>System prompt structure:</strong> ROLE section, TONE section, CORE CONVERSATION BEHAVIOR rules</li>
+          <li><strong>Flow:</strong> Opening referencing form_description &rarr; Frame ("clarify details to connect with right consultant") &rarr; Hook ("what was the main trigger?") &rarr; Discovery Phase with Explorer vs Sprinter paths &rarr; Stack identification &rarr; User Count Gate &rarr; Expansion probing &rarr; Routing decision</li>
+          <li><strong>Two hard gates:</strong> (1) THE NEED &mdash; workflow pain point, (2) THE MATH &mdash; user count threshold</li>
+          <li><strong>Special rules:</strong> Competitor mentions trigger specific responses (Asana/Trello/ClickUp get a joke)</li>
+          <li><strong>Non-qualification handling:</strong> Support/billing &rarr; raise ticket</li>
+          <li><strong>Notable:</strong> Most sophisticated script, has sub-agent architecture (qualification &rarr; enrichment &rarr; soft letdown), detailed decision trees, internal-only logic, never stacks questions rule</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag">Outbound</span>&ensp;4. Apple Debt Relief</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> Alex</li>
+          <li><strong>Goal:</strong> Confirm business debt/MCA situation &rarr; transfer to specialist</li>
+          <li><strong>Flow:</strong> Confirm identity &rarr; Context (calling about MCA lawsuit) &rarr; Qualify (MCA/loans? escalation? attorney?) &rarr; Transfer offer</li>
+          <li><strong>Rules:</strong> Speak calmly/slowly, English or Spanish, do not promise outcomes, do not quote percentages, do not give legal advice</li>
+          <li><strong>Conditional branches:</strong> If already has attorney &rarr; challenge their representation quality. If settled on own &rarr; question the deal terms. If filing bankruptcy &rarr; warn about personal guarantees.</li>
+          <li><strong>FAQs:</strong> 5 common questions with answers</li>
+          <li><strong>Has V2:</strong> Simplified version replacing V1</li>
+          <li><strong>Notable:</strong> Compliance-heavy, bilingual requirement, specific challenge scripts for different prospect situations</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag">Outbound Renewal</span>&ensp;5. Warranty First (Vehicle Warranty)</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> {Agent Name}</li>
+          <li><strong>Goal:</strong> Renew vehicle protection plan &rarr; transfer</li>
+          <li><strong>Flow:</strong> Intro with vehicle/dealership/expiry details &rarr; Need Creation (car usage, work travel, taxi dependency, budget impact, repair cost reveal) &rarr; Pitch (claim limit, level of cover) &rarr; Close &rarr; Transfer</li>
+          <li><strong>Parameters:</strong> Agent Name, Company Name, Contact Full Name, Contact Name, Vehicle, Dealership, Expiry Date, Average Repair Cost, Level of Cover</li>
+          <li><strong>Notable:</strong> Most parameter-heavy script, deliberate need-creation psychology (pain points before pitch), hold conversation instructions ("chat cheerfully about car or weekend plans")</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag">Outbound B2B</span>&ensp;6. UBS &mdash; Universal Business Solutions</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> Sarah</li>
+          <li><strong>Goal:</strong> Schedule meeting for copier/printer lease renewal</li>
+          <li><strong>Flow:</strong> Three scenarios based on entry: (1) Direct contact number, (2) Main number with extension, (3) Main number with unknown decision maker (gatekeeper handling)</li>
+          <li><strong>Scheduling path:</strong> 4 A/B test options for meeting proposal &rarr; Calendar integration with ZOHO &rarr; Email capture &rarr; Send invite &rarr; Confirm receipt &rarr; Acceptance prompt</li>
+          <li><strong>Objection handling:</strong> 16 objections with responses (most comprehensive objection library)</li>
+          <li><strong>Notable:</strong> Multi-scenario structure, gatekeeper navigation, A/B testing options, calendar integration, longest objection handling section, increased idle timeout instruction</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag">Inbound</span>&ensp;7. Bright Car Finance</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> [Your Name]</li>
+          <li><strong>Goal:</strong> Collect driving licence for approved finance application, qualify vehicle preferences</li>
+          <li><strong>Flow:</strong> Intro (finance already approved) &rarr; Vehicle preference questions (open-ended) &rarr; Budget questions (monthly payment, deposit, part exchange) &rarr; Licence reminder &rarr; Closing</li>
+          <li><strong>Notable:</strong> Deliberately vague/open-ended qualifying questions, specific follow-up chains for part exchange/finance, includes email address for document submission, "designed to be of assistance, not pushy"</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag">Outbound Warm</span>&ensp;8. Dark Horse Scheduler (CPA Firm)</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> Dark Horse CPAs AI assistant</li>
+          <li><strong>Goal:</strong> Schedule CPA appointment + collect pre-call data</li>
+          <li><strong>Flow:</strong> Greeting &rarr; Permission to ask questions &rarr; Confirm contact info &rarr; Schedule appointment (service-specific calendar links) &rarr; Data collection (tax OR bookkeeping path) &rarr; FAQs &rarr; Close</li>
+          <li><strong>Tone specification:</strong> "Sophisticated but approachable", dry humor, empathetic, guide-to-hero-journey positioning</li>
+          <li><strong>Service routing:</strong> Tax vs Bookkeeping vs Outsourced Accounting vs Fractional CFO &mdash; each has different calendar link and data collection</li>
+          <li><strong>Data collection:</strong> Sources of income, business type, multi-state filing, life changes, prior tax return upload</li>
+          <li><strong>FAQs:</strong> Pricing details, location questions, in-person meeting, document handling</li>
+          <li><strong>Notable:</strong> Most structured data collection, multiple calendar link routing, document upload portal integration, detailed pricing FAQ</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag">Outbound Confirmation</span>&ensp;9. Dark Horse Validator (CPA Firm)</summary>
+      <div class="details-content">
+        <ul>
+          <li><strong>Agent name:</strong> Dark Horse CPAs AI assistant</li>
+          <li><strong>Goal:</strong> Confirm existing appointment + collect additional context</li>
+          <li><strong>Flow:</strong> Nearly identical to Scheduler but starts with appointment confirmation instead of scheduling</li>
+          <li><strong>Notable:</strong> Shows how the same company uses two different agent scripts for different stages of the funnel</li>
+        </ul>
+      </div>
+    </details>
+
+
+    <!-- ============================================== -->
+    <!-- PART 1: DEEP ANALYSIS                          -->
+    <!-- ============================================== -->
+    <div class="part-header" id="part1">
+      <h2>Part 1: Deep Analysis</h2>
+      <p>For PM and Product Designers &mdash; patterns extracted from 9 real customer playbooks</p>
+    </div>
+
+    <!-- 1.1 -->
+    <h3 id="flow-architecture">1.1 Universal Call Flow Architecture</h3>
+    <p>All 9 scripts share a common flow pattern that can be decomposed into 7 stages. Regardless of industry, call direction, or complexity, every playbook follows this progression:</p>
+
+    <div class="flow-stages">
+      <div class="flow-stage">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Opening</h4>
+          <p>Agent identifies self + company + purpose. Always uses the prospect's name. Sets the first impression and establishes legitimacy.</p>
+        </div>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>Verification</h4>
+          <p>Confirm speaking to the right person. Sometimes includes recorded line disclosure (Honeycomb). May include identity confirmation (Apple DR).</p>
+        </div>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Permission / Framing</h4>
+          <p>"Is now a good time?" + set expectations for what the call will cover. Frames the call as helpful, not intrusive. Dark Horse asks "permission to ask a few questions."</p>
+        </div>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">4</div>
+        <div class="flow-body">
+          <h4>Discovery / Qualification</h4>
+          <p>Core questions. This is where scripts diverge most. Can be simple (3 questions for LavieLabs) or complex (multi-gate with branching for Amanda). The heart of every script.</p>
+        </div>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">5</div>
+        <div class="flow-body">
+          <h4>Objection Handling</h4>
+          <p>Predefined responses to common pushbacks. Some scripts have this as a separate section (UBS with 16 objections), others embed it inline within the flow.</p>
+        </div>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">6</div>
+        <div class="flow-body">
+          <h4>Outcome Routing</h4>
+          <p>Based on qualification: (a) hot transfer to a human rep, (b) schedule a callback or meeting, or (c) disqualify with a soft letdown. All scripts have at least two outcome paths.</p>
+        </div>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">7</div>
+        <div class="flow-body">
+          <h4>Closing</h4>
+          <p>Recap next steps, confirm understanding, thank the prospect. Hold/waiting behavior is defined separately in some scripts (LavieLabs, Warranty First).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Design Insight:</strong> The wizard should guide users through defining each of these 7 stages, but make stages 3&ndash;5 the focus &mdash; that is where customer differentiation lives. Stages 1&ndash;2 and 6&ndash;7 can use smart defaults and templates.</p>
+    </div>
+
+    <!-- 1.2 -->
+    <h3 id="data-taxonomy">1.2 Data Taxonomy</h3>
+    <p>Data flows through three phases across every playbook. Understanding this taxonomy is critical for designing the wizard's data-mapping capabilities.</p>
+
+    <h4>Pre-Call Parameters (injected before the call starts)</h4>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Category</th><th>Examples</th><th>Source</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Prospect identity</td><td>Name, phone, email</td><td>CRM / lead form</td></tr>
+          <tr><td>CRM context</td><td>Form submissions, inquiry type, property type, vehicle info, debt status</td><td>CRM fields</td></tr>
+          <tr><td>Business data</td><td>Premium estimates, expiry dates, repair costs, user counts</td><td>CRM / enrichment</td></tr>
+          <tr><td>Routing data</td><td>Calendar links, CRM hooks, rep emails, transfer numbers</td><td>System config</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Data Collected During Call</h4>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Type</th><th>Examples</th><th>Scripts Using</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Qualification gates (yes/no)</td><td>Has coverage? Decision maker? Has attorney?</td><td>Honeycomb, Amanda, Apple DR</td></tr>
+          <tr><td>Discovery data (free text)</td><td>Needs, preferences, pain points, triggers</td><td>Amanda, Bright Car, Dark Horse</td></tr>
+          <tr><td>Categorical selections</td><td>Skin type, vehicle style, income sources</td><td>LavieLabs, Bright Car, Dark Horse</td></tr>
+          <tr><td>Numeric values</td><td>User count, budget, monthly payment</td><td>Amanda, Bright Car</td></tr>
+          <tr><td>Status checks</td><td>Current vendor, attorney involvement, decision maker authority</td><td>Honeycomb, Apple DR, UBS</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Call Outputs</h4>
+    <ul>
+      <li><strong>Disposition:</strong> qualified / unqualified / scheduled / transferred / disqualified</li>
+      <li><strong>Transfer brief:</strong> structured summary for human handoff</li>
+      <li><strong>CRM updates:</strong> collected fields written back to the source system</li>
+      <li><strong>Next actions:</strong> calendar invites, document upload links, follow-up calls</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Design Insight:</strong> The wizard needs three data sections: (1) What parameters does your CRM send us? (2) What do we need to learn on the call? (3) What should happen after the call? Each maps to a distinct wizard step.</p>
+    </div>
+
+    <!-- 1.3 -->
+    <h3 id="branching-patterns">1.3 Branching Patterns</h3>
+    <p>Four types of branching appear across the analyzed scripts. These represent the range of complexity the wizard must support:</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Pattern</th><th>Description</th><th>Examples</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Binary gates</strong></td>
+            <td>Yes/no knockout questions that immediately qualify or disqualify</td>
+            <td>Honeycomb's "do you have coverage?", Amanda's user count threshold</td>
+          </tr>
+          <tr>
+            <td><strong>Conditional paths</strong></td>
+            <td>Different scripts triggered based on a categorical answer</td>
+            <td>Apple DR's attorney/self-settled/bankruptcy paths, LavieLabs' skin type responses</td>
+          </tr>
+          <tr>
+            <td><strong>Multi-scenario entry</strong></td>
+            <td>Different opening flows based on how the call connects</td>
+            <td>UBS's 3 scenarios (direct / extension / gatekeeper), Dark Horse's service routing</td>
+          </tr>
+          <tr>
+            <td><strong>Exploratory vs. directed</strong></td>
+            <td>Flow adapts based on how specific the prospect's answers are</td>
+            <td>Amanda's Explorer vs Sprinter path based on answer specificity</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Design Insight:</strong> The wizard should support conditional branching at each question, but default to simple linear flows. Advanced users can layer in gates and multi-path logic. The flow builder should make linear easy and branching possible, not the reverse.</p>
+    </div>
+
+    <!-- 1.4 -->
+    <h3 id="tone-personality">1.4 Tone &amp; Personality Patterns</h3>
+    <p>Every script defines personality differently, but they all cover the same core dimensions. The table below maps how each customer specifies tone:</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Agent Name</th><th>Warmth</th><th>Directness</th><th>Special Rules</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>LavieLabs</td><td>Megan</td><td>High (chatty, reassuring)</td><td>Low</td><td>Conversational filler on hold</td></tr>
+          <tr><td>Honeycomb</td><td>[Bot Name]</td><td>Medium</td><td>Medium</td><td>Recorded line disclosure</td></tr>
+          <tr><td>Amanda</td><td>Amanda</td><td>Medium</td><td>High (professional)</td><td>AI disclosure, never stack questions, competitor jokes</td></tr>
+          <tr><td>Apple DR</td><td>Alex</td><td>Medium</td><td>Medium (calm/slow)</td><td>Bilingual (EN/ES), no legal advice</td></tr>
+          <tr><td>Warranty First</td><td>{Agent Name}</td><td>High</td><td>Medium</td><td>Need-creation psychology, cheerful hold chat</td></tr>
+          <tr><td>UBS</td><td>Sarah</td><td>Medium</td><td>High</td><td>Gatekeeper navigation, extended idle timeout</td></tr>
+          <tr><td>Bright Car</td><td>[Your Name]</td><td>High (not pushy)</td><td>Low</td><td>"Designed to be of assistance"</td></tr>
+          <tr><td>Dark Horse (both)</td><td>AI assistant</td><td>Medium-High</td><td>Medium</td><td>Dry humor, "sophisticated but approachable"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Design Insight:</strong> Tone should be a spectrum slider or personality picker, not free text. Most customers land in the "professional but friendly" range. Offer 4 presets &mdash; Friendly &amp; Casual / Professional &amp; Warm / Direct &amp; Confident / Sophisticated &amp; Assertive &mdash; with a live preview of how the agent would sound in each mode.</p>
+    </div>
+
+    <!-- 1.5 -->
+    <h3 id="objection-handling">1.5 Objection Handling Patterns</h3>
+    <p>Objection handling varies dramatically across customers &mdash; from zero explicit objections (LavieLabs) to a library of 16 (UBS):</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Customer</th><th># Objections</th><th>Format</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>LavieLabs</td><td>0</td><td>None</td></tr>
+          <tr><td>Honeycomb</td><td>5</td><td>Objection &rarr; Response &rarr; Goal</td></tr>
+          <tr><td>Amanda</td><td>2</td><td>Inline rules (competitor mentions, non-qualification)</td></tr>
+          <tr><td>Apple DR</td><td>3</td><td>Situation-specific challenge scripts</td></tr>
+          <tr><td>Warranty First</td><td>2</td><td>Inline (Scenario A/B for closing)</td></tr>
+          <tr><td>UBS</td><td>16</td><td>Most comprehensive: Objection &rarr; 2-3 response options</td></tr>
+          <tr><td>Bright Car</td><td>1</td><td>Inline ("why do you need my licence?")</td></tr>
+          <tr><td>Dark Horse (both)</td><td>0 explicit</td><td>FAQs serve as objection handling</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Design Insight:</strong> Objection handling is a clear wizard step. The format should be: "When prospect says X &rarr; Agent responds with Y." Some customers conflate FAQs and objections &mdash; the wizard should have both sections but explain the difference. Include an "Auto-generate from your company info" AI button for objections.</p>
+    </div>
+
+    <!-- 1.6 -->
+    <h3 id="transfer-handoff">1.6 Transfer &amp; Handoff Patterns</h3>
+    <p>Three outcome types emerge, each with distinct data requirements:</p>
+
+    <div class="two-col">
+      <div class="col qualified">
+        <h4>Hot Transfer</h4>
+        <p>Real-time connect to a human rep.</p>
+        <ul>
+          <li>Transfer brief template</li>
+          <li>Availability check logic</li>
+          <li>Fallback: if unavailable &rarr; schedule</li>
+          <li>Used by: LavieLabs, Honeycomb, Apple DR, Warranty First</li>
+        </ul>
+      </div>
+      <div class="col qualified">
+        <h4>Schedule Meeting</h4>
+        <p>Book a future meeting or callback.</p>
+        <ul>
+          <li>Calendar integration (Zoho, Google, custom links)</li>
+          <li>Time slot offering logic</li>
+          <li>Email capture for invite</li>
+          <li>Used by: UBS, Dark Horse (both), Honeycomb (fallback)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Disqualify / Soft Letdown</h4>
+      <p>When the prospect does not meet qualification criteria, a polite exit is required. Amanda has the most sophisticated soft letdown with a dedicated sub-agent. Other scripts simply end the call politely and optionally create a support ticket or "close file" entry.</p>
+    </div>
+
+    <h4>Transfer Brief: Gold Standard (Honeycomb)</h4>
+    <pre><code><span class="variable">Name</span>:              [Lead Name]
+<span class="variable">Property</span>:          [# units / type] in [state]
+<span class="variable">Premium confirmed</span>: [Amount]
+<span class="variable">Current insurance</span>: [Yes/No]
+<span class="variable">Decision maker</span>:   [Yes/No]
+<span class="variable">Timeline</span>:          [Effective date]</code></pre>
+
+    <div class="callout">
+      <p><strong>Design Insight:</strong> The wizard should ask "What happens when a prospect qualifies?" and "What happens when they don't?" with configurable templates for each outcome. The transfer brief builder should allow customers to define structured fields that get passed to the human rep.</p>
+    </div>
+
+    <!-- 1.7 -->
+    <h3 id="formatting-structure">1.7 Formatting &amp; Structure Observations</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Dimension</th><th>Range Observed</th><th>Implication</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Script length</td><td>~200 words (LavieLabs) to 3,000+ words (Amanda, Dark Horse)</td><td>Wizard must support both minimal and complex configs</td></tr>
+          <tr><td>Structure</td><td>Linear (LavieLabs) to multi-gate decision trees (Amanda)</td><td>Default to linear, allow branching</td></tr>
+          <tr><td>Variable syntax</td><td>All use <code>{curly_brace}</code> placeholders</td><td>Standardize on this convention</td></tr>
+          <tr><td>Separate sections</td><td>Main flow / objections / FAQs / transfer briefs</td><td>Mirror this in wizard steps</td></tr>
+          <tr><td>Internal notes</td><td>Amanda's "internal only" math, Honeycomb's Consider/Unnecessary columns</td><td>Support "internal notes" field per question</td></tr>
+          <tr><td>Versioning</td><td>Honeycomb V1/V2, Apple DR V1/V2</td><td>Script versioning is a first-class feature</td></tr>
+          <tr><td>Multi-script</td><td>Dark Horse Scheduler vs Validator</td><td>Support multiple scripts per customer/campaign</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- PART 2: AGENT BUILDER WIZARD                   -->
+    <!-- ============================================== -->
+    <div class="part-header" id="part2">
+      <h2>Part 2: Agent Builder Wizard</h2>
+      <p>8-step wizard specification with field definitions and design recommendations</p>
+    </div>
+
+    <!-- Parameter List -->
+    <h3 id="parameter-list">Flat Parameter List</h3>
+    <p>Before diving into the step-by-step wizard, here is the comprehensive field inventory organized by category. Every field below maps to a section in the LLM system prompt (Part 3).</p>
+
+    <h5>Identity &amp; Tone</h5>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Agent name</td><td>Text</td><td>Yes</td><td>e.g., Megan, Alex, Sarah</td></tr>
+          <tr><td>Agent role/title</td><td>Text</td><td>No</td><td>e.g., Qualification Specialist, AI Assistant</td></tr>
+          <tr><td>Company name</td><td>Text</td><td>Yes</td><td></td></tr>
+          <tr><td>Company description</td><td>Textarea</td><td>Yes</td><td>2-3 sentences for LLM context</td></tr>
+          <tr><td>Products/services</td><td>Tags / List</td><td>No</td><td>Helps LLM understand offering</td></tr>
+          <tr><td>Tone</td><td>Select (4 options)</td><td>Yes</td><td>Friendly &amp; Casual / Professional &amp; Warm / Direct &amp; Confident / Sophisticated &amp; Assertive</td></tr>
+          <tr><td>AI transparency</td><td>Toggle</td><td>Yes</td><td>Disclose as AI agent: yes/no</td></tr>
+          <tr><td>Language(s)</td><td>Multi-select</td><td>Yes</td><td>English, Spanish, Hebrew, etc.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h5>Call Context</h5>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Call type</td><td>Select</td><td>Yes</td><td>Inbound / Outbound Cold / Outbound Warm / Outbound Confirmation</td></tr>
+          <tr><td>Call purpose</td><td>Textarea</td><td>Yes</td><td>Why we are calling / why they called</td></tr>
+          <tr><td>Opening line template</td><td>Textarea + var insert</td><td>Yes</td><td>Supports {variable} insertion</td></tr>
+          <tr><td>Recorded line disclosure</td><td>Toggle + text</td><td>No</td><td>Legal requirement in some jurisdictions</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h5>Pre-Call Parameters (CRM Data)</h5>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Variable name</td><td>Text</td><td>Yes (per var)</td><td>e.g., prospect_name, vehicle</td></tr>
+          <tr><td>Value type</td><td>Select</td><td>Yes (per var)</td><td>String / Number / Date / Boolean</td></tr>
+          <tr><td>CRM field mapping</td><td>Text</td><td>No</td><td>Source field in customer CRM</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h5>Call Flow / Qualification</h5>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Question text</td><td>Textarea + var insert</td><td>Yes (per Q)</td><td>The actual question to ask</td></tr>
+          <tr><td>Answer type</td><td>Select</td><td>Yes (per Q)</td><td>Yes/No, Free text, Multiple choice, Numeric</td></tr>
+          <tr><td>Required / Optional</td><td>Toggle</td><td>Yes (per Q)</td><td></td></tr>
+          <tr><td>Conditional logic</td><td>Rule builder</td><td>No</td><td>If answer = X, go to step Y / knockout</td></tr>
+          <tr><td>CRM field to save</td><td>Text</td><td>No</td><td>Write answer back to CRM</td></tr>
+          <tr><td>Section / Stage label</td><td>Text</td><td>No</td><td>e.g., Intro, Qualification, Discovery</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h5>Objection Handling, FAQs, Outcomes, Compliance</h5>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Objection text</td><td>Textarea</td><td>Yes (per pair)</td><td>"When prospect says..."</td></tr>
+          <tr><td>Response text</td><td>Textarea</td><td>Yes (per pair)</td><td>"Agent responds with..."</td></tr>
+          <tr><td>Goal</td><td>Text</td><td>No</td><td>What the response aims to achieve</td></tr>
+          <tr><td>Then action</td><td>Select</td><td>No</td><td>Return to flow / Transfer / Schedule</td></tr>
+          <tr><td>FAQ question</td><td>Textarea</td><td>Yes (per pair)</td><td></td></tr>
+          <tr><td>FAQ answer</td><td>Textarea</td><td>Yes (per pair)</td><td></td></tr>
+          <tr><td>Topics to avoid</td><td>List</td><td>No</td><td>Things agent must not discuss</td></tr>
+          <tr><td>Qualified action</td><td>Select</td><td>Yes</td><td>Hot transfer / Schedule / Send info</td></tr>
+          <tr><td>Unqualified action</td><td>Select</td><td>Yes</td><td>Soft letdown / Ticket / Close</td></tr>
+          <tr><td>Transfer brief template</td><td>Field builder</td><td>Conditional</td><td>If hot transfer selected</td></tr>
+          <tr><td>"Never say" rules</td><td>List</td><td>No</td><td>Compliance guardrails</td></tr>
+          <tr><td>"Always say" rules</td><td>List</td><td>No</td><td>Required phrases</td></tr>
+          <tr><td>Silence timeout</td><td>Number (seconds)</td><td>No</td><td>Default: 5s</td></tr>
+          <tr><td>Max call duration</td><td>Number (minutes)</td><td>No</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Wizard Steps -->
+    <h3>Step-by-Step Wizard Design</h3>
+
+    <div class="wizard-step" id="wizard-step1">
+      <div class="wizard-step-num">STEP 1 OF 8</div>
+      <h4>"Who is your agent?" &mdash; Identity</h4>
+      <p>This step establishes the agent's persona. Fields include agent name, company name, role, tone selection (4-option picker with preview), AI disclosure toggle, and language selection.</p>
+      <div class="field-list">
+        <ul>
+          <li>Agent name (text input)</li>
+          <li>Company name (text input)</li>
+          <li>Agent role/title (text input, optional)</li>
+          <li>Company description (textarea, 2-3 sentences)</li>
+          <li>Products/services (tag input)</li>
+          <li>Quick tone picker with 4 options + live preview card</li>
+          <li>AI disclosure toggle</li>
+          <li>Language selection (multi-select)</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><strong>Design Recommendation:</strong> Show a live preview card of the agent persona as the user fills in fields. The card updates in real time to display: the agent's name, role, a sample greeting in the selected tone, and language badges. This gives immediate feedback and makes the process feel tangible.</p>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="wizard-step2">
+      <div class="wizard-step-num">STEP 2 OF 8</div>
+      <h4>"What's the call about?" &mdash; Context &amp; Opening</h4>
+      <p>Defines the call type, purpose, and opening line. The opening line builder supports variable insertion from a toolbar.</p>
+      <div class="field-list">
+        <ul>
+          <li>Call type selector (4 options with icons: Inbound / Outbound Cold / Outbound Warm / Outbound Confirmation)</li>
+          <li>Call purpose textarea</li>
+          <li>Opening line builder with <code>{variable}</code> insertion toolbar</li>
+          <li>Recorded line disclosure toggle + custom text</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><strong>Design Recommendation:</strong> Render the opening line as a speech bubble preview below the input. As users type and insert variables, the bubble updates live. Show the call type icons as large, clickable cards (similar to a survey question layout) rather than a dropdown.</p>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="wizard-step3">
+      <div class="wizard-step-num">STEP 3 OF 8</div>
+      <h4>"What data do you have?" &mdash; Pre-Call Parameters</h4>
+      <p>Maps CRM fields to agent variables. Pre-populate common fields (prospect name, email, phone, company) and allow custom additions.</p>
+      <div class="field-list">
+        <ul>
+          <li>Variable list: name + type (string/number/date/boolean) + CRM source field</li>
+          <li>Pre-populated defaults: prospect_name, email, phone, company</li>
+          <li>"Add custom variable" button</li>
+          <li>Optional: CRM integration selector (Salesforce, HubSpot, Zoho, monday.com, custom API)</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><strong>Design Recommendation:</strong> Use a visual CRM field mapping interface with an add-row pattern. Each row shows: variable name (editable), type selector, CRM source (editable). Consider a drag-and-drop interface for reordering. If CRM integration is connected, auto-suggest available fields.</p>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="wizard-step4">
+      <div class="wizard-step-num">STEP 4 OF 8</div>
+      <h4>"What do you need to learn?" &mdash; Call Flow Builder</h4>
+      <p>The core of the wizard. A sequential question builder where each question is a card with configurable properties. This is the step that distinguishes a simple LavieLabs-style script from a complex Amanda-style decision tree.</p>
+      <div class="field-list">
+        <ul>
+          <li>Question cards (sequential, draggable for reorder)</li>
+          <li>Each card: question text + answer type (yes/no, free text, multiple choice, numeric) + required flag</li>
+          <li>Conditional branch: "If answer is ___, then ___" (proceed / skip to step / knockout)</li>
+          <li>Knockout/disqualify toggle per question</li>
+          <li>Section headers (Qualification, Discovery, Pitch, etc.)</li>
+          <li>CRM field mapping per question (where to save the answer)</li>
+          <li>Internal notes field (not sent to prospect)</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><strong>Design Recommendation:</strong> Build a visual flow builder &mdash; linear by default with connected cards, similar to Typeform's builder but with conversation semantics. Users see the flow as a vertical chain of cards. To add a branch, click "Add condition" on any card and a fork appears. The interface should make linear easy and branching possible (not the reverse). Include section dividers that users can name (e.g., "Qualification," "Discovery").</p>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="wizard-step5">
+      <div class="wizard-step-num">STEP 5 OF 8</div>
+      <h4>"How to handle pushback?" &mdash; Objection Handling</h4>
+      <p>Paired objection-response cards. Each pair defines what the prospect might say and how the agent should respond.</p>
+      <div class="field-list">
+        <ul>
+          <li>Paired cards: Objection (left column) &rarr; Response (right column)</li>
+          <li>Optional "Goal" field: what the response aims to achieve</li>
+          <li>Optional "Then" action: return to flow / transfer / schedule</li>
+          <li>"Add objection" button at bottom</li>
+          <li>"Auto-generate from company info" AI button</li>
+          <li>Pre-populated templates by industry</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><strong>Design Recommendation:</strong> Use a two-column card layout. Left side shows the objection in a red-tinted card, right side shows the response in a green-tinted card. Include an "Auto-generate" AI button that analyzes the company description and call purpose to suggest common objections for that industry. Start with 3 pre-filled examples and allow adding more.</p>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="wizard-step6">
+      <div class="wizard-step-num">STEP 6 OF 8</div>
+      <h4>"What can your agent answer?" &mdash; FAQs &amp; Knowledge</h4>
+      <p>Knowledge base for the agent. Includes both things the agent can answer and things it explicitly cannot discuss.</p>
+      <div class="field-list">
+        <ul>
+          <li>Q&amp;A pair list (collapsible accordion)</li>
+          <li>"Topics to avoid" list with fallback behavior</li>
+          <li>Fallback response template: "I will transfer you to someone who can answer that"</li>
+          <li>Optional: upload company docs / paste website URL for auto-extraction</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><strong>Design Recommendation:</strong> Use a collapsible accordion for each Q&amp;A pair. Include a "Paste your website URL" field with an AI extraction button that crawls the page and suggests FAQ pairs. The "Topics to avoid" section should use red-tinted list items with a default fallback message that users can customize.</p>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="wizard-step7">
+      <div class="wizard-step-num">STEP 7 OF 8</div>
+      <h4>"What happens next?" &mdash; Outcomes &amp; Routing</h4>
+      <p>Defines the two primary paths: what happens when a prospect qualifies, and what happens when they do not.</p>
+      <div class="field-list">
+        <ul>
+          <li><strong>Qualified path:</strong> Hot transfer / Schedule meeting / Send info</li>
+          <li>Transfer brief template builder (structured field list)</li>
+          <li>Calendar integration details (link, provider)</li>
+          <li>Follow-up email/link configuration</li>
+          <li><strong>Unqualified path:</strong> Soft letdown script / Raise ticket / Close file</li>
+          <li>Soft letdown script textarea</li>
+          <li><strong>Hold/waiting behavior:</strong> conversation instructions while on hold</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><strong>Design Recommendation:</strong> Use a two-lane layout: left lane (green border) for the qualified path, right lane (neutral border) for the unqualified path. Each lane has its own outcome type selector and configuration area. The transfer brief template builder should let users add fields with name + type, and show a preview of the brief as structured data.</p>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="wizard-step8">
+      <div class="wizard-step-num">STEP 8 OF 8</div>
+      <h4>"Any rules?" &mdash; Compliance &amp; Guardrails</h4>
+      <p>The final step defines hard constraints: things the agent must never do, things it must always do, and behavioral settings for edge cases.</p>
+      <div class="field-list">
+        <ul>
+          <li>"Never say" list (red-coded items)</li>
+          <li>"Always say" list (green-coded items)</li>
+          <li>Silence timeout: seconds before retry (default 5s)</li>
+          <li>Silence retry behavior: repeat question / prompt / end call</li>
+          <li>Maximum call duration (minutes)</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <p><strong>Design Recommendation:</strong> Use simple list builders with color coding: red background for "never" items, green background for "always" items. Include pre-populated suggestions based on industry and call type (e.g., financial services automatically gets "do not promise specific returns" and "do not provide legal advice"). Silence and duration settings should use sliders with sensible defaults.</p>
+      </div>
+    </div>
+
+    <!-- Design Summary -->
+    <h3 id="design-summary">Design Recommendations Summary</h3>
+    <div class="card">
+      <ul>
+        <li><strong>Progress stepper at the top:</strong> 8 clearly labeled steps with completion indicators. Users can jump between steps after initial completion.</li>
+        <li><strong>One screen per step:</strong> Each step should fit on one screen without scrolling marathons. If content overflows, use collapsible sections within the step.</li>
+        <li><strong>Preview Agent button:</strong> Available from any step. Opens a side panel that shows a simulated conversation based on current configuration.</li>
+        <li><strong>"Paste existing script" option:</strong> On Step 1, offer an AI-powered import that parses a pasted script and auto-fills all wizard steps. This dramatically reduces onboarding friction.</li>
+        <li><strong>Industry templates:</strong> Pre-built configurations for Insurance, SaaS, Financial Services, Auto, Professional Services, and D2C/Retail. Each template pre-fills all 8 steps with sensible defaults.</li>
+        <li><strong>Mobile-responsive:</strong> Designed for quick edits on mobile. The full builder experience is desktop-first, but individual field edits work on smaller screens.</li>
+        <li><strong>Script versioning:</strong> Support V1/V2 versioning with diff view. Users should be able to duplicate a script, modify it, and A/B test (as UBS does with 4 scheduling options).</li>
+        <li><strong>Multi-script per customer:</strong> Support multiple scripts for different funnel stages (as Dark Horse uses Scheduler + Validator for the same company).</li>
+      </ul>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- PART 3: LLM PROMPT STRUCTURE                   -->
+    <!-- ============================================== -->
+    <div class="part-header" id="part3">
+      <h2>Part 3: LLM Prompt Structure</h2>
+      <p>System prompt template architecture mapping wizard steps to prompt sections</p>
+    </div>
+
+    <h3 id="prompt-template">System Prompt Template</h3>
+    <p>The following template is the recommended architecture for the voice agent's LLM system prompt. Each section maps directly to a wizard step, making it straightforward to regenerate individual sections when the customer updates their configuration.</p>
+
+    <pre><code><span class="section-header">## IDENTITY</span>
+<span class="keyword">You are</span> <span class="variable">{agent_name}</span>, a <span class="variable">{agent_role}</span> at <span class="variable">{company_name}</span>.
+<span class="variable">{company_description}</span>
+<span class="variable">{ai_disclosure_rule}</span>
+
+<span class="section-header">## TONE & STYLE</span>
+<span class="variable">{tone_description}</span>
+<span class="comment">- Ask one question per turn, then wait.</span>
+<span class="comment">- Never stack multiple questions.</span>
+<span class="comment">- Always acknowledge the prospect's response before moving on.</span>
+<span class="comment">- Keep responses concise and conversational.</span>
+<span class="variable">{custom_tone_rules}</span>
+
+<span class="section-header">## LANGUAGE</span>
+<span class="keyword">Primary:</span> <span class="variable">{primary_language}</span>
+<span class="variable">{secondary_language_rule}</span>
+
+<span class="section-header">## CALL CONTEXT</span>
+<span class="keyword">Call type:</span> <span class="variable">{call_type}</span>
+<span class="keyword">Purpose:</span> <span class="variable">{call_purpose}</span>
+<span class="variable">{recorded_line_disclosure}</span>
+
+<span class="section-header">## PRE-CALL DATA</span> <span class="comment">(available for this call)</span>
+<span class="variable">{for each parameter: {param_name}: {param_value}}</span>
+
+<span class="section-header">## CALL FLOW</span>
+<span class="keyword">Follow these stages in order. Complete each stage before moving to the next.</span>
+
+<span class="section-header">### Stage 1: Opening</span>
+<span class="variable">{opening_script_with_variables}</span>
+
+<span class="section-header">### Stage 2: Verification</span>
+<span class="variable">{verification_questions}</span>
+
+<span class="section-header">### Stage 3: Qualification</span>
+<span class="variable">{for each question:</span>
+<span class="comment">- Ask:</span> <span class="string">"{question_text}"</span>
+<span class="comment">- Expected answer:</span> <span class="variable">{answer_type}</span>
+<span class="comment">- If</span> <span class="variable">{condition}</span>: <span class="variable">{action — proceed/skip/knockout}</span>
+<span class="comment">- Save to:</span> <span class="variable">{crm_field}</span>
+<span class="variable">}</span>
+
+<span class="section-header">### Stage 4: Discovery</span> <span class="comment">(if applicable)</span>
+<span class="variable">{discovery_questions_with_branching}</span>
+
+<span class="section-header">## OBJECTION HANDLING</span>
+<span class="keyword">When the prospect raises an objection, respond accordingly:</span>
+<span class="variable">{for each objection:</span>
+<span class="comment">- If prospect says:</span> <span class="string">"{objection_text}"</span>
+<span class="comment">- Respond:</span> <span class="string">"{response_text}"</span>
+<span class="comment">- Then:</span> <span class="variable">{return_to_flow / transfer / schedule}</span>
+<span class="variable">}</span>
+
+<span class="section-header">## FAQ RESPONSES</span>
+<span class="variable">{for each faq:</span>
+<span class="comment">Q:</span> <span class="variable">{question}</span>
+<span class="comment">A:</span> <span class="variable">{answer}</span>
+<span class="variable">}</span>
+
+<span class="section-header">## OUTCOME ROUTING</span>
+
+<span class="section-header">### When Qualified:</span>
+<span class="variable">{qualified_action_description}</span>
+<span class="keyword">Transfer brief format:</span>
+<span class="variable">{transfer_brief_template}</span>
+
+<span class="section-header">### When Not Qualified:</span>
+<span class="variable">{unqualified_script}</span>
+
+<span class="section-header">### On Hold / Waiting:</span>
+<span class="variable">{hold_behavior_instructions}</span>
+
+<span class="section-header">## GUARDRAILS</span>
+<span class="keyword">DO NOT:</span>
+<span class="variable">{for each rule: - {never_do_text}}</span>
+
+<span class="keyword">ALWAYS:</span>
+<span class="variable">{for each rule: - {always_do_text}}</span>
+
+<span class="section-header">## SILENCE HANDLING</span>
+<span class="keyword">If prospect is silent for</span> <span class="variable">{silence_timeout}</span> <span class="keyword">seconds:</span> <span class="variable">{silence_action}</span>
+
+<span class="section-header">## EXTRACTED DATA SCHEMA</span>
+<span class="keyword">At the end of the call, output the following structured data:</span>
+<span class="variable">{for each field: {field_name}: {field_type} — {description}}</span></code></pre>
+
+    <!-- Prompt Design Decisions -->
+    <h3 id="prompt-decisions">Key Design Decisions for the Prompt</h3>
+
+    <div class="card">
+      <h4>1. Sectioned Architecture</h4>
+      <p>Each section maps to a wizard step. This makes it easy to regenerate individual sections when the customer updates their configuration without rebuilding the entire prompt. A change to objection handling only regenerates the OBJECTION HANDLING section.</p>
+    </div>
+
+    <div class="card">
+      <h4>2. Stage-Based Flow</h4>
+      <p>Rather than one giant instruction block, the call is broken into numbered stages. This gives the LLM clear sequential guidance and aligns with how voice AI platforms (like OneAI) structure their script-building flows as goal-based nodes.</p>
+    </div>
+
+    <div class="card">
+      <h4>3. Separation of Concerns</h4>
+      <p>Four distinct layers with different change frequencies:</p>
+      <ul>
+        <li><strong>Identity/Tone</strong> (who the agent IS) &mdash; changes rarely, maybe once at setup</li>
+        <li><strong>Call Flow</strong> (what to DO) &mdash; changes per campaign or A/B test</li>
+        <li><strong>Objections/FAQs</strong> (what to KNOW) &mdash; grows incrementally over time</li>
+        <li><strong>Guardrails</strong> (what NOT to do) &mdash; set once, enforced always</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>4. Variable Injection</h4>
+      <p>All dynamic data uses <code>{curly_brace}</code> syntax, injected at call time from the CRM. The prompt template itself is static; the variables are dynamic. This matches the convention every analyzed script already uses naturally.</p>
+    </div>
+
+    <div class="card">
+      <h4>5. Extracted Data Schema</h4>
+      <p>The prompt defines upfront what structured data the agent should extract and return at the end of each call. This enables automated CRM write-back and ensures consistent data capture across all calls.</p>
+    </div>
+
+    <div class="card">
+      <h4>6. Conditional Logic in Flow</h4>
+      <p>Simple if/then rules within each question rather than complex decision tree notation. The LLM handles nuance and natural conversation flow; the structured rules handle routing decisions. This keeps the prompt readable while supporting the branching patterns identified in Section 1.3.</p>
+    </div>
+
+    <!-- Prompt Sizing -->
+    <h3 id="prompt-sizing">Prompt Size Considerations</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Complexity Level</th><th>Equivalent Playbook</th><th>Estimated Tokens</th><th>Characteristics</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag green">Simple</span></td>
+            <td>LavieLabs</td>
+            <td>~500 tokens</td>
+            <td>Linear flow, 3-5 questions, no objections, single outcome path</td>
+          </tr>
+          <tr>
+            <td><span class="tag">Medium</span></td>
+            <td>Honeycomb, Warranty First</td>
+            <td>~1,500 tokens</td>
+            <td>5-10 questions, 3-5 objections, binary gates, transfer brief</td>
+          </tr>
+          <tr>
+            <td><span class="tag red">Complex</span></td>
+            <td>Amanda, Dark Horse, UBS</td>
+            <td>~3,000+ tokens</td>
+            <td>Decision trees, 10+ questions, 10+ objections/FAQs, multi-path routing</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h4>Token Optimization Recommendation</h4>
+      <p>Objection handling and FAQs are the biggest token consumers. For complex scripts exceeding 2,000 tokens in the core flow:</p>
+      <ul>
+        <li>Keep the core flow (Identity + Tone + Call Context + Call Flow + Guardrails) in the system prompt &mdash; target under 2,000 tokens</li>
+        <li>Load objections and FAQs as separate retrievable context via tool/function calls, or inject them as supplementary context only when the prospect raises a question or objection</li>
+        <li>This reduces baseline token cost per call while maintaining full coverage when needed</li>
+      </ul>
+    </div>
+
+    <!-- Wizard-to-Prompt Mapping -->
+    <h3 id="wizard-prompt-mapping">Wizard Step to Prompt Section Mapping</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Wizard Step</th><th>Prompt Section(s)</th><th>Change Frequency</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Step 1:</strong> Identity</td><td>IDENTITY + TONE &amp; STYLE + LANGUAGE</td><td>Rarely (initial setup)</td></tr>
+          <tr><td><strong>Step 2:</strong> Call Context</td><td>CALL CONTEXT + Stage 1: Opening</td><td>Per campaign</td></tr>
+          <tr><td><strong>Step 3:</strong> Pre-Call Data</td><td>PRE-CALL DATA</td><td>When CRM fields change</td></tr>
+          <tr><td><strong>Step 4:</strong> Call Flow</td><td>CALL FLOW (all stages) + EXTRACTED DATA SCHEMA</td><td>Per campaign / A/B test</td></tr>
+          <tr><td><strong>Step 5:</strong> Objections</td><td>OBJECTION HANDLING</td><td>Grows incrementally</td></tr>
+          <tr><td><strong>Step 6:</strong> FAQs</td><td>FAQ RESPONSES</td><td>Grows incrementally</td></tr>
+          <tr><td><strong>Step 7:</strong> Outcomes</td><td>OUTCOME ROUTING</td><td>Per campaign</td></tr>
+          <tr><td><strong>Step 8:</strong> Rules</td><td>GUARDRAILS + SILENCE HANDLING</td><td>Set once, enforce always</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>This mapping ensures that each wizard step produces a self-contained prompt section. When a customer updates their objection handling (Step 5), only the OBJECTION HANDLING section is regenerated &mdash; the rest of the prompt remains untouched. This architecture supports incremental updates, A/B testing of individual sections, and version control at the section level.</p>
+
+
+    <!-- Footer -->
+    <div class="footer">
+      Generated for Harmony Team &mdash; Confidential<br>
+      BDR Agent Builder &mdash; Playbook Analysis &amp; Wizard Design &mdash; May 12, 2026
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Scroll-spy script -->
+<script>
+(function() {
+  var links = document.querySelectorAll('.toc-link');
+  var sections = [];
+
+  links.forEach(function(link) {
+    var id = link.getAttribute('href');
+    if (id && id.startsWith('#')) {
+      var el = document.querySelector(id);
+      if (el) sections.push({ id: id, el: el, link: link });
+    }
+  });
+
+  function updateActive() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var current = null;
+
+    for (var i = sections.length - 1; i >= 0; i--) {
+      if (sections[i].el.getBoundingClientRect().top <= 80) {
+        current = sections[i];
+        break;
+      }
+    }
+
+    links.forEach(function(l) { l.classList.remove('active'); });
+    if (current) current.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+
+  // Close sidebar on mobile after clicking a link
+  links.forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 1024) {
+        document.querySelector('.sidebar').classList.remove('open');
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
