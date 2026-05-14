@@ -1,0 +1,3433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmony - Agent Dashboard</title>
+<style>
+:root {
+  --primary: #4F46E5;
+  --primary-light: #6366F1;
+  --primary-lighter: #E0E7FF;
+  --primary-bg: #EEF2FF;
+  --emerald: #10B981;
+  --emerald-light: #D1FAE5;
+  --amber: #F59E0B;
+  --amber-light: #FEF3C7;
+  --red: #EF4444;
+  --red-light: #FEE2E2;
+  --bg: #F9FAFB;
+  --white: #FFFFFF;
+  --heading: #111827;
+  --body: #374151;
+  --secondary: #6B7280;
+  --border: #E5E7EB;
+  --border-focus: #A5B4FC;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 24px;
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --transition: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--body);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Top Bar */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-icon {
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--primary-bg);
+  border-radius: var(--radius);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--secondary);
+}
+
+.breadcrumb a {
+  color: var(--secondary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.breadcrumb a:hover { color: var(--primary); }
+
+.breadcrumb-sep { color: var(--border); }
+
+.breadcrumb-current {
+  color: var(--heading);
+  font-weight: 600;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-track {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--border);
+  position: relative;
+  transition: background var(--transition);
+}
+
+.toggle-track.active { background: var(--emerald); }
+
+.toggle-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--white);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-track.active .toggle-thumb { transform: translateX(18px); }
+
+.toggle-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.toggle-label.active-label { color: var(--emerald); }
+.toggle-label.inactive-label { color: var(--secondary); }
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-lighter);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Agent Header */
+.agent-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+}
+
+.agent-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.agent-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--primary);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.agent-info { flex: 1; }
+
+.agent-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--heading);
+  line-height: 1.3;
+}
+
+.agent-role {
+  font-size: 14px;
+  color: var(--secondary);
+  line-height: 1.4;
+}
+
+.agent-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.tone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-dot-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-dot-inline .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot-inline.active-status .dot { background: var(--emerald); }
+.status-dot-inline.active-status { color: var(--emerald); }
+.status-dot-inline.inactive-status .dot { background: var(--secondary); }
+.status-dot-inline.inactive-status { color: var(--secondary); }
+
+.agent-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-primary { background: var(--primary); color: var(--white); }
+.btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+.btn-outline:hover { background: var(--primary-bg); }
+
+.btn-outline-amber { background: transparent; color: var(--amber); border: 1.5px solid var(--amber); }
+.btn-outline-amber:hover { background: var(--amber-light); }
+
+.btn-ghost { background: transparent; color: var(--body); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); border-color: var(--secondary); }
+
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+
+.btn-danger { background: transparent; color: var(--red); border: 1.5px solid var(--red); }
+.btn-danger:hover { background: var(--red-light); }
+
+.btn-emerald { background: var(--emerald); color: var(--white); }
+.btn-emerald:hover { background: #059669; }
+
+/* Tab Navigation */
+.tab-nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  position: sticky;
+  top: 56px;
+  z-index: 150;
+}
+
+.tab-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0;
+}
+
+.tab-btn {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  font-family: var(--font);
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--heading); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* Main Content */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Metrics Cards */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: box-shadow var(--transition), transform var(--transition);
+  cursor: default;
+}
+
+.metric-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--heading);
+  line-height: 1.2;
+}
+
+.metric-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-top: 2px;
+}
+
+.metric-sub {
+  font-size: 13px;
+  color: var(--secondary);
+  margin-top: 4px;
+}
+
+.metric-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.trend-up { color: var(--emerald); background: var(--emerald-light); }
+.trend-down { color: var(--red); background: var(--red-light); }
+
+/* Two Column Layout */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--heading);
+}
+
+.section-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+.section-link:hover { color: var(--primary-light); }
+
+/* Call List */
+.call-list {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.call-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.call-row:last-child { border-bottom: none; }
+.call-row:hover { background: var(--bg); }
+
+.call-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  flex-shrink: 0;
+}
+
+.call-contact { flex: 1; min-width: 0; }
+
+.call-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.call-company {
+  font-size: 12px;
+  color: var(--secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.call-badge {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-qualified { background: var(--emerald-light); color: #065F46; }
+.badge-not-qualified { background: var(--amber-light); color: #92400E; }
+.badge-no-answer { background: #F3F4F6; color: var(--secondary); }
+.badge-transferred { background: var(--primary-bg); color: var(--primary); }
+.badge-voicemail { background: #F3F4F6; color: #6B7280; }
+
+.call-duration {
+  font-size: 13px;
+  color: var(--secondary);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  width: 40px;
+  text-align: right;
+}
+
+.call-time {
+  font-size: 12px;
+  color: var(--secondary);
+  flex-shrink: 0;
+  width: 80px;
+  text-align: right;
+}
+
+.call-expand-icon {
+  font-size: 12px;
+  color: var(--secondary);
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+
+.call-row.expanded .call-expand-icon { transform: rotate(90deg); }
+
+.call-summary {
+  display: none;
+  padding: 12px 16px 12px 64px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--body);
+  line-height: 1.6;
+}
+
+.call-summary.visible { display: block; }
+
+/* Insight Cards */
+.insight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.insight-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.insight-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.insight-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.insight-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--heading);
+  flex: 1;
+}
+
+.insight-priority {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.priority-high { background: var(--red-light); color: var(--red); }
+.priority-medium { background: var(--amber-light); color: #92400E; }
+.priority-low { background: var(--emerald-light); color: #065F46; }
+
+.insight-desc {
+  font-size: 13px;
+  color: var(--secondary);
+  line-height: 1.5;
+  margin-left: 28px;
+}
+
+/* Calls Tab */
+.calls-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 9px 14px 9px 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: var(--font);
+  color: var(--heading);
+  background: var(--white);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.search-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--secondary);
+  font-size: 14px;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font);
+}
+
+.filter-pill:hover { border-color: var(--primary); color: var(--primary); }
+.filter-pill.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+
+.calls-table {
+  width: 100%;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border-collapse: collapse;
+}
+
+.calls-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.calls-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.calls-table tr:last-child td { border-bottom: none; }
+.calls-table tr:hover td { background: var(--bg); }
+
+.table-contact-name { font-weight: 600; color: var(--heading); }
+.table-summary { font-size: 13px; color: var(--secondary); max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  font-size: 14px;
+  color: var(--secondary);
+}
+
+.pagination-info { font-weight: 600; }
+
+.pagination-btns { display: flex; gap: 8px; }
+
+.page-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--body);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+}
+
+.page-btn:hover { border-color: var(--primary); color: var(--primary); }
+.page-btn.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Insights Tab */
+.insights-section {
+  margin-bottom: 32px;
+}
+
+.insights-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 16px;
+}
+
+/* Bar Chart */
+.bar-chart {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.bar-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.bar-item:last-child { margin-bottom: 0; }
+
+.bar-label {
+  font-size: 14px;
+  color: var(--body);
+  min-width: 200px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.bar-track {
+  flex: 1;
+  height: 28px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--radius);
+  transition: width 0.6s ease;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+}
+
+.bar-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.bar-value-outside {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--body);
+  margin-left: 8px;
+}
+
+/* Funnel */
+.funnel-wrap {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.funnel-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.funnel-bar {
+  height: 48px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-weight: 700;
+  font-size: 14px;
+  transition: all var(--transition);
+  position: relative;
+}
+
+.funnel-loss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--red);
+  font-weight: 600;
+}
+
+.funnel-loss-arrow { font-size: 10px; }
+
+/* Recommendation Cards */
+.rec-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.rec-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.rec-category {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.cat-script { background: var(--primary-bg); color: var(--primary); }
+.cat-timing { background: var(--amber-light); color: #92400E; }
+.cat-objections { background: var(--red-light); color: var(--red); }
+.cat-knowledge { background: var(--emerald-light); color: #065F46; }
+.cat-routing { background: #E0E7FF; color: #3730A3; }
+.cat-compliance { background: #FCE7F3; color: #9D174D; }
+
+.rec-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 6px;
+}
+
+.rec-desc {
+  font-size: 13px;
+  color: var(--secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.rec-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rec-dismiss {
+  font-size: 13px;
+  color: var(--secondary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.rec-dismiss:hover { color: var(--heading); }
+
+/* Agent Setup & Operations - Sub Nav Layout */
+.setup-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  min-height: 600px;
+}
+
+.sub-nav {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 8px 0;
+  box-shadow: var(--shadow-sm);
+  align-self: start;
+  position: sticky;
+  top: 120px;
+}
+
+.sub-nav-item {
+  display: block;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+
+.sub-nav-item:hover { color: var(--heading); background: var(--bg); }
+.sub-nav-item.active { color: var(--primary); font-weight: 700; border-left-color: var(--primary); background: var(--primary-bg); }
+
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+.sub-content {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sub-content-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 4px;
+}
+
+.sub-content-desc {
+  font-size: 14px;
+  color: var(--secondary);
+  margin-bottom: 24px;
+}
+
+/* Form Elements (matching wizard) */
+.form-group { margin-bottom: 20px; }
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 6px;
+}
+
+.form-hint {
+  font-size: 13px;
+  color: var(--secondary);
+  margin-bottom: 8px;
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: var(--font);
+  color: var(--heading);
+  background: var(--white);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.form-input::placeholder, .form-textarea::placeholder { color: #9CA3AF; }
+.form-textarea { resize: vertical; line-height: 1.5; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Toggle Switch */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle-switch {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.toggle-switch.on { background: var(--emerald); }
+
+.toggle-switch .toggle-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-switch.on .toggle-knob { transform: translateX(20px); }
+
+.toggle-text {
+  font-size: 14px;
+  color: var(--body);
+}
+
+.toggle-help {
+  font-size: 13px;
+  color: var(--secondary);
+  margin-top: 4px;
+}
+
+/* Selectable Cards (from wizard) */
+.card-grid { display: grid; gap: 12px; }
+.card-grid-2 { grid-template-columns: 1fr 1fr; }
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.selectable-card {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--white);
+}
+
+.selectable-card:hover { border-color: var(--primary-lighter); box-shadow: var(--shadow-sm); }
+.selectable-card.selected { border-color: var(--primary); background: var(--primary-bg); }
+
+.card-icon { font-size: 20px; margin-bottom: 6px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 2px; }
+.card-desc { font-size: 12px; color: var(--secondary); line-height: 1.4; }
+.card-tag { font-size: 11px; color: var(--secondary); margin-top: 4px; font-weight: 600; }
+
+/* Draggable question cards */
+.question-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: box-shadow var(--transition);
+}
+
+.question-card:hover { box-shadow: var(--shadow-sm); }
+
+.drag-handle {
+  color: var(--secondary);
+  cursor: grab;
+  font-size: 14px;
+  padding: 4px 0;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.question-content { flex: 1; }
+
+.question-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 14px;
+  color: var(--heading);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.question-type {
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+.question-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.q-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all var(--transition);
+}
+
+.q-action-btn:hover { border-color: var(--primary); color: var(--primary); }
+.q-action-btn.delete:hover { border-color: var(--red); color: var(--red); }
+
+/* FAQ & Objection paired cards */
+.paired-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.paired-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.paired-label-q { color: var(--primary); }
+.paired-label-a { color: var(--emerald); }
+.paired-label-r { color: var(--red); }
+
+.paired-text {
+  font-size: 14px;
+  color: var(--heading);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.paired-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 10px 0;
+}
+
+/* Language pills */
+.lang-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.lang-pill {
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.lang-pill.selected { border-color: var(--primary); background: var(--primary-bg); color: var(--primary); }
+.lang-pill:hover { border-color: var(--primary-lighter); }
+
+/* Day pills */
+.day-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.day-pill {
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  min-width: 44px;
+  text-align: center;
+}
+
+.day-pill.selected { border-color: var(--primary); background: var(--primary); color: var(--white); }
+.day-pill:hover { border-color: var(--primary-lighter); }
+
+/* Settings Table */
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.settings-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.settings-table tr:last-child td { border-bottom: none; }
+
+.status-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--emerald);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.status-active .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); }
+
+.remove-link {
+  font-size: 13px;
+  color: var(--red);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--transition);
+}
+.remove-link:hover { color: #DC2626; }
+
+/* Voice tuning slider */
+.slider-group {
+  margin-bottom: 20px;
+}
+
+.slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.slider-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.slider-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 48px;
+  text-align: right;
+}
+
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform var(--transition);
+}
+
+.range-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* Info Banner */
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-lighter);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--primary);
+  line-height: 1.5;
+}
+
+.info-banner-icon { flex-shrink: 0; font-size: 16px; margin-top: 1px; }
+
+/* Password field */
+.password-wrap {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: var(--font);
+  font-weight: 600;
+  padding: 2px 4px;
+}
+
+.password-toggle:hover { color: var(--primary); }
+
+/* Holiday list */
+.holiday-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.holiday-item:last-child { border-bottom: none; }
+
+.holiday-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--heading);
+  font-variant-numeric: tabular-nums;
+  min-width: 100px;
+}
+
+.holiday-name {
+  font-size: 14px;
+  color: var(--body);
+  flex: 1;
+}
+
+/* Outcomes section */
+.outcome-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.outcome-box {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.outcome-box-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.outcome-box-title.qualified { color: var(--emerald); }
+.outcome-box-title.unqualified { color: var(--amber); }
+
+/* Guardrails */
+.guardrail-item {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.guardrail-icon { flex-shrink: 0; font-size: 14px; }
+.guardrail-icon.never { color: var(--red); }
+.guardrail-icon.always { color: var(--emerald); }
+
+/* Save bar */
+.save-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 12px 24px;
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  z-index: 300;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+}
+
+.save-bar.visible { display: flex; }
+
+.save-bar-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+  .overview-grid { grid-template-columns: 1fr; }
+  .rec-grid { grid-template-columns: 1fr; }
+  .setup-layout { grid-template-columns: 1fr; }
+  .sub-nav { position: static; }
+  .outcome-columns { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .card-grid-4 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .metrics-row { grid-template-columns: 1fr; }
+  .agent-header-inner { flex-wrap: wrap; }
+  .agent-actions { width: 100%; justify-content: flex-end; }
+  .topbar { padding: 0 16px; }
+  .main-content { padding: 16px; }
+  .bar-label { min-width: 120px; font-size: 12px; }
+  .card-grid-4 { grid-template-columns: 1fr; }
+  .card-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* Sub-tab within Knowledge */
+.sub-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.sub-tab {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  font-family: var(--font);
+}
+
+.sub-tab:hover { color: var(--heading); }
+.sub-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.sub-tab-panel { display: none; }
+.sub-tab-panel.active { display: block; }
+
+/* Add button */
+.add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  border: 1px dashed var(--primary-lighter);
+  background: var(--primary-bg);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font);
+  margin-top: 12px;
+}
+
+.add-btn:hover { background: var(--primary-lighter); border-style: solid; }
+
+/* Time picker row */
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.time-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: var(--font);
+  color: var(--heading);
+  width: 130px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.time-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+.time-separator {
+  font-size: 14px;
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+/* Connection test success */
+.test-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--emerald);
+  margin-left: 12px;
+}
+
+/* Attempt rows */
+.attempt-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.attempt-row:last-child { border-bottom: none; }
+
+.attempt-label {
+  font-size: 14px;
+  color: var(--body);
+  min-width: 180px;
+}
+
+.attempt-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: var(--font);
+  color: var(--heading);
+  outline: none;
+  background: var(--white);
+}
+
+.attempt-text {
+  font-size: 14px;
+  color: var(--secondary);
+  font-style: italic;
+}
+
+/* Transfer announcement */
+.announcement-box {
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="#" class="logo">
+      <span class="logo-icon">&#9670;</span>
+      Harmony
+    </a>
+    <div class="breadcrumb">
+      <a href="#">Agents</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Sarah</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="status-toggle" id="topStatusToggle" onclick="toggleAgentStatus()">
+      <div class="toggle-track active" id="topToggleTrack">
+        <div class="toggle-thumb"></div>
+      </div>
+      <span class="toggle-label active-label" id="topToggleLabel">Active</span>
+    </div>
+    <div class="user-avatar">NS</div>
+  </div>
+</div>
+
+<!-- Agent Header -->
+<div class="agent-header">
+  <div class="agent-header-inner">
+    <div class="agent-avatar">SA</div>
+    <div class="agent-info">
+      <div class="agent-name">Sarah</div>
+      <div class="agent-role">Qualification Specialist at Honeycomb Insurance</div>
+      <div class="agent-meta">
+        <span class="tone-badge">Professional & Warm</span>
+        <span class="status-dot-inline active-status" id="headerStatus">
+          <span class="dot"></span>
+          Active
+        </span>
+      </div>
+    </div>
+    <div class="agent-actions">
+      <button class="btn btn-outline btn-sm" onclick="alert('Test call initiated. The agent will call you at your registered number.')">&#9742; Test Call</button>
+      <button class="btn btn-outline-amber btn-sm" id="pauseBtn" onclick="toggleAgentStatus()">&#10074;&#10074; Pause Agent</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="calls">Calls</button>
+    <button class="tab-btn" data-tab="insights">Insights</button>
+    <button class="tab-btn" data-tab="setup">Agent Setup</button>
+    <button class="tab-btn" data-tab="operations">Operations</button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+
+<!-- ==================== TAB 1: OVERVIEW ==================== -->
+<div class="tab-panel active" id="tab-overview">
+
+  <!-- Metrics Row -->
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-value">1,247</div>
+      <div class="metric-label">Total Calls</div>
+      <div class="metric-sub">This month</div>
+      <div class="metric-trend trend-up">&#9650; +12% vs last month</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">34%</div>
+      <div class="metric-label">Answer Rate</div>
+      <div class="metric-sub">423 answered</div>
+      <div class="metric-trend trend-up">&#9650; +3%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">156</div>
+      <div class="metric-label">Qualified</div>
+      <div class="metric-sub">37% of answered</div>
+      <div class="metric-trend trend-down">&#9660; -2%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">48</div>
+      <div class="metric-label">Converted</div>
+      <div class="metric-sub">31% of qualified</div>
+      <div class="metric-trend trend-up">&#9650; +8%</div>
+    </div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="overview-grid">
+
+    <!-- Left: Recent Calls -->
+    <div>
+      <div class="section-header">
+        <div class="section-title">Recent Calls</div>
+        <a class="section-link" onclick="switchTab('calls')">View all &#8594;</a>
+      </div>
+      <div class="call-list" id="recentCallsList">
+        <!-- Call 1 -->
+        <div class="call-row" onclick="toggleCallSummary(0)">
+          <div class="call-avatar" style="background:#6366F1">MC</div>
+          <div class="call-contact">
+            <div class="call-name">Michael Chen</div>
+            <div class="call-company">Apex Ventures</div>
+          </div>
+          <span class="call-badge badge-qualified">Qualified</span>
+          <span class="call-duration">4:12</span>
+          <span class="call-time">2 hours ago</span>
+          <span class="call-expand-icon">&#9654;</span>
+        </div>
+        <div class="call-summary" id="callSummary0">Discussed commercial property insurance needs for their new office expansion. Prospect expressed strong interest in comprehensive coverage and requested a detailed proposal. Qualified based on company size (50+ employees) and budget authority confirmed.</div>
+
+        <!-- Call 2 -->
+        <div class="call-row" onclick="toggleCallSummary(1)">
+          <div class="call-avatar" style="background:#8B5CF6">RT</div>
+          <div class="call-contact">
+            <div class="call-name">Rachel Torres</div>
+            <div class="call-company">Skyline RE</div>
+          </div>
+          <span class="call-badge badge-transferred">Transferred</span>
+          <span class="call-duration">6:31</span>
+          <span class="call-time">3 hours ago</span>
+          <span class="call-expand-icon">&#9654;</span>
+        </div>
+        <div class="call-summary" id="callSummary1">Prospect was actively seeking professional liability coverage for their real estate brokerage. Had a pressing deadline for policy renewal. Transferred to sales team for immediate proposal generation. High-priority lead.</div>
+
+        <!-- Call 3 -->
+        <div class="call-row" onclick="toggleCallSummary(2)">
+          <div class="call-avatar" style="background:#9CA3AF">DP</div>
+          <div class="call-contact">
+            <div class="call-name">David Park</div>
+            <div class="call-company">Summit Holdings</div>
+          </div>
+          <span class="call-badge badge-no-answer">No Answer</span>
+          <span class="call-duration">0:00</span>
+          <span class="call-time">4 hours ago</span>
+          <span class="call-expand-icon">&#9654;</span>
+        </div>
+        <div class="call-summary" id="callSummary2">No answer after 6 rings. Voicemail not available. Scheduled for second attempt in 4 hours per sequence configuration.</div>
+
+        <!-- Call 4 -->
+        <div class="call-row" onclick="toggleCallSummary(3)">
+          <div class="call-avatar" style="background:#10B981">LJ</div>
+          <div class="call-contact">
+            <div class="call-name">Lisa Johnson</div>
+            <div class="call-company">Meridian Group</div>
+          </div>
+          <span class="call-badge badge-qualified">Qualified</span>
+          <span class="call-duration">3:45</span>
+          <span class="call-time">Yesterday</span>
+          <span class="call-expand-icon">&#9654;</span>
+        </div>
+        <div class="call-summary" id="callSummary3">Discussed workers' compensation needs for their construction division. Prospect confirmed they are the decision maker and have been comparing providers. Budget range aligns with our offerings. Follow-up meeting scheduled.</div>
+
+        <!-- Call 5 -->
+        <div class="call-row" onclick="toggleCallSummary(4)">
+          <div class="call-avatar" style="background:#F59E0B">JW</div>
+          <div class="call-contact">
+            <div class="call-name">James Wright</div>
+            <div class="call-company">Pacific Capital</div>
+          </div>
+          <span class="call-badge badge-not-qualified">Not Qualified</span>
+          <span class="call-duration">2:18</span>
+          <span class="call-time">Yesterday</span>
+          <span class="call-expand-icon">&#9654;</span>
+        </div>
+        <div class="call-summary" id="callSummary4">Company has fewer than 10 employees and does not meet the minimum threshold for commercial coverage. Prospect was polite but not a fit. Recommended personal insurance alternatives.</div>
+
+        <!-- Call 6 -->
+        <div class="call-row" onclick="toggleCallSummary(5)">
+          <div class="call-avatar" style="background:#6B7280">SK</div>
+          <div class="call-contact">
+            <div class="call-name">Sarah Kim</div>
+            <div class="call-company">Atlas Properties</div>
+          </div>
+          <span class="call-badge badge-voicemail">Voicemail</span>
+          <span class="call-duration">0:42</span>
+          <span class="call-time">Yesterday</span>
+          <span class="call-expand-icon">&#9654;</span>
+        </div>
+        <div class="call-summary" id="callSummary5">Left a personalized voicemail mentioning their recent property acquisition and the benefits of bundled commercial coverage. Second attempt scheduled for tomorrow morning.</div>
+
+        <!-- Call 7 -->
+        <div class="call-row" onclick="toggleCallSummary(6)">
+          <div class="call-avatar" style="background:#4F46E5">RC</div>
+          <div class="call-contact">
+            <div class="call-name">Robert Chen</div>
+            <div class="call-company">Oakwood Realty</div>
+          </div>
+          <span class="call-badge badge-qualified">Qualified</span>
+          <span class="call-duration">5:02</span>
+          <span class="call-time">2 days ago</span>
+          <span class="call-expand-icon">&#9654;</span>
+        </div>
+        <div class="call-summary" id="callSummary6">Extensive discussion about errors and omissions coverage for their expanding brokerage. Currently has 35 agents and plans to grow to 50 by year end. Decision timeline is within 30 days. Strong qualification signals.</div>
+
+        <!-- Call 8 -->
+        <div class="call-row" onclick="toggleCallSummary(7)">
+          <div class="call-avatar" style="background:#EC4899">AF</div>
+          <div class="call-contact">
+            <div class="call-name">Amanda Foster</div>
+            <div class="call-company">Pinnacle RE</div>
+          </div>
+          <span class="call-badge badge-transferred">Transferred</span>
+          <span class="call-duration">7:15</span>
+          <span class="call-time">2 days ago</span>
+          <span class="call-expand-icon">&#9654;</span>
+        </div>
+        <div class="call-summary" id="callSummary7">Prospect was referred by an existing client. Already familiar with Honeycomb's offerings and ready to discuss specific policy terms. Transferred to senior account executive for specialized commercial package discussion.</div>
+      </div>
+    </div>
+
+    <!-- Right: Insights -->
+    <div>
+      <div class="section-header">
+        <div class="section-title">Insights</div>
+        <a class="section-link" onclick="switchTab('insights')">See all &#8594;</a>
+      </div>
+      <div class="insight-list">
+        <div class="insight-card">
+          <div class="insight-header">
+            <span class="insight-icon">&#9888;</span>
+            <span class="insight-title">Pricing objection spike</span>
+            <span class="insight-priority priority-high">High</span>
+          </div>
+          <div class="insight-desc">28% of prospects ask about pricing before qualification. Consider adding a pricing FAQ to reduce drop-off.</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-header">
+            <span class="insight-icon">&#9650;</span>
+            <span class="insight-title">Decision-maker bypass</span>
+            <span class="insight-priority priority-medium">Medium</span>
+          </div>
+          <div class="insight-desc">42% of calls reach non-decision makers. Consider adding a gatekeeper navigation step.</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-header">
+            <span class="insight-icon">&#9201;</span>
+            <span class="insight-title">Optimal call window</span>
+            <span class="insight-priority priority-medium">Medium</span>
+          </div>
+          <div class="insight-desc">Answer rates peak between 10-11am. Consider shifting 60% of outbound volume to this window.</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-header">
+            <span class="insight-icon">&#8505;</span>
+            <span class="insight-title">Coverage question pattern</span>
+            <span class="insight-priority priority-low">Low</span>
+          </div>
+          <div class="insight-desc">Prospects frequently ask about liability coverage limits. Auto-generated FAQ suggestion available.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== TAB 2: CALLS ==================== -->
+<div class="tab-panel" id="tab-calls">
+  <div class="calls-toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">&#8981;</span>
+      <input type="text" class="search-input" placeholder="Search by name, company, or outcome..." style="padding-left:36px">
+    </div>
+    <div class="filter-pills">
+      <button class="filter-pill active" onclick="setFilter(this)">All</button>
+      <button class="filter-pill" onclick="setFilter(this)">Qualified</button>
+      <button class="filter-pill" onclick="setFilter(this)">Not Qualified</button>
+      <button class="filter-pill" onclick="setFilter(this)">Transferred</button>
+      <button class="filter-pill" onclick="setFilter(this)">No Answer</button>
+      <button class="filter-pill" onclick="setFilter(this)">Voicemail</button>
+    </div>
+  </div>
+
+  <table class="calls-table">
+    <thead>
+      <tr>
+        <th>Contact</th>
+        <th>Company</th>
+        <th>Outcome</th>
+        <th>Duration</th>
+        <th>Date</th>
+        <th>Summary</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="table-contact-name">Michael Chen</span></td>
+        <td>Apex Ventures</td>
+        <td><span class="call-badge badge-qualified">Qualified</span></td>
+        <td>4:12</td>
+        <td>May 14, 2026</td>
+        <td><span class="table-summary">Discussed commercial property insurance needs for office expansion</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Rachel Torres</span></td>
+        <td>Skyline RE</td>
+        <td><span class="call-badge badge-transferred">Transferred</span></td>
+        <td>6:31</td>
+        <td>May 14, 2026</td>
+        <td><span class="table-summary">Seeking professional liability coverage, transferred to sales</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">David Park</span></td>
+        <td>Summit Holdings</td>
+        <td><span class="call-badge badge-no-answer">No Answer</span></td>
+        <td>0:00</td>
+        <td>May 14, 2026</td>
+        <td><span class="table-summary">No answer, scheduled for retry</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Lisa Johnson</span></td>
+        <td>Meridian Group</td>
+        <td><span class="call-badge badge-qualified">Qualified</span></td>
+        <td>3:45</td>
+        <td>May 13, 2026</td>
+        <td><span class="table-summary">Workers' comp needs for construction division, meeting scheduled</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">James Wright</span></td>
+        <td>Pacific Capital</td>
+        <td><span class="call-badge badge-not-qualified">Not Qualified</span></td>
+        <td>2:18</td>
+        <td>May 13, 2026</td>
+        <td><span class="table-summary">Company too small for commercial coverage, referred to personal</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Sarah Kim</span></td>
+        <td>Atlas Properties</td>
+        <td><span class="call-badge badge-voicemail">Voicemail</span></td>
+        <td>0:42</td>
+        <td>May 13, 2026</td>
+        <td><span class="table-summary">Left voicemail about bundled commercial coverage</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Robert Chen</span></td>
+        <td>Oakwood Realty</td>
+        <td><span class="call-badge badge-qualified">Qualified</span></td>
+        <td>5:02</td>
+        <td>May 12, 2026</td>
+        <td><span class="table-summary">E&O coverage for expanding brokerage, 30-day timeline</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Amanda Foster</span></td>
+        <td>Pinnacle RE</td>
+        <td><span class="call-badge badge-transferred">Transferred</span></td>
+        <td>7:15</td>
+        <td>May 12, 2026</td>
+        <td><span class="table-summary">Referral lead, transferred to senior AE for package discussion</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Kevin Nguyen</span></td>
+        <td>Bridgeport LLC</td>
+        <td><span class="call-badge badge-qualified">Qualified</span></td>
+        <td>4:38</td>
+        <td>May 11, 2026</td>
+        <td><span class="table-summary">General liability and property coverage, multiple locations</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Maria Gonzalez</span></td>
+        <td>Crescent Homes</td>
+        <td><span class="call-badge badge-no-answer">No Answer</span></td>
+        <td>0:00</td>
+        <td>May 11, 2026</td>
+        <td><span class="table-summary">No answer on third attempt, marked as unreachable</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Thomas Baker</span></td>
+        <td>Redwood Partners</td>
+        <td><span class="call-badge badge-not-qualified">Not Qualified</span></td>
+        <td>1:54</td>
+        <td>May 10, 2026</td>
+        <td><span class="table-summary">Already under contract with competitor, not open to switching</span></td>
+      </tr>
+      <tr>
+        <td><span class="table-contact-name">Jennifer Walsh</span></td>
+        <td>Horizon Realty</td>
+        <td><span class="call-badge badge-voicemail">Voicemail</span></td>
+        <td>0:38</td>
+        <td>May 10, 2026</td>
+        <td><span class="table-summary">Left voicemail about policy renewal options</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <div class="pagination-info">Showing 1-12 of 1,247</div>
+    <div class="pagination-btns">
+      <button class="page-btn" disabled>&#8592; Previous</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">...</button>
+      <button class="page-btn">104</button>
+      <button class="page-btn">Next &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 3: INSIGHTS ==================== -->
+<div class="tab-panel" id="tab-insights">
+
+  <!-- Top Objections -->
+  <div class="insights-section">
+    <div class="insights-section-title">Top Objections</div>
+    <div class="bar-chart">
+      <div class="bar-item">
+        <span class="bar-label">Not interested right now</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:100%;background:var(--primary)"><span class="bar-value">87</span></div>
+        </div>
+      </div>
+      <div class="bar-item">
+        <span class="bar-label">Already have coverage</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:72%;background:var(--primary-light)"><span class="bar-value">63</span></div>
+        </div>
+      </div>
+      <div class="bar-item">
+        <span class="bar-label">Send me an email</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:52%;background:#818CF8"><span class="bar-value">45</span></div>
+        </div>
+      </div>
+      <div class="bar-item">
+        <span class="bar-label">Need to check with someone</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:44%;background:#A5B4FC"><span class="bar-value">38</span></div>
+        </div>
+      </div>
+      <div class="bar-item">
+        <span class="bar-label">Too expensive / pricing</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:36%;background:#C7D2FE"><span class="bar-value" style="color:var(--primary)">31</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Funnel -->
+  <div class="insights-section">
+    <div class="insights-section-title">Where We Lose</div>
+    <div class="funnel-wrap">
+      <div class="funnel-stage">
+        <div class="funnel-bar" style="width:100%;background:var(--primary)">Total Calls: 1,247</div>
+      </div>
+      <div class="funnel-loss">&#9660; 824 no answer</div>
+      <div class="funnel-stage">
+        <div class="funnel-bar" style="width:34%;background:var(--primary-light)">Answered: 423 (34%)</div>
+      </div>
+      <div class="funnel-loss">&#9660; 111 hung up</div>
+      <div class="funnel-stage">
+        <div class="funnel-bar" style="width:25%;background:#818CF8">Engaged 2+ min: 312 (74%)</div>
+      </div>
+      <div class="funnel-loss">&#9660; 156 not qualified</div>
+      <div class="funnel-stage">
+        <div class="funnel-bar" style="width:13%;background:#A5B4FC;color:var(--primary)">Qualified: 156 (50%)</div>
+      </div>
+      <div class="funnel-loss">&#9660; 108 no conversion</div>
+      <div class="funnel-stage">
+        <div class="funnel-bar" style="width:6%;background:var(--emerald);min-width:180px">Converted: 48 (31%)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optimization Recommendations -->
+  <div class="insights-section">
+    <div class="insights-section-title">Optimization Recommendations</div>
+    <div class="rec-grid">
+      <div class="rec-card">
+        <span class="rec-category cat-script">Script</span>
+        <div class="rec-title">Shorten opening line</div>
+        <div class="rec-desc">Your opening averages 42 words. Top-performing agents use 25 words. Reducing length could improve engagement by ~15%.</div>
+        <div class="rec-actions">
+          <button class="btn btn-outline btn-sm">Apply</button>
+          <a class="rec-dismiss">Dismiss</a>
+        </div>
+      </div>
+      <div class="rec-card">
+        <span class="rec-category cat-timing">Timing</span>
+        <div class="rec-title">Shift to morning calls</div>
+        <div class="rec-desc">10-11am shows 48% answer rate vs 28% afternoon. Re-allocate 40% of afternoon volume.</div>
+        <div class="rec-actions">
+          <button class="btn btn-outline btn-sm">Apply</button>
+          <a class="rec-dismiss">Dismiss</a>
+        </div>
+      </div>
+      <div class="rec-card">
+        <span class="rec-category cat-objections">Objections</span>
+        <div class="rec-title">Add "too expensive" handler</div>
+        <div class="rec-desc">31 prospects cited pricing as a concern. No objection handler exists for this. Suggested response available.</div>
+        <div class="rec-actions">
+          <button class="btn btn-outline btn-sm">Apply</button>
+          <a class="rec-dismiss">Dismiss</a>
+        </div>
+      </div>
+      <div class="rec-card">
+        <span class="rec-category cat-knowledge">Knowledge</span>
+        <div class="rec-title">Add liability limits FAQ</div>
+        <div class="rec-desc">22 prospects asked about coverage limits. Adding this FAQ could reduce transfers by 8%.</div>
+        <div class="rec-actions">
+          <button class="btn btn-outline btn-sm">Apply</button>
+          <a class="rec-dismiss">Dismiss</a>
+        </div>
+      </div>
+      <div class="rec-card">
+        <span class="rec-category cat-routing">Routing</span>
+        <div class="rec-title">Enable voicemail detection</div>
+        <div class="rec-desc">183 calls went to voicemail without detection. Enable voicemail detection to save ~6 hours of agent time.</div>
+        <div class="rec-actions">
+          <button class="btn btn-outline btn-sm">Apply</button>
+          <a class="rec-dismiss">Dismiss</a>
+        </div>
+      </div>
+      <div class="rec-card">
+        <span class="rec-category cat-compliance">Compliance</span>
+        <div class="rec-title">Add state disclosure</div>
+        <div class="rec-desc">12 calls to California prospects lacked required state disclosure. Add auto-detection for CA calls.</div>
+        <div class="rec-actions">
+          <button class="btn btn-outline btn-sm">Apply</button>
+          <a class="rec-dismiss">Dismiss</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 4: AGENT SETUP ==================== -->
+<div class="tab-panel" id="tab-setup">
+  <div class="setup-layout">
+    <!-- Sub Nav -->
+    <div class="sub-nav" id="setupNav">
+      <a class="sub-nav-item active" data-sub="setup-identity">Identity</a>
+      <a class="sub-nav-item" data-sub="setup-script">Call Script</a>
+      <a class="sub-nav-item" data-sub="setup-flow">Call Flow</a>
+      <a class="sub-nav-item" data-sub="setup-knowledge">Knowledge</a>
+      <a class="sub-nav-item" data-sub="setup-objections">Objections</a>
+      <a class="sub-nav-item" data-sub="setup-outcomes">Outcomes</a>
+      <a class="sub-nav-item" data-sub="setup-data">Data Fields</a>
+      <a class="sub-nav-item" data-sub="setup-guardrails">Guardrails</a>
+    </div>
+
+    <!-- Sub Content Panels -->
+    <div>
+      <!-- IDENTITY -->
+      <div class="sub-panel active" id="setup-identity">
+        <div class="sub-content">
+          <div class="sub-content-title">Identity</div>
+          <div class="sub-content-desc">Configure your agent's identity, persona, and communication style.</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Agent Name</label>
+              <input type="text" class="form-input" value="Sarah" oninput="showSaveBar()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Agent Role</label>
+              <input type="text" class="form-input" value="Qualification Specialist" oninput="showSaveBar()">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Company Name</label>
+              <input type="text" class="form-input" value="Honeycomb Insurance" oninput="showSaveBar()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company Industry</label>
+              <select class="form-select" onchange="showSaveBar()">
+                <option>Insurance</option>
+                <option>Real Estate</option>
+                <option>Technology</option>
+                <option>Financial Services</option>
+                <option>Healthcare</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Company Description</label>
+            <textarea class="form-textarea" rows="3" oninput="showSaveBar()">Honeycomb Insurance provides modern commercial insurance solutions for small and mid-size businesses. We specialize in property, liability, and workers' compensation coverage with AI-powered underwriting for fast, accurate quotes.</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tone</label>
+            <div class="form-hint">Choose the communication style that best represents your brand.</div>
+            <div class="card-grid card-grid-4">
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9733;</div>
+                <div class="card-title">Professional</div>
+                <div class="card-desc">Formal and business-like tone</div>
+              </div>
+              <div class="selectable-card selected" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9829;</div>
+                <div class="card-title">Professional & Warm</div>
+                <div class="card-desc">Approachable yet professional</div>
+              </div>
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9788;</div>
+                <div class="card-title">Friendly</div>
+                <div class="card-desc">Casual and conversational</div>
+              </div>
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9889;</div>
+                <div class="card-title">Energetic</div>
+                <div class="card-desc">Upbeat and enthusiastic</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="toggle-wrap">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">AI Disclosure</div>
+                <div class="toggle-help">Agent identifies itself as an AI assistant at the start of each call.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Languages</label>
+            <div class="lang-pills">
+              <span class="lang-pill selected" onclick="togglePill(this)">English</span>
+              <span class="lang-pill" onclick="togglePill(this)">Spanish</span>
+              <span class="lang-pill" onclick="togglePill(this)">French</span>
+              <span class="lang-pill" onclick="togglePill(this)">German</span>
+              <span class="lang-pill" onclick="togglePill(this)">Portuguese</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALL SCRIPT -->
+      <div class="sub-panel" id="setup-script">
+        <div class="sub-content">
+          <div class="sub-content-title">Call Script</div>
+          <div class="sub-content-desc">Define how your agent starts conversations and its primary purpose.</div>
+
+          <div class="form-group">
+            <label class="form-label">Call Type</label>
+            <div class="card-grid card-grid-4">
+              <div class="selectable-card selected" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9742;</div>
+                <div class="card-title">Inbound</div>
+                <div class="card-desc">Handle incoming calls</div>
+              </div>
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#8599;</div>
+                <div class="card-title">Outbound</div>
+                <div class="card-desc">Make outgoing calls</div>
+              </div>
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#8646;</div>
+                <div class="card-title">Both</div>
+                <div class="card-desc">Handle both directions</div>
+              </div>
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9998;</div>
+                <div class="card-title">Custom</div>
+                <div class="card-desc">Custom call handling</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Call Purpose</label>
+            <textarea class="form-textarea" rows="3" oninput="showSaveBar()">Qualify inbound leads for commercial insurance by understanding their business type, employee count, coverage needs, budget range, and decision timeline. Route qualified prospects to sales for proposal generation.</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Opening Line</label>
+            <div class="form-hint">Use {{variable_name}} to insert dynamic values from CRM data.</div>
+            <textarea class="form-textarea" rows="3" oninput="showSaveBar()">Hi {{first_name}}, this is Sarah from Honeycomb Insurance. I understand you're looking into commercial coverage for {{company_name}}. I'd love to help you find the right solution. Do you have a few minutes to chat?</textarea>
+          </div>
+
+          <div class="form-group">
+            <div class="toggle-wrap">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">Recorded Line Disclosure</div>
+                <div class="toggle-help">Automatically inform the caller that the call may be recorded.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALL FLOW -->
+      <div class="sub-panel" id="setup-flow">
+        <div class="sub-content">
+          <div class="sub-content-title">Call Flow</div>
+          <div class="sub-content-desc">Define the sequence of qualifying questions your agent asks during calls.</div>
+
+          <div id="questionCards">
+            <div class="question-card">
+              <span class="drag-handle">&#9776;</span>
+              <div class="question-content">
+                <div class="question-num">Question 1</div>
+                <div class="question-text">What type of business do you operate?</div>
+                <div class="question-type">Open-ended -- Maps to: business_type</div>
+              </div>
+              <div class="question-actions">
+                <button class="q-action-btn" title="Edit">&#9998;</button>
+                <button class="q-action-btn delete" title="Remove">&#10005;</button>
+              </div>
+            </div>
+            <div class="question-card">
+              <span class="drag-handle">&#9776;</span>
+              <div class="question-content">
+                <div class="question-num">Question 2</div>
+                <div class="question-text">How many employees does your company have?</div>
+                <div class="question-type">Numeric -- Maps to: employee_count</div>
+              </div>
+              <div class="question-actions">
+                <button class="q-action-btn" title="Edit">&#9998;</button>
+                <button class="q-action-btn delete" title="Remove">&#10005;</button>
+              </div>
+            </div>
+            <div class="question-card">
+              <span class="drag-handle">&#9776;</span>
+              <div class="question-content">
+                <div class="question-num">Question 3</div>
+                <div class="question-text">What types of coverage are you most interested in?</div>
+                <div class="question-type">Multiple choice -- Maps to: coverage_interest</div>
+              </div>
+              <div class="question-actions">
+                <button class="q-action-btn" title="Edit">&#9998;</button>
+                <button class="q-action-btn delete" title="Remove">&#10005;</button>
+              </div>
+            </div>
+            <div class="question-card">
+              <span class="drag-handle">&#9776;</span>
+              <div class="question-content">
+                <div class="question-num">Question 4</div>
+                <div class="question-text">What is your approximate annual budget for insurance?</div>
+                <div class="question-type">Range -- Maps to: budget_range</div>
+              </div>
+              <div class="question-actions">
+                <button class="q-action-btn" title="Edit">&#9998;</button>
+                <button class="q-action-btn delete" title="Remove">&#10005;</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="add-btn" onclick="showSaveBar()">+ Add Question</button>
+        </div>
+      </div>
+
+      <!-- KNOWLEDGE -->
+      <div class="sub-panel" id="setup-knowledge">
+        <div class="sub-content">
+          <div class="sub-content-title">Knowledge</div>
+          <div class="sub-content-desc">Define what your agent can and cannot discuss with prospects.</div>
+
+          <div class="sub-tabs">
+            <button class="sub-tab active" onclick="switchSubTab(this, 'knowledge-can')">Can Answer</button>
+            <button class="sub-tab" onclick="switchSubTab(this, 'knowledge-cant')">Must Not Answer</button>
+          </div>
+
+          <div class="sub-tab-panel active" id="knowledge-can">
+            <div class="paired-card">
+              <div class="paired-label paired-label-q">Question</div>
+              <div class="paired-text">What types of commercial insurance do you offer?</div>
+              <div class="paired-divider"></div>
+              <div class="paired-label paired-label-a">Answer</div>
+              <div class="paired-text">We offer comprehensive commercial insurance including general liability, property, workers' compensation, professional liability (E&O), and commercial auto coverage. Each policy is customized to your business needs.</div>
+            </div>
+            <div class="paired-card">
+              <div class="paired-label paired-label-q">Question</div>
+              <div class="paired-text">How long does it take to get a quote?</div>
+              <div class="paired-divider"></div>
+              <div class="paired-label paired-label-a">Answer</div>
+              <div class="paired-text">Most businesses receive an initial quote within 24 hours. Our AI-powered underwriting allows us to process applications faster than traditional insurers. Complex policies may take up to 3 business days.</div>
+            </div>
+            <div class="paired-card">
+              <div class="paired-label paired-label-q">Question</div>
+              <div class="paired-text">What is the minimum company size you work with?</div>
+              <div class="paired-divider"></div>
+              <div class="paired-label paired-label-a">Answer</div>
+              <div class="paired-text">We work with businesses of all sizes, but our commercial policies are designed for companies with at least 5 employees. For smaller businesses, we can recommend our small business starter package.</div>
+            </div>
+            <div class="paired-card">
+              <div class="paired-label paired-label-q">Question</div>
+              <div class="paired-text">Do you offer bundled coverage discounts?</div>
+              <div class="paired-divider"></div>
+              <div class="paired-label paired-label-a">Answer</div>
+              <div class="paired-text">Yes, we offer a Business Owner's Policy (BOP) that bundles general liability and property insurance at a 15-20% discount compared to purchasing separately. Additional coverages can be added to the bundle.</div>
+            </div>
+
+            <button class="add-btn" onclick="showSaveBar()">+ Add FAQ</button>
+          </div>
+
+          <div class="sub-tab-panel" id="knowledge-cant">
+            <div class="info-banner">
+              <span class="info-banner-icon">&#9432;</span>
+              <span>Topics listed here will be politely deflected. The agent will redirect the conversation or offer to connect the prospect with the appropriate department.</span>
+            </div>
+
+            <div class="paired-card">
+              <div class="paired-label paired-label-r">Restricted Topic</div>
+              <div class="paired-text">Specific pricing, premium amounts, or exact coverage costs</div>
+            </div>
+            <div class="paired-card">
+              <div class="paired-label paired-label-r">Restricted Topic</div>
+              <div class="paired-text">Claims processing details or specific claim outcomes</div>
+            </div>
+            <div class="paired-card">
+              <div class="paired-label paired-label-r">Restricted Topic</div>
+              <div class="paired-text">Legal advice or interpretation of policy terms and conditions</div>
+            </div>
+
+            <button class="add-btn" onclick="showSaveBar()">+ Add Restricted Topic</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OBJECTIONS -->
+      <div class="sub-panel" id="setup-objections">
+        <div class="sub-content">
+          <div class="sub-content-title">Objections</div>
+          <div class="sub-content-desc">Define how your agent responds to common objections during calls.</div>
+
+          <div class="paired-card">
+            <div class="paired-label paired-label-q">Objection</div>
+            <div class="paired-text">"We already have insurance coverage."</div>
+            <div class="paired-divider"></div>
+            <div class="paired-label paired-label-a">Response</div>
+            <div class="paired-text">That's great that you're already covered! Many of our clients come to us for a second opinion on their coverage. Would it be helpful if I walked you through a quick comparison to make sure you're not overpaying or missing any critical coverage areas?</div>
+          </div>
+          <div class="paired-card">
+            <div class="paired-label paired-label-q">Objection</div>
+            <div class="paired-text">"I'm not the right person to talk to about this."</div>
+            <div class="paired-divider"></div>
+            <div class="paired-label paired-label-a">Response</div>
+            <div class="paired-text">I completely understand. Could you help me connect with the person who handles insurance decisions for your company? I want to make sure the right person has the information they need.</div>
+          </div>
+          <div class="paired-card">
+            <div class="paired-label paired-label-q">Objection</div>
+            <div class="paired-text">"Can you just send me an email instead?"</div>
+            <div class="paired-divider"></div>
+            <div class="paired-label paired-label-a">Response</div>
+            <div class="paired-text">Absolutely, I'd be happy to send over some information. Before I do, could I ask just two quick questions so I can customize what I send? That way you'll get exactly what's relevant to your business rather than generic materials.</div>
+          </div>
+          <div class="paired-card">
+            <div class="paired-label paired-label-q">Objection</div>
+            <div class="paired-text">"We're not interested right now."</div>
+            <div class="paired-divider"></div>
+            <div class="paired-label paired-label-a">Response</div>
+            <div class="paired-text">I appreciate your honesty. Just to make sure I'm reaching out at a better time -- when does your current policy come up for renewal? I can follow up closer to that date so you have options to compare.</div>
+          </div>
+
+          <button class="add-btn" onclick="showSaveBar()">+ Add Objection Handler</button>
+        </div>
+      </div>
+
+      <!-- OUTCOMES -->
+      <div class="sub-panel" id="setup-outcomes">
+        <div class="sub-content">
+          <div class="sub-content-title">Outcomes</div>
+          <div class="sub-content-desc">Define what happens when the agent qualifies or disqualifies a prospect.</div>
+
+          <div class="outcome-columns">
+            <div class="outcome-box" style="border-color:var(--emerald-light)">
+              <div class="outcome-box-title qualified">&#10003; Qualified Outcome</div>
+              <div class="form-hint" style="margin-bottom:16px">Action taken when a prospect meets all qualification criteria.</div>
+
+              <div class="form-group">
+                <label class="form-label">Action</label>
+                <select class="form-select" onchange="showSaveBar()">
+                  <option selected>Hot Transfer to Sales</option>
+                  <option>Schedule Meeting</option>
+                  <option>Send to CRM</option>
+                  <option>Send Email</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Transfer Number</label>
+                <input type="text" class="form-input" value="+1 (415) 555-0200" oninput="showSaveBar()">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Transfer Announcement</label>
+                <textarea class="form-textarea" rows="2" oninput="showSaveBar()">I have a qualified prospect on the line interested in commercial coverage for a {{employee_count}}-person {{business_type}} company.</textarea>
+              </div>
+            </div>
+
+            <div class="outcome-box" style="border-color:var(--amber-light)">
+              <div class="outcome-box-title unqualified">&#10007; Unqualified Outcome</div>
+              <div class="form-hint" style="margin-bottom:16px">Action taken when a prospect does not meet qualification criteria.</div>
+
+              <div class="form-group">
+                <label class="form-label">Action</label>
+                <select class="form-select" onchange="showSaveBar()">
+                  <option>Politely End Call</option>
+                  <option selected>Send Follow-up Email</option>
+                  <option>Add to Nurture Sequence</option>
+                  <option>Transfer to Support</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Closing Message</label>
+                <textarea class="form-textarea" rows="2" oninput="showSaveBar()">Thank you for your time, {{first_name}}. While we may not be the best fit right now, I'll send you some helpful resources. Feel free to reach out anytime your needs change.</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATA FIELDS -->
+      <div class="sub-panel" id="setup-data">
+        <div class="sub-content">
+          <div class="sub-content-title">Data Fields</div>
+          <div class="sub-content-desc">Configure the data your agent receives from and sends back to your CRM.</div>
+
+          <div class="sub-tabs">
+            <button class="sub-tab active" onclick="switchSubTab(this, 'data-input')">Input Fields (from CRM)</button>
+            <button class="sub-tab" onclick="switchSubTab(this, 'data-output')">Output Fields (to CRM)</button>
+          </div>
+
+          <div class="sub-tab-panel active" id="data-input">
+            <div class="info-banner">
+              <span class="info-banner-icon">&#9432;</span>
+              <span>These fields are received from your CRM before each call. They can be used as variables in scripts and questions using {{field_name}} syntax.</span>
+            </div>
+
+            <table class="settings-table">
+              <thead>
+                <tr>
+                  <th>Field Name</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>first_name</strong></td>
+                  <td>Text</td>
+                  <td>Yes</td>
+                  <td>Prospect's first name</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>last_name</strong></td>
+                  <td>Text</td>
+                  <td>Yes</td>
+                  <td>Prospect's last name</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>company_name</strong></td>
+                  <td>Text</td>
+                  <td>Yes</td>
+                  <td>Company or organization name</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>phone_number</strong></td>
+                  <td>Phone</td>
+                  <td>Yes</td>
+                  <td>Primary phone number to dial</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>lead_source</strong></td>
+                  <td>Text</td>
+                  <td>No</td>
+                  <td>Where the lead originated</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <button class="add-btn" onclick="showSaveBar()">+ Add Input Field</button>
+          </div>
+
+          <div class="sub-tab-panel" id="data-output">
+            <div class="info-banner">
+              <span class="info-banner-icon">&#9432;</span>
+              <span>These fields are extracted from the conversation and sent back to your CRM after each call.</span>
+            </div>
+
+            <table class="settings-table">
+              <thead>
+                <tr>
+                  <th>Field Name</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>call_summary</strong></td>
+                  <td>Text</td>
+                  <td>AI-generated summary of the conversation</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>qualification_status</strong></td>
+                  <td>Text</td>
+                  <td>Qualified, Not Qualified, or Needs Follow-up</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>call_duration</strong></td>
+                  <td>Number</td>
+                  <td>Duration of the call in seconds</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>next_action</strong></td>
+                  <td>Text</td>
+                  <td>Recommended next step (transfer, follow-up, close)</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>extracted_seats</strong></td>
+                  <td>Number</td>
+                  <td>Number of employees or seats mentioned</td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <button class="add-btn" onclick="showSaveBar()">+ Add Output Field</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GUARDRAILS -->
+      <div class="sub-panel" id="setup-guardrails">
+        <div class="sub-content">
+          <div class="sub-content-title">Guardrails</div>
+          <div class="sub-content-desc">Set boundaries for your agent's behavior to ensure compliance and brand safety.</div>
+
+          <div class="form-group">
+            <label class="form-label">Never Say</label>
+            <div class="form-hint">Phrases or topics the agent must never use or mention.</div>
+            <div class="guardrail-item"><span class="guardrail-icon never">&#10005;</span> Never guarantee specific coverage outcomes or claim results</div>
+            <div class="guardrail-item"><span class="guardrail-icon never">&#10005;</span> Never mention competitor names or compare policies directly</div>
+            <div class="guardrail-item"><span class="guardrail-icon never">&#10005;</span> Never provide specific pricing without underwriting approval</div>
+            <div class="guardrail-item"><span class="guardrail-icon never">&#10005;</span> Never make promises about policy approval timelines</div>
+            <button class="add-btn" onclick="showSaveBar()">+ Add Rule</button>
+          </div>
+
+          <div class="form-group" style="margin-top:24px">
+            <label class="form-label">Always Say</label>
+            <div class="form-hint">Phrases or disclosures the agent must include in every call.</div>
+            <div class="guardrail-item"><span class="guardrail-icon always">&#10003;</span> Always disclose that this is an AI-powered call</div>
+            <div class="guardrail-item"><span class="guardrail-icon always">&#10003;</span> Always mention that the call may be recorded</div>
+            <div class="guardrail-item"><span class="guardrail-icon always">&#10003;</span> Always confirm the prospect's consent to continue</div>
+            <button class="add-btn" onclick="showSaveBar()">+ Add Rule</button>
+          </div>
+
+          <div class="form-row" style="margin-top:24px">
+            <div class="form-group">
+              <label class="form-label">Silence Timeout</label>
+              <div class="form-hint">Seconds of silence before the agent prompts the prospect.</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="number" class="form-input" value="8" style="width:80px" oninput="showSaveBar()">
+                <span style="font-size:14px;color:var(--secondary)">seconds</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Call Duration</label>
+              <div class="form-hint">Maximum time before the agent wraps up the call.</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="number" class="form-input" value="15" style="width:80px" oninput="showSaveBar()">
+                <span style="font-size:14px;color:var(--secondary)">minutes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 5: OPERATIONS ==================== -->
+<div class="tab-panel" id="tab-operations">
+  <div class="setup-layout">
+    <!-- Sub Nav -->
+    <div class="sub-nav" id="opsNav">
+      <a class="sub-nav-item active" data-sub="ops-voice">Voice</a>
+      <a class="sub-nav-item" data-sub="ops-telephony">Telephony</a>
+      <a class="sub-nav-item" data-sub="ops-transfer">Call Transfer</a>
+      <a class="sub-nav-item" data-sub="ops-scheduling">Scheduling</a>
+      <a class="sub-nav-item" data-sub="ops-integrations">Integrations</a>
+      <a class="sub-nav-item" data-sub="ops-sequence">Sequence</a>
+      <a class="sub-nav-item" data-sub="ops-compliance">Compliance</a>
+    </div>
+
+    <!-- Sub Content Panels -->
+    <div>
+      <!-- VOICE -->
+      <div class="sub-panel active" id="ops-voice">
+        <div class="sub-content">
+          <div class="sub-content-title">Voice</div>
+          <div class="sub-content-desc">Select and tune your agent's voice model.</div>
+
+          <div class="form-group">
+            <label class="form-label">Voice Model</label>
+            <div class="card-grid card-grid-4">
+              <div class="selectable-card selected" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9654;</div>
+                <div class="card-title">Aria</div>
+                <div class="card-desc">Natural, warm American female</div>
+                <div class="card-tag">Female / US</div>
+              </div>
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9654;</div>
+                <div class="card-title">Marcus</div>
+                <div class="card-desc">Deep, professional American male</div>
+                <div class="card-tag">Male / US</div>
+              </div>
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9654;</div>
+                <div class="card-title">Sophie</div>
+                <div class="card-desc">Friendly British female</div>
+                <div class="card-tag">Female / UK</div>
+              </div>
+              <div class="selectable-card" onclick="selectCard(this, event)">
+                <div class="card-icon">&#9654;</div>
+                <div class="card-title">James</div>
+                <div class="card-desc">Authoritative British male</div>
+                <div class="card-tag">Male / UK</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:28px">
+            <label class="form-label" style="margin-bottom:16px">Voice Tuning</label>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Speed</span>
+                <span class="slider-value" id="speedValue">1.0x</span>
+              </div>
+              <input type="range" class="range-slider" min="50" max="200" value="100" oninput="document.getElementById('speedValue').textContent=(this.value/100).toFixed(1)+'x';showSaveBar()">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--secondary);margin-top:4px">
+                <span>0.5x</span><span>2.0x</span>
+              </div>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Pitch</span>
+                <span class="slider-value" id="pitchValue">0%</span>
+              </div>
+              <input type="range" class="range-slider" min="-50" max="50" value="0" oninput="document.getElementById('pitchValue').textContent=(this.value>0?'+':'')+this.value+'%';showSaveBar()">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--secondary);margin-top:4px">
+                <span>-50%</span><span>+50%</span>
+              </div>
+            </div>
+
+            <button class="btn btn-outline btn-sm" style="margin-top:8px">&#9654; Preview Voice</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TELEPHONY -->
+      <div class="sub-panel" id="ops-telephony">
+        <div class="sub-content">
+          <div class="sub-content-title">Telephony</div>
+          <div class="sub-content-desc">Manage phone numbers for outbound and inbound calls.</div>
+
+          <div class="form-group">
+            <label class="form-label">Outbound Numbers</label>
+            <div class="form-hint">Phone numbers used when your agent makes outbound calls.</div>
+
+            <table class="settings-table">
+              <thead>
+                <tr>
+                  <th>Number</th>
+                  <th>Label</th>
+                  <th>Region</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>+1 (415) 555-0142</td>
+                  <td>Main</td>
+                  <td>US - California</td>
+                  <td><span class="status-active"><span class="dot"></span> Active</span></td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td>+1 (212) 555-0198</td>
+                  <td>East Coast</td>
+                  <td>US - New York</td>
+                  <td><span class="status-active"><span class="dot"></span> Active</span></td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <button class="add-btn" onclick="showSaveBar()">+ Add Number</button>
+          </div>
+
+          <div style="margin-top:24px">
+            <div class="toggle-wrap" style="margin-bottom:16px">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">Auto-rotate numbers</div>
+                <div class="toggle-help">Automatically rotate between numbers to improve answer rates.</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Country</label>
+                <select class="form-select" onchange="showSaveBar()">
+                  <option selected>United States</option>
+                  <option>Canada</option>
+                  <option>United Kingdom</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Area Code Preference</label>
+                <input type="text" class="form-input" placeholder="e.g. 415, 212" oninput="showSaveBar()">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:32px">
+            <label class="form-label">Inbound Numbers</label>
+            <div class="form-hint">Numbers prospects can call back on.</div>
+
+            <table class="settings-table">
+              <thead>
+                <tr>
+                  <th>Number</th>
+                  <th>Label</th>
+                  <th>Region</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>+1 (415) 555-0100</td>
+                  <td>Main Inbound</td>
+                  <td>US - California</td>
+                  <td><span class="status-active"><span class="dot"></span> Active</span></td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <button class="add-btn" onclick="showSaveBar()">+ Add Number</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALL TRANSFER -->
+      <div class="sub-panel" id="ops-transfer">
+        <div class="sub-content">
+          <div class="sub-content-title">Call Transfer</div>
+          <div class="sub-content-desc">Configure transfer destinations and call center settings.</div>
+
+          <div class="form-group">
+            <label class="form-label">Transfer Destinations</label>
+
+            <table class="settings-table">
+              <thead>
+                <tr>
+                  <th>Label</th>
+                  <th>Number</th>
+                  <th>Type</th>
+                  <th>Hours</th>
+                  <th>Priority</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Sales Team</strong></td>
+                  <td>+1 (415) 555-0200</td>
+                  <td>Round Robin</td>
+                  <td>8am-6pm PST</td>
+                  <td><span class="call-badge badge-qualified">Primary</span></td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Overflow</strong></td>
+                  <td>+1 (415) 555-0201</td>
+                  <td>Sequential</td>
+                  <td>8am-8pm PST</td>
+                  <td><span class="call-badge badge-no-answer">Backup</span></td>
+                  <td><a class="remove-link">Remove</a></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <button class="add-btn" onclick="showSaveBar()">+ Add Destination</button>
+          </div>
+
+          <div style="margin-top:32px">
+            <label class="form-label" style="margin-bottom:16px">Call Center Settings</label>
+
+            <div class="form-group">
+              <label class="form-label">Operating Hours</label>
+              <div class="time-row">
+                <input type="time" class="time-input" value="08:00" onchange="showSaveBar()">
+                <span class="time-separator">to</span>
+                <input type="time" class="time-input" value="18:00" onchange="showSaveBar()">
+                <select class="form-select" style="width:160px" onchange="showSaveBar()">
+                  <option selected>US/Pacific (PST)</option>
+                  <option>US/Eastern (EST)</option>
+                  <option>US/Central (CST)</option>
+                  <option>US/Mountain (MST)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Max Concurrent Transfers</label>
+                <input type="number" class="form-input" value="5" style="width:100px" oninput="showSaveBar()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">If Unavailable</label>
+                <select class="form-select" onchange="showSaveBar()">
+                  <option selected>Schedule callback</option>
+                  <option>Leave voicemail</option>
+                  <option>Try again in 5 min</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="toggle-wrap" style="margin-bottom:8px">
+                <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+                <div class="toggle-text">Transfer Announcement</div>
+              </div>
+              <textarea class="form-textarea" rows="2" oninput="showSaveBar()">I have a qualified prospect on the line interested in commercial coverage. Company: {{company_name}}, {{employee_count}} employees, seeking {{coverage_interest}}.</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCHEDULING -->
+      <div class="sub-panel" id="ops-scheduling">
+        <div class="sub-content">
+          <div class="sub-content-title">Scheduling</div>
+          <div class="sub-content-desc">Configure calendar integration for automated meeting booking.</div>
+
+          <div class="form-group">
+            <label class="form-label">Calendar Provider</label>
+            <select class="form-select" onchange="showSaveBar()">
+              <option selected>Calendly</option>
+              <option>Google Calendar</option>
+              <option>HubSpot</option>
+              <option>Outlook</option>
+              <option>Custom URL</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Calendar Link</label>
+            <input type="text" class="form-input" value="https://calendly.com/honeycomb-sales/30min" oninput="showSaveBar()">
+          </div>
+
+          <div class="form-group">
+            <div class="toggle-wrap">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">Booking Confirmation</div>
+                <div class="toggle-help">Agent will confirm the booking details with the prospect before finalizing.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Buffer Time</label>
+            <div class="form-hint">Minimum gap between meetings.</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="number" class="form-input" value="15" style="width:80px" oninput="showSaveBar()">
+              <span style="font-size:14px;color:var(--secondary)">minutes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTEGRATIONS -->
+      <div class="sub-panel" id="ops-integrations">
+        <div class="sub-content">
+          <div class="sub-content-title">Integrations</div>
+          <div class="sub-content-desc">Connect your CRM and configure data synchronization.</div>
+
+          <div class="form-group">
+            <label class="form-label">CRM Platform</label>
+            <select class="form-select" onchange="showSaveBar()">
+              <option>Salesforce</option>
+              <option selected>HubSpot</option>
+              <option>Custom API</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">API Endpoint</label>
+            <input type="text" class="form-input" value="https://api.hubspot.com/crm/v3/objects/contacts" oninput="showSaveBar()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">API Key</label>
+            <div class="password-wrap">
+              <input type="password" class="form-input" id="apiKeyInput" value="pat-na1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="showSaveBar()">
+              <button class="password-toggle" onclick="togglePassword()">Show</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Write-back Trigger</label>
+            <select class="form-select" onchange="showSaveBar()">
+              <option>After every call</option>
+              <option selected>Only qualified calls</option>
+              <option>Manual review</option>
+            </select>
+          </div>
+
+          <div style="display:flex;align-items:center;margin-top:8px">
+            <button class="btn btn-outline btn-sm" id="testConnBtn" onclick="testConnection()">Test Connection</button>
+            <span class="test-success" id="testSuccess" style="display:none">&#10003; Connected successfully</span>
+          </div>
+
+          <div class="info-banner" style="margin-top:24px">
+            <span class="info-banner-icon">&#9432;</span>
+            <span>Configure which fields are sent to and received from your CRM in <strong>Agent Setup &gt; Data Fields</strong>.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEQUENCE -->
+      <div class="sub-panel" id="ops-sequence">
+        <div class="sub-content">
+          <div class="sub-content-title">Sequence</div>
+          <div class="sub-content-desc">Configure call attempt rules, intervals, and scheduling.</div>
+
+          <div class="form-group">
+            <label class="form-label">Call Attempts</label>
+            <div class="form-row" style="margin-bottom:16px">
+              <div>
+                <label class="form-label" style="font-size:13px">Max Attempts</label>
+                <div class="form-hint">Maximum times the agent will try to reach a prospect.</div>
+                <input type="number" class="form-input" value="3" style="width:80px" oninput="showSaveBar()">
+              </div>
+            </div>
+
+            <label class="form-label" style="font-size:13px;margin-bottom:8px">Interval Between Attempts</label>
+            <div class="attempt-row">
+              <span class="attempt-label">After 1st attempt: wait</span>
+              <select class="attempt-select" onchange="showSaveBar()">
+                <option>1 hour</option>
+                <option selected>4 hours</option>
+                <option>1 day</option>
+                <option>2 days</option>
+              </select>
+            </div>
+            <div class="attempt-row">
+              <span class="attempt-label">After 2nd attempt: wait</span>
+              <select class="attempt-select" onchange="showSaveBar()">
+                <option>1 hour</option>
+                <option>4 hours</option>
+                <option selected>1 day</option>
+                <option>2 days</option>
+              </select>
+            </div>
+            <div class="attempt-row">
+              <span class="attempt-label">After 3rd attempt:</span>
+              <span class="attempt-text">Mark as unreachable</span>
+            </div>
+          </div>
+
+          <div style="margin-top:32px">
+            <label class="form-label" style="margin-bottom:16px">Calling Hours</label>
+
+            <div class="form-group">
+              <div class="time-row">
+                <div>
+                  <label class="form-label" style="font-size:13px">Start Time</label>
+                  <input type="time" class="time-input" value="08:00" onchange="showSaveBar()">
+                </div>
+                <div>
+                  <label class="form-label" style="font-size:13px">End Time</label>
+                  <input type="time" class="time-input" value="16:00" onchange="showSaveBar()">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" style="font-size:13px">Days</label>
+              <div class="day-pills">
+                <span class="day-pill selected" onclick="togglePill(this)">Mon</span>
+                <span class="day-pill selected" onclick="togglePill(this)">Tue</span>
+                <span class="day-pill selected" onclick="togglePill(this)">Wed</span>
+                <span class="day-pill selected" onclick="togglePill(this)">Thu</span>
+                <span class="day-pill selected" onclick="togglePill(this)">Fri</span>
+                <span class="day-pill" onclick="togglePill(this)">Sat</span>
+                <span class="day-pill" onclick="togglePill(this)">Sun</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" style="font-size:13px">Timezone</label>
+              <select class="form-select" style="width:220px" onchange="showSaveBar()">
+                <option selected>US/Eastern</option>
+                <option>US/Central</option>
+                <option>US/Mountain</option>
+                <option>US/Pacific</option>
+              </select>
+            </div>
+
+            <div class="toggle-wrap">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">Respect prospect timezone</div>
+                <div class="toggle-help">Automatically adjust calling hours to the prospect's local timezone.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:32px">
+            <label class="form-label" style="margin-bottom:16px">Holidays</label>
+
+            <div class="form-row" style="margin-bottom:16px">
+              <div class="form-group">
+                <label class="form-label" style="font-size:13px">Country</label>
+                <select class="form-select" onchange="showSaveBar()">
+                  <option selected>United States</option>
+                  <option>Canada</option>
+                  <option>United Kingdom</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="toggle-wrap" style="margin-bottom:16px">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">Auto-detect holidays</div>
+                <div class="toggle-help">Automatically skip federal holidays.</div>
+              </div>
+            </div>
+
+            <label class="form-label" style="font-size:13px">Custom Blackout Dates</label>
+            <div class="holiday-item">
+              <span class="holiday-date">2026-07-04</span>
+              <span class="holiday-name">Independence Day</span>
+              <a class="remove-link">Remove</a>
+            </div>
+            <div class="holiday-item">
+              <span class="holiday-date">2026-11-26</span>
+              <span class="holiday-name">Thanksgiving</span>
+              <a class="remove-link">Remove</a>
+            </div>
+
+            <button class="add-btn" onclick="showSaveBar()">+ Add Date</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPLIANCE -->
+      <div class="sub-panel" id="ops-compliance">
+        <div class="sub-content">
+          <div class="sub-content-title">Compliance</div>
+          <div class="sub-content-desc">Configure regulatory compliance and data retention policies.</div>
+
+          <div class="form-group">
+            <label class="form-label" style="margin-bottom:16px">Regional Rules</label>
+
+            <div class="toggle-wrap" style="margin-bottom:16px">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">TCPA Compliance</div>
+                <div class="toggle-help">Enforce Telephone Consumer Protection Act rules.</div>
+              </div>
+            </div>
+
+            <div class="toggle-wrap" style="margin-bottom:16px">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">Do Not Call List</div>
+                <div class="toggle-help">Check against national DNC registry before calling.</div>
+              </div>
+            </div>
+
+            <div class="toggle-wrap" style="margin-bottom:16px">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">State-specific Disclosures</div>
+                <div class="toggle-help">Auto-add required disclosures for specific states (e.g., California, New York).</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Call Recording Consent</label>
+              <select class="form-select" onchange="showSaveBar()">
+                <option>One-party</option>
+                <option>Two-party (all-party)</option>
+                <option selected>Auto-detect by state</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:32px">
+            <label class="form-label" style="margin-bottom:16px">Data Retention</label>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" style="font-size:13px">Recording Retention</label>
+                <select class="form-select" onchange="showSaveBar()">
+                  <option>30 days</option>
+                  <option selected>90 days</option>
+                  <option>1 year</option>
+                  <option>Indefinite</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="font-size:13px">Transcript Retention</label>
+                <select class="form-select" onchange="showSaveBar()">
+                  <option>30 days</option>
+                  <option>90 days</option>
+                  <option selected>1 year</option>
+                  <option>Indefinite</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="toggle-wrap">
+              <div class="toggle-switch" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              <div>
+                <div class="toggle-text">PII Redaction</div>
+                <div class="toggle-help">Automatically redact sensitive information from transcripts.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- end main-content -->
+
+<!-- Save Changes Bar -->
+<div class="save-bar" id="saveBar">
+  <span class="save-bar-text">You have unsaved changes</span>
+  <button class="btn btn-ghost btn-sm" onclick="hideSaveBar()">Discard</button>
+  <button class="btn btn-primary btn-sm" onclick="saveChanges()">Save Changes</button>
+</div>
+
+<script>
+// Tab switching
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tabId = btn.dataset.tab;
+    switchTab(tabId);
+  });
+});
+
+function switchTab(tabId) {
+  tabBtns.forEach(b => b.classList.remove('active'));
+  tabPanels.forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-tab="' + tabId + '"]').classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+  hideSaveBar();
+}
+
+// Sub-navigation for Agent Setup
+document.querySelectorAll('#setupNav .sub-nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const subId = item.dataset.sub;
+    document.querySelectorAll('#setupNav .sub-nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('#tab-setup .sub-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(subId).classList.add('active');
+    hideSaveBar();
+  });
+});
+
+// Sub-navigation for Operations
+document.querySelectorAll('#opsNav .sub-nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const subId = item.dataset.sub;
+    document.querySelectorAll('#opsNav .sub-nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('#tab-operations .sub-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(subId).classList.add('active');
+    hideSaveBar();
+  });
+});
+
+// Agent status toggle
+let agentActive = true;
+
+function toggleAgentStatus() {
+  agentActive = !agentActive;
+  const topTrack = document.getElementById('topToggleTrack');
+  const topLabel = document.getElementById('topToggleLabel');
+  const headerStatus = document.getElementById('headerStatus');
+  const pauseBtn = document.getElementById('pauseBtn');
+
+  if (agentActive) {
+    topTrack.classList.add('active');
+    topLabel.textContent = 'Active';
+    topLabel.className = 'toggle-label active-label';
+    headerStatus.className = 'status-dot-inline active-status';
+    headerStatus.innerHTML = '<span class="dot"></span> Active';
+    pauseBtn.innerHTML = '&#10074;&#10074; Pause Agent';
+    pauseBtn.className = 'btn btn-outline-amber btn-sm';
+  } else {
+    topTrack.classList.remove('active');
+    topLabel.textContent = 'Inactive';
+    topLabel.className = 'toggle-label inactive-label';
+    headerStatus.className = 'status-dot-inline inactive-status';
+    headerStatus.innerHTML = '<span class="dot"></span> Inactive';
+    pauseBtn.innerHTML = '&#9654; Resume Agent';
+    pauseBtn.className = 'btn btn-emerald btn-sm';
+  }
+}
+
+// Call summary expansion
+function toggleCallSummary(index) {
+  const summary = document.getElementById('callSummary' + index);
+  const row = summary.previousElementSibling;
+  const isVisible = summary.classList.contains('visible');
+
+  // Close all
+  document.querySelectorAll('.call-summary').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.call-row').forEach(r => r.classList.remove('expanded'));
+
+  if (!isVisible) {
+    summary.classList.add('visible');
+    row.classList.add('expanded');
+  }
+}
+
+// Filter pills
+function setFilter(el) {
+  el.closest('.filter-pills').querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Selectable cards
+function selectCard(card, event) {
+  const grid = card.closest('.card-grid');
+  grid.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  showSaveBar();
+}
+
+// Toggle switch
+function toggleSwitch(el) {
+  el.classList.toggle('on');
+  showSaveBar();
+}
+
+// Toggle pill
+function togglePill(el) {
+  el.classList.toggle('selected');
+  showSaveBar();
+}
+
+// Sub-tabs (knowledge, data fields)
+function switchSubTab(btn, panelId) {
+  const container = btn.closest('.sub-content');
+  container.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  container.querySelectorAll('.sub-tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+}
+
+// Save bar
+function showSaveBar() {
+  document.getElementById('saveBar').classList.add('visible');
+}
+
+function hideSaveBar() {
+  document.getElementById('saveBar').classList.remove('visible');
+}
+
+function saveChanges() {
+  hideSaveBar();
+  // Brief visual feedback
+  const bar = document.getElementById('saveBar');
+  const text = document.querySelector('.save-bar-text');
+  text.textContent = 'Changes saved successfully';
+  text.style.color = 'var(--emerald)';
+  bar.classList.add('visible');
+  setTimeout(() => {
+    hideSaveBar();
+    text.textContent = 'You have unsaved changes';
+    text.style.color = '';
+  }, 1500);
+}
+
+// Password toggle
+function togglePassword() {
+  const input = document.getElementById('apiKeyInput');
+  const btn = input.nextElementSibling;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = 'Hide';
+  } else {
+    input.type = 'password';
+    btn.textContent = 'Show';
+  }
+}
+
+// Test connection
+function testConnection() {
+  const btn = document.getElementById('testConnBtn');
+  const success = document.getElementById('testSuccess');
+  btn.textContent = 'Testing...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'Test Connection';
+    btn.disabled = false;
+    success.style.display = 'inline-flex';
+  }, 1200);
+}
+</script>
+
+</body>
+</html>
