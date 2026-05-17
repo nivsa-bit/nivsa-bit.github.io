@@ -1,0 +1,3723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmony - AI Agent Platform</title>
+<style>
+:root {
+  --primary: #4F46E5;
+  --primary-light: #6366F1;
+  --primary-lighter: #E0E7FF;
+  --primary-bg: #EEF2FF;
+  --emerald: #10B981;
+  --emerald-light: #D1FAE5;
+  --amber: #F59E0B;
+  --amber-light: #FEF3C7;
+  --red: #EF4444;
+  --red-light: #FEE2E2;
+  --bg: #F9FAFB;
+  --white: #FFFFFF;
+  --heading: #111827;
+  --body: #374151;
+  --secondary: #6B7280;
+  --border: #E5E7EB;
+  --border-focus: #A5B4FC;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 24px;
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --transition: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--body);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========== Top Bar ========== */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-icon {
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--primary-bg);
+  border-radius: var(--radius);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--secondary);
+}
+
+.breadcrumb a { color: var(--secondary); text-decoration: none; transition: color var(--transition); }
+.breadcrumb a:hover { color: var(--primary); }
+.breadcrumb-sep { color: var(--border); }
+.breadcrumb-current { color: var(--heading); font-weight: 600; }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-track {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--border);
+  position: relative;
+  transition: background var(--transition);
+}
+
+.toggle-track.active { background: var(--emerald); }
+
+.toggle-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--white);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-track.active .toggle-thumb { transform: translateX(18px); }
+
+.toggle-label { font-size: 13px; font-weight: 600; }
+.toggle-label.active-label { color: var(--emerald); }
+.toggle-label.inactive-label { color: var(--secondary); }
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-lighter);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ========== Agent Header ========== */
+.agent-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+}
+
+.agent-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.agent-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--primary);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.agent-info { flex: 1; }
+
+.agent-name { font-size: 20px; font-weight: 700; color: var(--heading); line-height: 1.3; }
+
+.agent-role { font-size: 14px; color: var(--secondary); line-height: 1.4; }
+
+.agent-meta { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+
+.tone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-dot-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+.status-dot-inline .dot { width: 8px; height: 8px; border-radius: 50%; }
+.status-dot-inline.active-status .dot { background: var(--emerald); }
+.status-dot-inline.active-status { color: var(--emerald); }
+
+.agent-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+/* ========== Buttons ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-primary { background: var(--primary); color: var(--white); }
+.btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+.btn-outline:hover { background: var(--primary-bg); }
+
+.btn-outline-amber { background: transparent; color: var(--amber); border: 1.5px solid var(--amber); }
+.btn-outline-amber:hover { background: var(--amber-light); }
+
+.btn-ghost { background: transparent; color: var(--body); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); border-color: var(--secondary); }
+
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+
+.btn-danger { background: transparent; color: var(--red); border: 1.5px solid var(--red); }
+.btn-danger:hover { background: var(--red-light); }
+
+.btn-emerald { background: var(--emerald); color: var(--white); }
+.btn-emerald:hover { background: #059669; }
+
+.btn-lg { padding: 14px 32px; font-size: 16px; border-radius: var(--radius-pill); }
+
+/* ========== Tab Navigation ========== */
+.tab-nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  position: sticky;
+  top: 56px;
+  z-index: 150;
+}
+
+.tab-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0;
+}
+
+.tab-btn {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  font-family: var(--font);
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--heading); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+/* ========== Main Content ========== */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ========== Form Elements ========== */
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 14px; font-weight: 600; color: var(--heading); margin-bottom: 6px; }
+.form-hint { font-size: 13px; color: var(--secondary); margin-bottom: 8px; }
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: var(--font);
+  color: var(--heading);
+  background: var(--white);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.form-input::placeholder, .form-textarea::placeholder { color: #9CA3AF; }
+.form-textarea { resize: vertical; line-height: 1.5; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ========== Toggle Switch ========== */
+.toggle-wrap { display: flex; align-items: center; gap: 12px; }
+
+.toggle-switch {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.toggle-switch.on { background: var(--emerald); }
+
+.toggle-switch .toggle-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-switch.on .toggle-knob { transform: translateX(20px); }
+.toggle-text { font-size: 14px; color: var(--body); }
+.toggle-help { font-size: 13px; color: var(--secondary); margin-top: 4px; }
+
+/* ========== Cards ========== */
+.card-grid { display: grid; gap: 12px; }
+.card-grid-2 { grid-template-columns: 1fr 1fr; }
+.card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.selectable-card {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--white);
+}
+
+.selectable-card:hover { border-color: var(--primary-lighter); box-shadow: var(--shadow-sm); }
+.selectable-card.selected { border-color: var(--primary); background: var(--primary-bg); }
+
+.card-icon { font-size: 20px; margin-bottom: 6px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 2px; }
+.card-desc { font-size: 12px; color: var(--secondary); line-height: 1.4; }
+.card-tag { font-size: 11px; color: var(--secondary); margin-top: 4px; font-weight: 600; }
+
+/* ========== Sub-tabs ========== */
+.sub-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+
+.sub-tab {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  font-family: var(--font);
+}
+
+.sub-tab:hover { color: var(--heading); }
+.sub-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.sub-tab-panel { display: none; }
+.sub-tab-panel.active { display: block; }
+
+/* ========== Info Banner ========== */
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-lighter);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--primary);
+  line-height: 1.5;
+}
+
+.info-banner-icon { flex-shrink: 0; font-size: 16px; margin-top: 1px; }
+
+/* ========== Section Headers ========== */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title { font-size: 16px; font-weight: 700; color: var(--heading); }
+
+.section-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+.section-link:hover { color: var(--primary-light); }
+
+/* ========== Sub Content (card-like panels) ========== */
+.sub-content {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sub-content-title { font-size: 20px; font-weight: 700; color: var(--heading); margin-bottom: 4px; }
+.sub-content-desc { font-size: 14px; color: var(--secondary); margin-bottom: 24px; }
+
+/* ========== Setup Layout (sidebar + content) ========== */
+.setup-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  min-height: 600px;
+}
+
+.sub-nav {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 8px 0;
+  box-shadow: var(--shadow-sm);
+  align-self: start;
+  position: sticky;
+  top: 120px;
+}
+
+.sub-nav-item {
+  display: block;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+
+.sub-nav-item:hover { color: var(--heading); background: var(--bg); }
+.sub-nav-item.active { color: var(--primary); font-weight: 700; border-left-color: var(--primary); background: var(--primary-bg); }
+
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+/* ========== Paired Cards (Q&A) ========== */
+.paired-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.paired-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.paired-label-q { color: var(--primary); }
+.paired-label-a { color: var(--emerald); }
+.paired-label-r { color: var(--red); }
+
+.paired-text { font-size: 14px; color: var(--heading); margin-bottom: 10px; line-height: 1.5; }
+.paired-divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+/* ========== Add Button ========== */
+.add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  border: 1px dashed var(--primary-lighter);
+  background: var(--primary-bg);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font);
+  margin-top: 12px;
+}
+
+.add-btn:hover { background: var(--primary-lighter); border-style: solid; }
+
+/* ========== Settings Table ========== */
+.settings-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+.settings-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.settings-table tr:last-child td { border-bottom: none; }
+
+/* ========== Language Pills ========== */
+.lang-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.lang-pill {
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.lang-pill.selected { border-color: var(--primary); background: var(--primary-bg); color: var(--primary); }
+.lang-pill:hover { border-color: var(--primary-lighter); }
+
+/* ========== Slider ========== */
+.slider-group { margin-bottom: 20px; }
+.slider-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.slider-label { font-size: 14px; font-weight: 600; color: var(--heading); }
+.slider-value { font-size: 14px; font-weight: 700; color: var(--primary); min-width: 48px; text-align: right; }
+
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform var(--transition);
+}
+
+.range-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* ========== Guardrails ========== */
+.guardrail-item {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.guardrail-icon { flex-shrink: 0; font-size: 14px; }
+.guardrail-icon.never { color: var(--red); }
+.guardrail-icon.always { color: var(--emerald); }
+
+/* ========== Metric Cards ========== */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: box-shadow var(--transition), transform var(--transition);
+  cursor: default;
+}
+
+.metric-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.metric-value { font-size: 28px; font-weight: 700; color: var(--heading); line-height: 1.2; }
+.metric-label { font-size: 14px; font-weight: 600; color: var(--secondary); margin-top: 2px; }
+
+/* ========== Funnel ========== */
+.funnel-wrap {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.funnel-stage { display: flex; flex-direction: column; align-items: center; margin-bottom: 0; }
+
+.funnel-bar {
+  height: 48px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-weight: 700;
+  font-size: 14px;
+  transition: all var(--transition);
+}
+
+.funnel-loss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* ===================================================================
+   WIZARD STYLES
+   =================================================================== */
+
+.wizard-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.wizard-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 48px;
+}
+
+.wizard-step-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--white);
+  color: var(--secondary);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  position: relative;
+  z-index: 2;
+}
+
+.wizard-step-dot.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+.wizard-step-dot.completed { border-color: var(--emerald); background: var(--emerald); color: var(--white); }
+
+.wizard-step-line {
+  width: 60px;
+  height: 2px;
+  background: var(--border);
+  transition: background var(--transition);
+}
+
+.wizard-step-line.completed { background: var(--emerald); }
+
+.wizard-step-labels {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-top: -8px;
+  margin-bottom: 32px;
+}
+
+.wizard-step-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+  text-align: center;
+  width: 80px;
+}
+
+.wizard-step-label.active { color: var(--primary); }
+
+.wizard-card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+}
+
+.wizard-card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.wizard-card-desc {
+  font-size: 15px;
+  color: var(--secondary);
+  text-align: center;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.wizard-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.wizard-step-content { display: none; }
+.wizard-step-content.active { display: block; }
+
+/* Welcome hero */
+.welcome-hero {
+  text-align: center;
+  padding: 60px 40px;
+}
+
+.welcome-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--primary-lighter) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 36px;
+}
+
+.welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.welcome-subtitle {
+  font-size: 16px;
+  color: var(--secondary);
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto 36px;
+}
+
+/* Processing animation */
+.processing-container {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.processing-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--primary-lighter) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+  position: relative;
+}
+
+.processing-spinner {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--primary);
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.processing-icon-inner {
+  font-size: 40px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.95); }
+}
+
+.processing-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 24px;
+}
+
+.processing-steps {
+  list-style: none;
+  max-width: 360px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.processing-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+  color: var(--secondary);
+  transition: all 0.4s ease;
+}
+
+.processing-step.active { color: var(--heading); font-weight: 600; }
+.processing-step.completed { color: var(--emerald); }
+
+.processing-step-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  transition: all 0.4s ease;
+}
+
+.processing-step.active .processing-step-icon {
+  background: var(--primary-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+  animation: stepPulse 1s ease-in-out infinite;
+}
+
+.processing-step.completed .processing-step-icon {
+  background: var(--emerald-light);
+  border-color: var(--emerald);
+  color: var(--emerald);
+}
+
+@keyframes stepPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(79,70,229,0); }
+}
+
+/* Review summary cards */
+.review-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.review-stat {
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.review-stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.review-stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-top: 4px;
+}
+
+.review-stat-desc {
+  font-size: 12px;
+  color: var(--secondary);
+  margin-top: 2px;
+}
+
+.review-stat.warning { border-color: var(--amber-light); }
+.review-stat.warning .review-stat-value { color: var(--amber); }
+
+/* ===================================================================
+   WORKFLOW BUILDER STYLES
+   =================================================================== */
+
+.builder-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.builder-toolbar-left { display: flex; align-items: center; gap: 16px; }
+.builder-toolbar-right { display: flex; align-items: center; gap: 10px; }
+
+/* View toggle */
+.view-toggle {
+  display: inline-flex;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.view-toggle-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--secondary);
+  background: var(--white);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-toggle-btn:last-child { border-right: none; }
+.view-toggle-btn:hover { background: var(--bg); color: var(--heading); }
+.view-toggle-btn.active { background: var(--primary); color: var(--white); }
+
+/* Builder views */
+.builder-view { display: none; }
+.builder-view.active { display: block; }
+
+/* Canvas View */
+.canvas-container {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 40px;
+  min-height: 500px;
+  position: relative;
+  overflow: hidden;
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.canvas-node {
+  position: absolute;
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  min-width: 200px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all var(--transition);
+  z-index: 5;
+}
+
+.canvas-node:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.canvas-node.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+
+.canvas-node.start-node { border-color: var(--emerald); }
+.canvas-node.end-node-good { border-color: var(--emerald); border-style: dashed; }
+.canvas-node.end-node-bad { border-color: var(--red); border-style: dashed; }
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.node-type-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-ask { background: var(--primary-bg); color: var(--primary); }
+.badge-say { background: var(--amber-light); color: #92400E; }
+.badge-start { background: var(--emerald-light); color: #065F46; }
+.badge-end { background: var(--bg); color: var(--secondary); }
+
+.node-title { font-size: 13px; font-weight: 600; color: var(--heading); line-height: 1.4; }
+
+.node-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.node-stat {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.node-stat.good { color: var(--emerald); }
+.node-stat.warn { color: var(--amber); }
+.node-stat.bad { color: var(--red); }
+
+/* Canvas SVG edges */
+.canvas-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.canvas-svg line, .canvas-svg path {
+  stroke: var(--border);
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Tree View */
+.tree-container {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+}
+
+.tree-item {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition);
+  margin-bottom: 2px;
+}
+
+.tree-item:hover { background: var(--bg); }
+.tree-item.selected { background: var(--primary-bg); }
+
+.tree-indent { display: flex; align-items: center; gap: 0; }
+.tree-indent-line { width: 24px; height: 1px; background: var(--border); }
+
+.tree-expand {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.tree-expand:hover { border-color: var(--primary); color: var(--primary); }
+
+.tree-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tree-icon.ask { background: var(--primary-bg); color: var(--primary); }
+.tree-icon.say { background: var(--amber-light); color: #92400E; }
+.tree-icon.start { background: var(--emerald-light); color: #065F46; }
+.tree-icon.end { background: var(--bg); color: var(--secondary); border: 1px solid var(--border); }
+
+.tree-label { font-size: 14px; color: var(--heading); font-weight: 500; flex: 1; }
+
+.tree-stat {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.tree-stat.good { background: var(--emerald-light); color: #065F46; }
+.tree-stat.warn { background: var(--amber-light); color: #92400E; }
+.tree-stat.bad { background: var(--red-light); color: var(--red); }
+
+/* Doc View */
+.doc-container {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 32px 40px;
+  max-width: 800px;
+}
+
+.doc-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+
+.doc-meta {
+  font-size: 13px;
+  color: var(--secondary);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.doc-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.doc-block {
+  position: relative;
+  padding: 14px 16px;
+  margin-bottom: 4px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.doc-block:hover {
+  background: var(--bg);
+  border-color: var(--border);
+}
+
+.doc-block.selected {
+  background: var(--primary-bg);
+  border-color: var(--primary-lighter);
+}
+
+.doc-block-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.doc-block-drag {
+  color: var(--border);
+  cursor: grab;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity var(--transition);
+  flex-shrink: 0;
+  width: 16px;
+}
+
+.doc-block:hover .doc-block-drag { opacity: 1; }
+
+.doc-block-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.doc-block-text {
+  font-size: 15px;
+  color: var(--heading);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.doc-block-analytics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.doc-block:hover .doc-block-analytics { opacity: 1; }
+
+.doc-block-actions {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.doc-block:hover .doc-block-actions { opacity: 1; }
+
+.doc-action-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  transition: all var(--transition);
+}
+
+.doc-action-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Doc view indentation */
+.doc-block.indent-1 { margin-left: 28px; }
+.doc-block.indent-2 { margin-left: 56px; }
+.doc-block.indent-3 { margin-left: 84px; }
+
+.doc-section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* Builder sidebar (properties) */
+.builder-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+}
+
+.builder-main { min-width: 0; }
+
+.builder-sidebar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  align-self: start;
+  position: sticky;
+  top: 120px;
+}
+
+.sidebar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 4px;
+}
+
+.sidebar-subtitle {
+  font-size: 13px;
+  color: var(--secondary);
+  margin-bottom: 20px;
+}
+
+.sidebar-section {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-section:last-child { border-bottom: none; padding-bottom: 0; }
+
+.sidebar-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* Built-in capabilities panel */
+.capabilities-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.capabilities-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+
+.capabilities-header:hover { background: var(--primary-bg); }
+
+.capabilities-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.capabilities-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--heading);
+}
+
+.capabilities-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--emerald);
+  background: var(--emerald-light);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.capabilities-expand {
+  font-size: 14px;
+  color: var(--secondary);
+  transition: transform var(--transition);
+}
+
+.capabilities-expand.open { transform: rotate(180deg); }
+
+.capabilities-body {
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.capabilities-body.open {
+  padding: 16px 20px;
+  max-height: 600px;
+}
+
+.capability-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.capability-row:last-child { border-bottom: none; }
+
+.capability-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.capability-info { flex: 1; }
+.capability-name { font-size: 14px; font-weight: 600; color: var(--heading); }
+.capability-desc { font-size: 12px; color: var(--secondary); }
+
+/* ===================================================================
+   OUTCOMES & TESTING STYLES
+   =================================================================== */
+
+.pipeline-container {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.pipeline-stages {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+}
+
+.pipeline-stage {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.pipeline-stage-bar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--white);
+  position: relative;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%);
+  margin-right: -8px;
+}
+
+.pipeline-stage:first-child .pipeline-stage-bar {
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.pipeline-stage:last-child .pipeline-stage-bar {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 16px 50%);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-right: 0;
+}
+
+.pipeline-stage-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-top: 8px;
+}
+
+.pipeline-stage-count {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-top: 2px;
+}
+
+/* Version cards */
+.version-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+  transition: box-shadow var(--transition);
+}
+
+.version-card:hover { box-shadow: var(--shadow-md); }
+
+.version-card.active-version { border-color: var(--emerald); border-width: 2px; }
+
+.version-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.version-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--heading);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.version-badge.live { background: var(--emerald-light); color: #065F46; }
+.version-badge.draft { background: var(--amber-light); color: #92400E; }
+.version-badge.archived { background: var(--bg); color: var(--secondary); }
+
+.version-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.version-stat { text-align: center; }
+
+.version-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--heading);
+}
+
+.version-stat-label {
+  font-size: 12px;
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+.version-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.version-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.version-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.version-bar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+  min-width: 80px;
+}
+
+.version-bar-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--heading);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 20px;
+  padding-left: 20px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--border);
+}
+
+.timeline-item.current::before { border-color: var(--primary); background: var(--primary); }
+
+.timeline-item-title { font-size: 14px; font-weight: 600; color: var(--heading); }
+.timeline-item-desc { font-size: 13px; color: var(--secondary); }
+.timeline-item-time { font-size: 12px; color: var(--secondary); margin-top: 2px; }
+
+/* ===================================================================
+   KNOWLEDGE / AI RESPONSES
+   =================================================================== */
+
+.knowledge-upload {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  text-align: center;
+  transition: all var(--transition);
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.knowledge-upload:hover {
+  border-color: var(--primary-lighter);
+  background: var(--primary-bg);
+}
+
+.knowledge-upload-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.knowledge-upload-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 4px;
+}
+
+.knowledge-upload-desc {
+  font-size: 13px;
+  color: var(--secondary);
+}
+
+.knowledge-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  transition: box-shadow var(--transition);
+}
+
+.knowledge-item:hover { box-shadow: var(--shadow-sm); }
+
+.knowledge-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.knowledge-item-info { flex: 1; }
+.knowledge-item-name { font-size: 14px; font-weight: 600; color: var(--heading); }
+.knowledge-item-meta { font-size: 12px; color: var(--secondary); }
+
+.knowledge-item-status {
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.status-indexed { background: var(--emerald-light); color: #065F46; }
+.status-processing { background: var(--amber-light); color: #92400E; }
+
+/* Forced answer toggle */
+.forced-answer-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.forced-answer-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+}
+
+.mini-toggle {
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.mini-toggle.on { background: var(--primary); }
+
+.mini-toggle-knob {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--white);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.mini-toggle.on .mini-toggle-knob { transform: translateX(14px); }
+
+/* Auto-generated badge */
+.auto-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+/* ===================================================================
+   OPERATIONS (simplified)
+   =================================================================== */
+
+.ops-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.ops-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ops-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 4px;
+}
+
+.ops-card-desc {
+  font-size: 13px;
+  color: var(--secondary);
+  margin-bottom: 16px;
+}
+
+/* ===================================================================
+   OBJECTION PERSISTENCE
+   =================================================================== */
+
+.persistence-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.persistence-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+  flex-shrink: 0;
+}
+
+.persistence-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.persistence-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.persistence-dot.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+
+/* Save bar */
+.save-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 12px 24px;
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  z-index: 300;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+}
+
+.save-bar.visible { display: flex; }
+
+.save-bar-text { flex: 1; font-size: 14px; color: var(--secondary); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- TOP BAR                                                       -->
+<!-- ============================================================ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="#" class="logo">
+      <span class="logo-icon">&#9670;</span>
+      Harmony
+    </a>
+    <div class="breadcrumb">
+      <a href="#">Agents</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Sarah</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="status-toggle" onclick="toggleAgentStatus()">
+      <div class="toggle-track active" id="topToggleTrack">
+        <div class="toggle-thumb"></div>
+      </div>
+      <span class="toggle-label active-label" id="topToggleLabel">Active</span>
+    </div>
+    <div class="user-avatar">NS</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- AGENT HEADER                                                  -->
+<!-- ============================================================ -->
+<div class="agent-header">
+  <div class="agent-header-inner">
+    <div class="agent-avatar">SA</div>
+    <div class="agent-info">
+      <div class="agent-name">Sarah</div>
+      <div class="agent-role">Qualification Specialist at Honeycomb Insurance</div>
+      <div class="agent-meta">
+        <span class="tone-badge">Professional & Warm</span>
+        <span class="status-dot-inline active-status" id="headerStatus">
+          <span class="dot"></span>
+          Active
+        </span>
+      </div>
+    </div>
+    <div class="agent-actions">
+      <button class="btn btn-outline btn-sm">&#9742; Test Call</button>
+      <button class="btn btn-outline-amber btn-sm" id="pauseBtn" onclick="toggleAgentStatus()">&#10074;&#10074; Pause Agent</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB NAVIGATION                                                -->
+<!-- ============================================================ -->
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" data-tab="wizard">Setup Wizard</button>
+    <button class="tab-btn" data-tab="builder">Workflow Builder</button>
+    <button class="tab-btn" data-tab="knowledge">AI Responses & Knowledge</button>
+    <button class="tab-btn" data-tab="outcomes">Outcomes & Testing</button>
+    <button class="tab-btn" data-tab="operations">Operations</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MAIN CONTENT                                                  -->
+<!-- ============================================================ -->
+<div class="main-content">
+
+<!-- ================================================================
+     TAB 1: SETUP WIZARD
+     ================================================================ -->
+<div class="tab-panel active" id="tab-wizard">
+  <div class="wizard-container">
+
+    <!-- Progress bar -->
+    <div class="wizard-progress" id="wizardProgress">
+      <div class="wizard-step-dot active" data-step="0">0</div>
+      <div class="wizard-step-line"></div>
+      <div class="wizard-step-dot" data-step="1">1</div>
+      <div class="wizard-step-line"></div>
+      <div class="wizard-step-dot" data-step="2">2</div>
+      <div class="wizard-step-line"></div>
+      <div class="wizard-step-dot" data-step="3">3</div>
+      <div class="wizard-step-line"></div>
+      <div class="wizard-step-dot" data-step="4">4</div>
+    </div>
+
+    <!-- ======== STEP 0: Welcome ======== -->
+    <div class="wizard-step-content active" id="wizard-step-0">
+      <div class="wizard-card" style="padding:0;border:none;box-shadow:none;background:transparent">
+        <div class="welcome-hero" style="background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--border);box-shadow:var(--shadow-md)">
+          <div class="welcome-icon">&#9670;</div>
+          <div class="welcome-title">Set up your AI agent</div>
+          <div class="welcome-subtitle">
+            Create a fully configured voice agent in minutes. Paste your sales script and we'll build everything automatically -- goals, responses, outcomes, and more.
+          </div>
+          <button class="btn btn-primary btn-lg" onclick="wizardNext()">
+            Get Started &#8594;
+          </button>
+          <div style="margin-top:24px; display:flex; justify-content:center; gap:32px;">
+            <div style="text-align:center;">
+              <div style="font-size:24px;margin-bottom:4px;">&#9889;</div>
+              <div style="font-size:13px;font-weight:600;color:var(--heading)">AI-Powered</div>
+              <div style="font-size:12px;color:var(--secondary)">Auto-generates your workflow</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:24px;margin-bottom:4px;">&#9776;</div>
+              <div style="font-size:13px;font-weight:600;color:var(--heading)">3 Views</div>
+              <div style="font-size:12px;color:var(--secondary)">Canvas, Tree, or Doc</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:24px;margin-bottom:4px;">&#9654;</div>
+              <div style="font-size:13px;font-weight:600;color:var(--heading)">Launch Fast</div>
+              <div style="font-size:12px;color:var(--secondary)">Go live in under 10 min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== STEP 1: Identity ======== -->
+    <div class="wizard-step-content" id="wizard-step-1">
+      <div class="wizard-card">
+        <div class="wizard-card-title">Agent Identity</div>
+        <div class="wizard-card-desc">Tell us who your agent is and how it should communicate.</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Agent Name</label>
+            <input type="text" class="form-input" value="Sarah" placeholder="e.g. Sarah, Alex, Jordan">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company Name</label>
+            <input type="text" class="form-input" value="Honeycomb Insurance" placeholder="Your company name">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Agent Role</label>
+            <input type="text" class="form-input" value="Qualification Specialist" placeholder="e.g. Sales Rep, BDR">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Primary Goal</label>
+            <select class="form-select">
+              <option>Qualify leads</option>
+              <option>Book meetings</option>
+              <option>Collect information</option>
+              <option>Custom</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tone & Style</label>
+          <div class="card-grid card-grid-4">
+            <div class="selectable-card" onclick="selectCard(this, event)">
+              <div class="card-icon">&#9733;</div>
+              <div class="card-title">Professional</div>
+              <div class="card-desc">Formal, business-like</div>
+            </div>
+            <div class="selectable-card selected" onclick="selectCard(this, event)">
+              <div class="card-icon">&#9829;</div>
+              <div class="card-title">Warm</div>
+              <div class="card-desc">Approachable yet professional</div>
+            </div>
+            <div class="selectable-card" onclick="selectCard(this, event)">
+              <div class="card-icon">&#9788;</div>
+              <div class="card-title">Friendly</div>
+              <div class="card-desc">Casual, conversational</div>
+            </div>
+            <div class="selectable-card" onclick="selectCard(this, event)">
+              <div class="card-icon">&#9889;</div>
+              <div class="card-title">Energetic</div>
+              <div class="card-desc">Upbeat, enthusiastic</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Language</label>
+            <div class="lang-pills">
+              <span class="lang-pill selected" onclick="togglePill(this)">English</span>
+              <span class="lang-pill" onclick="togglePill(this)">Spanish</span>
+              <span class="lang-pill" onclick="togglePill(this)">French</span>
+              <span class="lang-pill" onclick="togglePill(this)">German</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Special Instructions</label>
+            <input type="text" class="form-input" placeholder="e.g. Always mention free trial" value="">
+          </div>
+        </div>
+
+        <div class="wizard-actions">
+          <button class="btn btn-ghost" onclick="wizardPrev()">&#8592; Back</button>
+          <button class="btn btn-primary" onclick="wizardNext()">Continue &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== STEP 2: Script Input ======== -->
+    <div class="wizard-step-content" id="wizard-step-2">
+      <div class="wizard-card">
+        <div class="wizard-card-title">Paste Your Script</div>
+        <div class="wizard-card-desc">
+          Paste your existing sales script or call guide. Our AI will analyze it and automatically create Goals, AI Responses, and Outcomes.
+        </div>
+
+        <div class="form-group">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label class="form-label" style="margin-bottom:0">Sales Script</label>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="loadExampleScript()">Load Example</button>
+              <button class="btn btn-ghost btn-sm">&#128206; Upload File</button>
+            </div>
+          </div>
+          <textarea class="form-textarea" id="scriptInput" rows="16" placeholder="Paste your sales script here...
+
+Example:
+'Hi [Name], this is Sarah from Honeycomb Insurance. I'm reaching out because we help businesses like [Company] save on commercial insurance. Do you have a moment?'
+
+'Great! First, can you tell me what type of business you operate?'
+
+'And how many employees does your company have?'
+
+..." style="font-size:13px;line-height:1.7"></textarea>
+        </div>
+
+        <div class="info-banner">
+          <span class="info-banner-icon">&#9889;</span>
+          <span><strong>AI-Powered Analysis:</strong> Our system will identify conversation goals, generate appropriate responses, map outcomes, and build a structured workflow -- all from your script text.</span>
+        </div>
+
+        <div class="wizard-actions">
+          <button class="btn btn-ghost" onclick="wizardPrev()">&#8592; Back</button>
+          <button class="btn btn-primary" onclick="wizardNext()">Analyze Script &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== STEP 3: AI Processing ======== -->
+    <div class="wizard-step-content" id="wizard-step-3">
+      <div class="wizard-card">
+        <div class="processing-container">
+          <div class="processing-icon">
+            <div class="processing-spinner"></div>
+            <div class="processing-icon-inner">&#9670;</div>
+          </div>
+          <div class="processing-title">Analyzing your script...</div>
+
+          <ul class="processing-steps" id="processingSteps">
+            <li class="processing-step active" data-index="0">
+              <div class="processing-step-icon">&#9679;</div>
+              <span>Parsing script structure...</span>
+            </li>
+            <li class="processing-step" data-index="1">
+              <div class="processing-step-icon">&#9679;</div>
+              <span>Extracting conversation goals...</span>
+            </li>
+            <li class="processing-step" data-index="2">
+              <div class="processing-step-icon">&#9679;</div>
+              <span>Generating AI responses...</span>
+            </li>
+            <li class="processing-step" data-index="3">
+              <div class="processing-step-icon">&#9679;</div>
+              <span>Building workflow tree...</span>
+            </li>
+            <li class="processing-step" data-index="4">
+              <div class="processing-step-icon">&#9679;</div>
+              <span>Mapping outcomes & dispositions...</span>
+            </li>
+            <li class="processing-step" data-index="5">
+              <div class="processing-step-icon">&#9679;</div>
+              <span>Setting up objection handling...</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="wizard-actions" style="justify-content:center">
+          <div style="font-size:13px;color:var(--secondary)">This usually takes about 30 seconds</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== STEP 4: Review & Launch ======== -->
+    <div class="wizard-step-content" id="wizard-step-4">
+      <div class="wizard-card">
+        <div class="wizard-card-title">Your Agent is Ready!</div>
+        <div class="wizard-card-desc">Here's what we generated from your script. Review and launch, or customize in the Workflow Builder.</div>
+
+        <div class="review-grid">
+          <div class="review-stat">
+            <div class="review-stat-value">8</div>
+            <div class="review-stat-label">Goals Created</div>
+            <div class="review-stat-desc">5 Ask, 3 Say</div>
+          </div>
+          <div class="review-stat">
+            <div class="review-stat-value">12</div>
+            <div class="review-stat-label">AI Responses</div>
+            <div class="review-stat-desc">Including 4 auto-generated</div>
+          </div>
+          <div class="review-stat">
+            <div class="review-stat-value">5</div>
+            <div class="review-stat-label">Outcomes Mapped</div>
+            <div class="review-stat-desc">2 qualified, 3 unqualified</div>
+          </div>
+          <div class="review-stat warning">
+            <div class="review-stat-value">2</div>
+            <div class="review-stat-label">Knowledge Gaps</div>
+            <div class="review-stat-desc">Pricing FAQ, Coverage limits</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);border-radius:var(--radius-lg);padding:20px;margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;color:var(--heading);margin-bottom:12px">Generated Workflow Preview</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="padding:6px 12px;border-radius:var(--radius-pill);background:var(--emerald-light);color:#065F46;font-size:12px;font-weight:600">&#9654; Opening Greeting</span>
+            <span style="padding:6px 12px;border-radius:var(--radius-pill);background:var(--primary-bg);color:var(--primary);font-size:12px;font-weight:600">? Business Type</span>
+            <span style="padding:6px 12px;border-radius:var(--radius-pill);background:var(--primary-bg);color:var(--primary);font-size:12px;font-weight:600">? Employee Count</span>
+            <span style="padding:6px 12px;border-radius:var(--radius-pill);background:var(--primary-bg);color:var(--primary);font-size:12px;font-weight:600">? Coverage Needs</span>
+            <span style="padding:6px 12px;border-radius:var(--radius-pill);background:var(--amber-light);color:#92400E;font-size:12px;font-weight:600">&#9654; Value Proposition</span>
+            <span style="padding:6px 12px;border-radius:var(--radius-pill);background:var(--primary-bg);color:var(--primary);font-size:12px;font-weight:600">? Budget Range</span>
+            <span style="padding:6px 12px;border-radius:var(--radius-pill);background:var(--primary-bg);color:var(--primary);font-size:12px;font-weight:600">? Decision Timeline</span>
+            <span style="padding:6px 12px;border-radius:var(--radius-pill);background:var(--amber-light);color:#92400E;font-size:12px;font-weight:600">&#9654; Closing & Next Steps</span>
+          </div>
+        </div>
+
+        <div class="info-banner" style="background:var(--emerald-light);border-color:#A7F3D0;color:#065F46">
+          <span class="info-banner-icon">&#10003;</span>
+          <span><strong>Built-in capabilities enabled:</strong> Voicemail detection, call screening, IVR navigation, and contact discovery are automatically configured.</span>
+        </div>
+
+        <div class="wizard-actions">
+          <button class="btn btn-ghost" onclick="wizardPrev()">&#8592; Back</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-outline" onclick="switchTab('builder')">Review in Builder</button>
+            <button class="btn btn-emerald btn-lg" onclick="switchTab('builder')">&#9889; Launch Agent</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     TAB 2: WORKFLOW BUILDER
+     ================================================================ -->
+<div class="tab-panel" id="tab-builder">
+
+  <!-- Built-in Capabilities Panel -->
+  <div class="capabilities-panel">
+    <div class="capabilities-header" onclick="toggleCapabilities()">
+      <div class="capabilities-header-left">
+        <span style="font-size:16px">&#9881;</span>
+        <span class="capabilities-title">Root Agent -- Built-in Capabilities</span>
+        <span class="capabilities-badge">6 Active</span>
+      </div>
+      <span class="capabilities-expand" id="capExpand">&#9660;</span>
+    </div>
+    <div class="capabilities-body" id="capBody">
+      <div class="capability-row">
+        <div class="capability-icon">&#9742;</div>
+        <div class="capability-info">
+          <div class="capability-name">IVR Navigation</div>
+          <div class="capability-desc">Automatically navigates phone trees and menus</div>
+        </div>
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="capability-row">
+        <div class="capability-icon">&#9993;</div>
+        <div class="capability-info">
+          <div class="capability-name">Voicemail Detection</div>
+          <div class="capability-desc">Detects voicemail and leaves personalized messages</div>
+        </div>
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="capability-row">
+        <div class="capability-icon">&#9888;</div>
+        <div class="capability-info">
+          <div class="capability-name">Call Screener</div>
+          <div class="capability-desc">Handles gatekeepers and receptionists</div>
+        </div>
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="capability-row">
+        <div class="capability-icon">&#8644;</div>
+        <div class="capability-info">
+          <div class="capability-name">Call Transfer</div>
+          <div class="capability-desc">Hot/cold transfer to human agents</div>
+        </div>
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="capability-row">
+        <div class="capability-icon">&#128270;</div>
+        <div class="capability-info">
+          <div class="capability-name">Contact Discovery</div>
+          <div class="capability-desc">Identifies correct contact when reaching wrong person</div>
+        </div>
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="capability-row">
+        <div class="capability-icon">&#9201;</div>
+        <div class="capability-info">
+          <div class="capability-name">Schedule Callback</div>
+          <div class="capability-desc">Books callback when prospect is unavailable</div>
+        </div>
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Builder Toolbar -->
+  <div class="builder-toolbar">
+    <div class="builder-toolbar-left">
+      <div class="view-toggle">
+        <button class="view-toggle-btn" data-view="canvas" onclick="switchBuilderView('canvas', this)">&#9673; Canvas</button>
+        <button class="view-toggle-btn" data-view="tree" onclick="switchBuilderView('tree', this)">&#9776; Tree</button>
+        <button class="view-toggle-btn active" data-view="doc" onclick="switchBuilderView('doc', this)">&#9998; Doc</button>
+      </div>
+      <span style="font-size:13px;color:var(--secondary)">8 goals &middot; Last edited 2 hours ago</span>
+    </div>
+    <div class="builder-toolbar-right">
+      <button class="btn btn-ghost btn-sm">&#128269; Find</button>
+      <button class="btn btn-ghost btn-sm">&#8634; Undo</button>
+      <button class="btn btn-outline btn-sm">+ Add Goal</button>
+    </div>
+  </div>
+
+  <!-- Builder Layout (main + sidebar) -->
+  <div class="builder-layout">
+    <div class="builder-main">
+
+      <!-- ======== CANVAS VIEW ======== -->
+      <div class="builder-view" id="view-canvas">
+        <div class="canvas-container" style="height:540px">
+          <svg class="canvas-svg" viewBox="0 0 1100 540">
+            <!-- Edges -->
+            <path d="M 160 80 C 240 80 240 140 320 140" stroke="#C7D2FE" stroke-width="2" fill="none"/>
+            <path d="M 460 140 C 520 140 520 80 580 80" stroke="#C7D2FE" stroke-width="2" fill="none"/>
+            <path d="M 460 140 C 520 140 520 200 580 200" stroke="#C7D2FE" stroke-width="2" fill="none"/>
+            <path d="M 720 80 C 780 80 780 140 840 140" stroke="#C7D2FE" stroke-width="2" fill="none"/>
+            <path d="M 720 200 C 780 200 780 280 840 280" stroke="#C7D2FE" stroke-width="2" fill="none"/>
+            <path d="M 460 140 C 520 140 520 340 580 340" stroke="#C7D2FE" stroke-width="2" fill="none"/>
+            <path d="M 720 340 C 780 340 780 420 840 420" stroke="#C7D2FE" stroke-width="2" fill="none"/>
+            <path d="M 960 140 C 1000 140 1000 80 1040 80" stroke="#C7D2FE" stroke-width="2" fill="none" stroke-dasharray="4"/>
+            <path d="M 960 280 C 1000 280 1000 200 1040 200" stroke="#C7D2FE" stroke-width="2" fill="none" stroke-dasharray="4"/>
+          </svg>
+
+          <!-- Start Node -->
+          <div class="canvas-node start-node" style="left:40px;top:50px;min-width:120px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-start">Start</span>
+            </div>
+            <div class="node-title">Opening Greeting</div>
+            <div class="node-stats">
+              <span class="node-stat good">&#9650; 100%</span>
+            </div>
+          </div>
+
+          <!-- Node: Business Type -->
+          <div class="canvas-node" style="left:280px;top:100px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-ask">Ask</span>
+            </div>
+            <div class="node-title">What type of business?</div>
+            <div class="node-stats">
+              <span class="node-stat good">&#9650; 89%</span>
+              <span class="node-stat" style="color:var(--secondary)">423 calls</span>
+            </div>
+          </div>
+
+          <!-- Node: Employee Count -->
+          <div class="canvas-node" style="left:540px;top:40px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-ask">Ask</span>
+            </div>
+            <div class="node-title">How many employees?</div>
+            <div class="node-stats">
+              <span class="node-stat good">&#9650; 82%</span>
+              <span class="node-stat" style="color:var(--secondary)">376 calls</span>
+            </div>
+          </div>
+
+          <!-- Node: Coverage Interest -->
+          <div class="canvas-node" style="left:540px;top:160px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-ask">Ask</span>
+            </div>
+            <div class="node-title">Coverage interests?</div>
+            <div class="node-stats">
+              <span class="node-stat warn">&#9679; 68%</span>
+              <span class="node-stat" style="color:var(--secondary)">287 calls</span>
+            </div>
+          </div>
+
+          <!-- Node: Value Proposition -->
+          <div class="canvas-node" style="left:540px;top:300px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-say">Say</span>
+            </div>
+            <div class="node-title">Value proposition</div>
+            <div class="node-stats">
+              <span class="node-stat good">&#9650; 91%</span>
+            </div>
+          </div>
+
+          <!-- Node: Budget -->
+          <div class="canvas-node" style="left:800px;top:100px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-ask">Ask</span>
+            </div>
+            <div class="node-title">Annual budget?</div>
+            <div class="node-stats">
+              <span class="node-stat warn">&#9679; 61%</span>
+              <span class="node-stat" style="color:var(--secondary)">196 calls</span>
+            </div>
+          </div>
+
+          <!-- Node: Decision Timeline -->
+          <div class="canvas-node" style="left:800px;top:240px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-ask">Ask</span>
+            </div>
+            <div class="node-title">Decision timeline?</div>
+            <div class="node-stats">
+              <span class="node-stat bad">&#9660; 45%</span>
+              <span class="node-stat" style="color:var(--secondary)">132 calls</span>
+            </div>
+          </div>
+
+          <!-- Node: Closing -->
+          <div class="canvas-node" style="left:800px;top:380px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-say">Say</span>
+            </div>
+            <div class="node-title">Closing & next steps</div>
+            <div class="node-stats">
+              <span class="node-stat good">&#9650; 95%</span>
+            </div>
+          </div>
+
+          <!-- End: Qualified -->
+          <div class="canvas-node end-node-good" style="left:1000px;top:45px;min-width:100px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-end" style="background:var(--emerald-light);color:#065F46">End</span>
+            </div>
+            <div class="node-title" style="color:var(--emerald)">Qualified</div>
+          </div>
+
+          <!-- End: Not Qualified -->
+          <div class="canvas-node end-node-bad" style="left:1000px;top:165px;min-width:100px" onclick="selectNode(this)">
+            <div class="node-header">
+              <span class="node-type-badge badge-end" style="background:var(--red-light);color:var(--red)">End</span>
+            </div>
+            <div class="node-title" style="color:var(--red)">Not Qualified</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== TREE VIEW ======== -->
+      <div class="builder-view" id="view-tree">
+        <div class="tree-container">
+          <div class="tree-item selected">
+            <div class="tree-expand">&#9660;</div>
+            <div class="tree-icon start">&#9654;</div>
+            <div class="tree-label"><strong>Opening Greeting</strong></div>
+            <span class="tree-stat good">100%</span>
+          </div>
+
+          <div class="tree-item" style="padding-left:36px">
+            <div class="tree-expand">&#9660;</div>
+            <div class="tree-icon ask">?</div>
+            <div class="tree-label">What type of business do you operate?</div>
+            <span class="tree-stat good">89%</span>
+          </div>
+
+          <div class="tree-item" style="padding-left:60px">
+            <div class="tree-expand">&#9660;</div>
+            <div class="tree-icon ask">?</div>
+            <div class="tree-label">How many employees does your company have?</div>
+            <span class="tree-stat good">82%</span>
+          </div>
+
+          <div class="tree-item" style="padding-left:84px">
+            <div class="tree-expand">&#9654;</div>
+            <div class="tree-icon ask">?</div>
+            <div class="tree-label">What types of coverage are you interested in?</div>
+            <span class="tree-stat warn">68%</span>
+          </div>
+
+          <div class="tree-item" style="padding-left:60px">
+            <div class="tree-expand">&#9660;</div>
+            <div class="tree-icon say">!</div>
+            <div class="tree-label">Value proposition statement</div>
+            <span class="tree-stat good">91%</span>
+          </div>
+
+          <div class="tree-item" style="padding-left:84px">
+            <div class="tree-expand">&#9654;</div>
+            <div class="tree-icon ask">?</div>
+            <div class="tree-label">What is your approximate annual budget?</div>
+            <span class="tree-stat warn">61%</span>
+          </div>
+
+          <div class="tree-item" style="padding-left:60px">
+            <div class="tree-expand">&#9660;</div>
+            <div class="tree-icon ask">?</div>
+            <div class="tree-label">What is your decision timeline?</div>
+            <span class="tree-stat bad">45%</span>
+          </div>
+
+          <div class="tree-item" style="padding-left:84px">
+            <div class="tree-expand" style="visibility:hidden">&#9654;</div>
+            <div class="tree-icon say">!</div>
+            <div class="tree-label">Closing & next steps</div>
+            <span class="tree-stat good">95%</span>
+          </div>
+
+          <div style="border-top:1px solid var(--border);margin:12px 0;"></div>
+
+          <div class="tree-item" style="padding-left:84px">
+            <div class="tree-icon end" style="background:var(--emerald-light);color:#065F46;border:none">&#10003;</div>
+            <div class="tree-label" style="color:var(--emerald);font-weight:600">Qualified -- Transfer to Sales</div>
+          </div>
+          <div class="tree-item" style="padding-left:84px">
+            <div class="tree-icon end" style="background:var(--red-light);color:var(--red);border:none">&#10005;</div>
+            <div class="tree-label" style="color:var(--red);font-weight:600">Not Qualified -- Send Follow-up</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== DOC VIEW (DEFAULT) ======== -->
+      <div class="builder-view active" id="view-doc">
+        <div class="doc-container">
+          <div class="doc-title">Sarah's Qualification Script</div>
+          <div class="doc-meta">
+            <span class="doc-meta-item">&#128196; 8 goals</span>
+            <span class="doc-meta-item">&#9889; v2.3 (Live)</span>
+            <span class="doc-meta-item">&#128338; Last edited 2 hours ago</span>
+          </div>
+
+          <!-- Opening -->
+          <div class="doc-block selected" onclick="selectDocBlock(this)">
+            <div class="doc-block-actions">
+              <button class="doc-action-btn" title="More">&#8943;</button>
+            </div>
+            <div class="doc-block-header">
+              <span class="doc-block-drag">&#9776;</span>
+              <span class="doc-block-badge" style="background:var(--emerald-light);color:#065F46">SAY</span>
+              <span class="doc-block-text"><strong>Opening Greeting</strong></span>
+              <span class="doc-block-analytics"><span style="color:var(--emerald)">&#9650; 100%</span></span>
+            </div>
+            <div style="padding-left:42px;font-size:14px;color:var(--body);line-height:1.6">
+              "Hi {{first_name}}, this is Sarah from Honeycomb Insurance. I understand you're looking into commercial coverage for {{company_name}}. Do you have a few minutes to chat?"
+            </div>
+          </div>
+
+          <div class="doc-section-divider"></div>
+
+          <!-- Goal 1 -->
+          <div class="doc-block indent-1" onclick="selectDocBlock(this)">
+            <div class="doc-block-actions">
+              <button class="doc-action-btn" title="Improve">&#9889;</button>
+              <button class="doc-action-btn" title="More">&#8943;</button>
+            </div>
+            <div class="doc-block-header">
+              <span class="doc-block-drag">&#9776;</span>
+              <span class="doc-block-badge badge-ask">ASK</span>
+              <span class="doc-block-text">What type of business do you operate?</span>
+              <span class="doc-block-analytics"><span style="color:var(--emerald)">&#9650; 89%</span> <span style="color:var(--secondary)">&middot; 423 calls</span></span>
+            </div>
+            <div style="padding-left:42px;font-size:12px;color:var(--secondary)">Maps to: <strong>business_type</strong> &middot; Open-ended</div>
+          </div>
+
+          <!-- Goal 2 -->
+          <div class="doc-block indent-1" onclick="selectDocBlock(this)">
+            <div class="doc-block-actions">
+              <button class="doc-action-btn" title="Improve">&#9889;</button>
+              <button class="doc-action-btn" title="More">&#8943;</button>
+            </div>
+            <div class="doc-block-header">
+              <span class="doc-block-drag">&#9776;</span>
+              <span class="doc-block-badge badge-ask">ASK</span>
+              <span class="doc-block-text">How many employees does your company have?</span>
+              <span class="doc-block-analytics"><span style="color:var(--emerald)">&#9650; 82%</span> <span style="color:var(--secondary)">&middot; 376 calls</span></span>
+            </div>
+            <div style="padding-left:42px;font-size:12px;color:var(--secondary)">Maps to: <strong>employee_count</strong> &middot; Numeric</div>
+          </div>
+
+          <!-- Goal 3 -->
+          <div class="doc-block indent-2" onclick="selectDocBlock(this)">
+            <div class="doc-block-actions">
+              <button class="doc-action-btn" title="Improve">&#9889;</button>
+              <button class="doc-action-btn" title="More">&#8943;</button>
+            </div>
+            <div class="doc-block-header">
+              <span class="doc-block-drag">&#9776;</span>
+              <span class="doc-block-badge badge-ask">ASK</span>
+              <span class="doc-block-text">What types of coverage are you most interested in?</span>
+              <span class="doc-block-analytics"><span style="color:var(--amber)">&#9679; 68%</span> <span style="color:var(--secondary)">&middot; 287 calls</span></span>
+            </div>
+            <div style="padding-left:42px;font-size:12px;color:var(--secondary)">Maps to: <strong>coverage_interest</strong> &middot; Multiple choice &middot; <a href="#" style="color:var(--primary);text-decoration:none;font-weight:600">Improve this goal &#9889;</a></div>
+          </div>
+
+          <div class="doc-section-divider"></div>
+
+          <!-- Value Prop -->
+          <div class="doc-block indent-1" onclick="selectDocBlock(this)">
+            <div class="doc-block-actions">
+              <button class="doc-action-btn" title="More">&#8943;</button>
+            </div>
+            <div class="doc-block-header">
+              <span class="doc-block-drag">&#9776;</span>
+              <span class="doc-block-badge badge-say">SAY</span>
+              <span class="doc-block-text"><strong>Value Proposition</strong></span>
+              <span class="doc-block-analytics"><span style="color:var(--emerald)">&#9650; 91%</span></span>
+            </div>
+            <div style="padding-left:42px;font-size:14px;color:var(--body);line-height:1.6">
+              "That's great context. Based on what you've shared, Honeycomb can offer AI-powered underwriting for faster quotes -- most businesses get a proposal within 24 hours, and our bundled packages typically save 15-20%."
+            </div>
+          </div>
+
+          <!-- Goal 4 -->
+          <div class="doc-block indent-2" onclick="selectDocBlock(this)">
+            <div class="doc-block-actions">
+              <button class="doc-action-btn" title="Improve">&#9889;</button>
+              <button class="doc-action-btn" title="More">&#8943;</button>
+            </div>
+            <div class="doc-block-header">
+              <span class="doc-block-drag">&#9776;</span>
+              <span class="doc-block-badge badge-ask">ASK</span>
+              <span class="doc-block-text">What is your approximate annual budget for insurance?</span>
+              <span class="doc-block-analytics"><span style="color:var(--amber)">&#9679; 61%</span> <span style="color:var(--secondary)">&middot; 196 calls</span></span>
+            </div>
+            <div style="padding-left:42px;font-size:12px;color:var(--secondary)">Maps to: <strong>budget_range</strong> &middot; Range &middot; <a href="#" style="color:var(--primary);text-decoration:none;font-weight:600">Improve this goal &#9889;</a></div>
+          </div>
+
+          <!-- Goal 5 -->
+          <div class="doc-block indent-1" onclick="selectDocBlock(this)">
+            <div class="doc-block-actions">
+              <button class="doc-action-btn" title="Improve">&#9889;</button>
+              <button class="doc-action-btn" title="More">&#8943;</button>
+            </div>
+            <div class="doc-block-header">
+              <span class="doc-block-drag">&#9776;</span>
+              <span class="doc-block-badge badge-ask">ASK</span>
+              <span class="doc-block-text">What is your decision timeline for selecting a provider?</span>
+              <span class="doc-block-analytics"><span style="color:var(--red)">&#9660; 45%</span> <span style="color:var(--secondary)">&middot; 132 calls</span></span>
+            </div>
+            <div style="padding-left:42px;font-size:12px;color:var(--secondary)">Maps to: <strong>decision_timeline</strong> &middot; Open-ended &middot; <span style="color:var(--red);font-weight:600">&#9888; Low success rate -- A/B test suggested</span></div>
+          </div>
+
+          <div class="doc-section-divider"></div>
+
+          <!-- Closing -->
+          <div class="doc-block indent-1" onclick="selectDocBlock(this)">
+            <div class="doc-block-actions">
+              <button class="doc-action-btn" title="More">&#8943;</button>
+            </div>
+            <div class="doc-block-header">
+              <span class="doc-block-drag">&#9776;</span>
+              <span class="doc-block-badge badge-say">SAY</span>
+              <span class="doc-block-text"><strong>Closing & Next Steps</strong></span>
+              <span class="doc-block-analytics"><span style="color:var(--emerald)">&#9650; 95%</span></span>
+            </div>
+            <div style="padding-left:42px;font-size:14px;color:var(--body);line-height:1.6">
+              "Wonderful, {{first_name}}. Based on everything you've shared, I think we can put together a great package for {{company_name}}. Let me connect you with our sales team who can walk you through a customized proposal."
+            </div>
+          </div>
+
+          <!-- Outcomes -->
+          <div style="margin-top:24px;padding:16px;background:var(--bg);border-radius:var(--radius-lg)">
+            <div style="font-size:13px;font-weight:700;color:var(--heading);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">Outcomes</div>
+            <div style="display:flex;gap:12px">
+              <div style="flex:1;padding:12px;border-radius:var(--radius);background:var(--emerald-light);text-align:center">
+                <div style="font-size:14px;font-weight:700;color:#065F46">&#10003; Qualified</div>
+                <div style="font-size:12px;color:#065F46">Hot Transfer to Sales</div>
+              </div>
+              <div style="flex:1;padding:12px;border-radius:var(--radius);background:var(--amber-light);text-align:center">
+                <div style="font-size:14px;font-weight:700;color:#92400E">&#10007; Not Qualified</div>
+                <div style="font-size:12px;color:#92400E">Send Follow-up Email</div>
+              </div>
+              <div style="flex:1;padding:12px;border-radius:var(--radius);background:var(--primary-bg);text-align:center">
+                <div style="font-size:14px;font-weight:700;color:var(--primary)">&#8634; Callback</div>
+                <div style="font-size:12px;color:var(--primary)">Schedule Retry</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="add-btn" style="margin-top:16px;width:100%;justify-content:center">+ Add Goal Block</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Properties Sidebar -->
+    <div class="builder-sidebar">
+      <div class="sidebar-title">Goal Properties</div>
+      <div class="sidebar-subtitle">Select a goal to edit its properties</div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Details</div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label" style="font-size:12px">Title</label>
+          <input type="text" class="form-input" value="What type of business do you operate?" style="font-size:13px">
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label" style="font-size:12px">Type</label>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm" style="background:var(--primary);color:var(--white);padding:4px 12px;font-size:12px;border-radius:var(--radius-pill)">Ask</button>
+            <button class="btn btn-sm btn-ghost" style="padding:4px 12px;font-size:12px;border-radius:var(--radius-pill)">Say</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label" style="font-size:12px">Maps to Field</label>
+          <select class="form-select" style="font-size:13px">
+            <option selected>business_type</option>
+            <option>employee_count</option>
+            <option>coverage_interest</option>
+            <option>budget_range</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Performance</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+          <span style="color:var(--secondary)">Success Rate</span>
+          <span style="font-weight:700;color:var(--emerald)">89%</span>
+        </div>
+        <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:12px">
+          <div style="width:89%;height:100%;background:var(--emerald);border-radius:3px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--secondary);margin-bottom:4px">
+          <span>Total attempts</span><span style="font-weight:600;color:var(--heading)">423</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--secondary);margin-bottom:4px">
+          <span>Avg. time on goal</span><span style="font-weight:600;color:var(--heading)">18s</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--secondary)">
+          <span>Drop-off rate</span><span style="font-weight:600;color:var(--heading)">11%</span>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 10px">&#9889; Improve</button>
+          <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 10px">View Calls</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Linked Outcome</div>
+        <select class="form-select" style="font-size:13px">
+          <option>None (continue to next)</option>
+          <option>Qualified -- Transfer</option>
+          <option>Not Qualified -- End</option>
+          <option>Schedule Callback</option>
+        </select>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">AI Response</div>
+        <div class="toggle-wrap" style="margin-bottom:8px">
+          <div class="toggle-switch on" onclick="toggleSwitch(this)" style="width:36px;height:20px;border-radius:10px"><div class="toggle-knob" style="width:16px;height:16px;"></div></div>
+          <span style="font-size:13px;color:var(--body)">Enable follow-up clarification</span>
+        </div>
+        <textarea class="form-textarea" rows="2" style="font-size:12px" placeholder="Optional: custom clarification prompt">Could you be more specific about your industry? For example, are you in construction, real estate, or professional services?</textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     TAB 3: AI RESPONSES & KNOWLEDGE
+     ================================================================ -->
+<div class="tab-panel" id="tab-knowledge">
+
+  <div class="sub-tabs" style="margin-bottom:24px;border-bottom:2px solid var(--border)">
+    <button class="sub-tab active" onclick="switchKnowledgeTab(this, 'ai-responses')">AI Responses <span class="tab-badge">12</span></button>
+    <button class="sub-tab" onclick="switchKnowledgeTab(this, 'knowledge-base')">Knowledge Base <span class="tab-badge">4</span></button>
+    <button class="sub-tab" onclick="switchKnowledgeTab(this, 'objection-handling')">Objection Handling <span class="tab-badge">4</span></button>
+  </div>
+
+  <!-- AI RESPONSES -->
+  <div class="sub-tab-panel active" id="ai-responses">
+    <div class="sub-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div class="sub-content-title" style="margin-bottom:0">AI Responses</div>
+          <div class="sub-content-desc" style="margin-bottom:0">Q&A pairs your agent uses to answer prospect questions during calls.</div>
+        </div>
+        <button class="btn btn-outline btn-sm">+ Add Response</button>
+      </div>
+
+      <div class="paired-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="paired-label paired-label-q">Question</div>
+          <span class="auto-badge">&#9889; Auto-generated</span>
+        </div>
+        <div class="paired-text">"What types of commercial insurance do you offer?"</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Answer</div>
+        <div class="paired-text">We offer comprehensive commercial insurance including general liability, property, workers' compensation, professional liability (E&O), and commercial auto coverage. Each policy is customized to your business needs.</div>
+        <div class="forced-answer-wrap">
+          <div class="mini-toggle" onclick="toggleMini(this)"><div class="mini-toggle-knob"></div></div>
+          <span class="forced-answer-label">Forced exact answer (compliance)</span>
+        </div>
+      </div>
+
+      <div class="paired-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="paired-label paired-label-q">Question</div>
+          <span class="auto-badge">&#9889; Auto-generated</span>
+        </div>
+        <div class="paired-text">"How long does it take to get a quote?"</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Answer</div>
+        <div class="paired-text">Most businesses receive an initial quote within 24 hours. Our AI-powered underwriting allows us to process applications faster than traditional insurers. Complex policies may take up to 3 business days.</div>
+        <div class="forced-answer-wrap">
+          <div class="mini-toggle" onclick="toggleMini(this)"><div class="mini-toggle-knob"></div></div>
+          <span class="forced-answer-label">Forced exact answer (compliance)</span>
+        </div>
+      </div>
+
+      <div class="paired-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="paired-label paired-label-q">Question</div>
+        </div>
+        <div class="paired-text">"What is the minimum company size you work with?"</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Answer</div>
+        <div class="paired-text">We work with businesses of all sizes, but our commercial policies are designed for companies with at least 5 employees. For smaller businesses, we can recommend our small business starter package.</div>
+        <div class="forced-answer-wrap">
+          <div class="mini-toggle on" onclick="toggleMini(this)"><div class="mini-toggle-knob"></div></div>
+          <span class="forced-answer-label">Forced exact answer (compliance)</span>
+        </div>
+      </div>
+
+      <div class="paired-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="paired-label paired-label-q">Question</div>
+          <span class="auto-badge">&#9889; Auto-generated</span>
+        </div>
+        <div class="paired-text">"Do you offer bundled coverage discounts?"</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Answer</div>
+        <div class="paired-text">Yes, we offer a Business Owner's Policy (BOP) that bundles general liability and property insurance at a 15-20% discount compared to purchasing separately.</div>
+        <div class="forced-answer-wrap">
+          <div class="mini-toggle" onclick="toggleMini(this)"><div class="mini-toggle-knob"></div></div>
+          <span class="forced-answer-label">Forced exact answer (compliance)</span>
+        </div>
+      </div>
+
+      <div class="paired-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="paired-label paired-label-q">Question</div>
+        </div>
+        <div class="paired-text">"Why are you calling me?" / "Is this a sales call?"</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Answer</div>
+        <div class="paired-text">I'm reaching out from Honeycomb Insurance because we noticed your business might benefit from our commercial coverage options. I just wanted to have a quick conversation to see if we can help -- no pressure at all.</div>
+        <div class="forced-answer-wrap">
+          <div class="mini-toggle on" onclick="toggleMini(this)"><div class="mini-toggle-knob"></div></div>
+          <span class="forced-answer-label">Forced exact answer (compliance)</span>
+        </div>
+      </div>
+
+      <button class="add-btn" style="width:100%;justify-content:center">+ Add AI Response</button>
+    </div>
+  </div>
+
+  <!-- KNOWLEDGE BASE -->
+  <div class="sub-tab-panel" id="knowledge-base">
+    <div class="sub-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div class="sub-content-title" style="margin-bottom:0">Knowledge Base</div>
+          <div class="sub-content-desc" style="margin-bottom:0">Documents and URLs your agent can reference for generative answers (RAG).</div>
+        </div>
+        <button class="btn btn-outline btn-sm">+ Add URL</button>
+      </div>
+
+      <div class="knowledge-upload">
+        <div class="knowledge-upload-icon">&#128206;</div>
+        <div class="knowledge-upload-title">Upload Documents</div>
+        <div class="knowledge-upload-desc">Drop files here or click to browse. Supports PDF, DOCX, TXT, CSV.</div>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="knowledge-item-icon">&#128196;</div>
+        <div class="knowledge-item-info">
+          <div class="knowledge-item-name">Commercial Coverage Guide 2026.pdf</div>
+          <div class="knowledge-item-meta">PDF &middot; 2.4 MB &middot; Uploaded May 12, 2026</div>
+        </div>
+        <span class="knowledge-item-status status-indexed">Indexed</span>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="knowledge-item-icon">&#128196;</div>
+        <div class="knowledge-item-info">
+          <div class="knowledge-item-name">Product Comparison Sheet.docx</div>
+          <div class="knowledge-item-meta">DOCX &middot; 856 KB &middot; Uploaded May 10, 2026</div>
+        </div>
+        <span class="knowledge-item-status status-indexed">Indexed</span>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="knowledge-item-icon" style="background:var(--amber-light);color:#92400E">&#127760;</div>
+        <div class="knowledge-item-info">
+          <div class="knowledge-item-name">https://honeycomb.com/commercial/faq</div>
+          <div class="knowledge-item-meta">URL &middot; Last crawled May 16, 2026</div>
+        </div>
+        <span class="knowledge-item-status status-indexed">Indexed</span>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="knowledge-item-icon" style="background:var(--amber-light);color:#92400E">&#127760;</div>
+        <div class="knowledge-item-info">
+          <div class="knowledge-item-name">https://honeycomb.com/pricing</div>
+          <div class="knowledge-item-meta">URL &middot; Last crawled May 16, 2026</div>
+        </div>
+        <span class="knowledge-item-status status-processing">Processing</span>
+      </div>
+
+      <div class="info-banner" style="margin-top:20px">
+        <span class="info-banner-icon">&#9432;</span>
+        <span>Knowledge base answers are generative -- the agent synthesizes responses from indexed content. For exact wording, use AI Responses with "forced exact answer" enabled instead.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJECTION HANDLING -->
+  <div class="sub-tab-panel" id="objection-handling">
+    <div class="sub-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div class="sub-content-title" style="margin-bottom:0">Objection Handling</div>
+          <div class="sub-content-desc" style="margin-bottom:0">Configure how your agent responds to objections, with adjustable persistence levels.</div>
+        </div>
+        <button class="btn btn-outline btn-sm">+ Add Objection</button>
+      </div>
+
+      <div class="paired-card">
+        <div class="paired-label paired-label-q">Objection</div>
+        <div class="paired-text">"We already have insurance coverage."</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Response</div>
+        <div class="paired-text">That's great that you're already covered! Many of our clients come to us for a second opinion on their coverage. Would it be helpful if I walked you through a quick comparison to make sure you're not overpaying?</div>
+        <div class="persistence-control">
+          <span class="persistence-label">Persistence level:</span>
+          <div class="persistence-dots">
+            <div class="persistence-dot active" onclick="setPersistence(this)">1</div>
+            <div class="persistence-dot active" onclick="setPersistence(this)">2</div>
+            <div class="persistence-dot" onclick="setPersistence(this)">3</div>
+          </div>
+          <span style="font-size:12px;color:var(--secondary)">Push back up to 2 times</span>
+        </div>
+      </div>
+
+      <div class="paired-card">
+        <div class="paired-label paired-label-q">Objection</div>
+        <div class="paired-text">"I'm not the right person to talk to about this."</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Response</div>
+        <div class="paired-text">I completely understand. Could you help me connect with the person who handles insurance decisions? I want to make sure the right person has the information they need.</div>
+        <div class="persistence-control">
+          <span class="persistence-label">Persistence level:</span>
+          <div class="persistence-dots">
+            <div class="persistence-dot active" onclick="setPersistence(this)">1</div>
+            <div class="persistence-dot" onclick="setPersistence(this)">2</div>
+            <div class="persistence-dot" onclick="setPersistence(this)">3</div>
+          </div>
+          <span style="font-size:12px;color:var(--secondary)">Push back up to 1 time</span>
+        </div>
+      </div>
+
+      <div class="paired-card">
+        <div class="paired-label paired-label-q">Objection</div>
+        <div class="paired-text">"Can you just send me an email instead?"</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Response</div>
+        <div class="paired-text">Absolutely, I'd be happy to send over some information. Before I do, could I ask just two quick questions so I can customize what I send?</div>
+        <div class="persistence-control">
+          <span class="persistence-label">Persistence level:</span>
+          <div class="persistence-dots">
+            <div class="persistence-dot active" onclick="setPersistence(this)">1</div>
+            <div class="persistence-dot active" onclick="setPersistence(this)">2</div>
+            <div class="persistence-dot active" onclick="setPersistence(this)">3</div>
+          </div>
+          <span style="font-size:12px;color:var(--secondary)">Push back up to 3 times</span>
+        </div>
+      </div>
+
+      <div class="paired-card">
+        <div class="paired-label paired-label-q">Objection</div>
+        <div class="paired-text">"We're not interested right now."</div>
+        <div class="paired-divider"></div>
+        <div class="paired-label paired-label-a">Response</div>
+        <div class="paired-text">I appreciate your honesty. Just to make sure I'm reaching out at a better time -- when does your current policy come up for renewal? I can follow up closer to that date.</div>
+        <div class="persistence-control">
+          <span class="persistence-label">Persistence level:</span>
+          <div class="persistence-dots">
+            <div class="persistence-dot active" onclick="setPersistence(this)">1</div>
+            <div class="persistence-dot active" onclick="setPersistence(this)">2</div>
+            <div class="persistence-dot" onclick="setPersistence(this)">3</div>
+          </div>
+          <span style="font-size:12px;color:var(--secondary)">Push back up to 2 times</span>
+        </div>
+      </div>
+
+      <button class="add-btn" style="width:100%;justify-content:center">+ Add Objection Handler</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================================================================
+     TAB 4: OUTCOMES & TESTING
+     ================================================================ -->
+<div class="tab-panel" id="tab-outcomes">
+
+  <!-- Outcomes Pipeline -->
+  <div style="margin-bottom:32px">
+    <div class="section-header">
+      <div class="section-title">Disposition Pipeline</div>
+    </div>
+
+    <div class="pipeline-container">
+      <div class="pipeline-stages">
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-bar" style="background:var(--primary)">1,247</div>
+          <div class="pipeline-stage-label">Dialed</div>
+          <div class="pipeline-stage-count">1,247</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-bar" style="background:var(--primary-light)">423</div>
+          <div class="pipeline-stage-label">Answered</div>
+          <div class="pipeline-stage-count">423</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-bar" style="background:#818CF8">312</div>
+          <div class="pipeline-stage-label">Contact Verified</div>
+          <div class="pipeline-stage-count">312</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-bar" style="background:#A5B4FC;color:var(--primary)">156</div>
+          <div class="pipeline-stage-label">Qualified</div>
+          <div class="pipeline-stage-count">156</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-stage-bar" style="background:var(--emerald)">48</div>
+          <div class="pipeline-stage-label">Converted</div>
+          <div class="pipeline-stage-count">48</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Outcome Actions -->
+  <div style="margin-bottom:32px">
+    <div class="section-header">
+      <div class="section-title">Outcome Actions</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+      <div class="sub-content" style="padding:20px;border-color:var(--emerald-light)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="width:28px;height:28px;border-radius:50%;background:var(--emerald-light);color:#065F46;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">&#10003;</span>
+          <span style="font-size:15px;font-weight:700;color:var(--emerald)">Qualified</span>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label" style="font-size:12px">Action</label>
+          <select class="form-select" style="font-size:13px">
+            <option selected>Hot Transfer to Sales</option>
+            <option>Schedule Meeting</option>
+            <option>Send to CRM</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label" style="font-size:12px">Transfer Number</label>
+          <input type="text" class="form-input" value="+1 (415) 555-0200" style="font-size:13px">
+        </div>
+      </div>
+
+      <div class="sub-content" style="padding:20px;border-color:var(--amber-light)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="width:28px;height:28px;border-radius:50%;background:var(--amber-light);color:#92400E;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">&#10007;</span>
+          <span style="font-size:15px;font-weight:700;color:var(--amber)">Not Qualified</span>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label" style="font-size:12px">Action</label>
+          <select class="form-select" style="font-size:13px">
+            <option>Politely End Call</option>
+            <option selected>Send Follow-up Email</option>
+            <option>Add to Nurture</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label" style="font-size:12px">Email Template</label>
+          <select class="form-select" style="font-size:13px">
+            <option selected>Not Qualified - Resources</option>
+            <option>Size Too Small</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sub-content" style="padding:20px;border-color:var(--primary-lighter)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="width:28px;height:28px;border-radius:50%;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">&#8634;</span>
+          <span style="font-size:15px;font-weight:700;color:var(--primary)">Callback</span>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label" style="font-size:12px">Action</label>
+          <select class="form-select" style="font-size:13px">
+            <option selected>Schedule Callback</option>
+            <option>Add to Retry Queue</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label" style="font-size:12px">Retry After</label>
+          <select class="form-select" style="font-size:13px">
+            <option>1 hour</option>
+            <option selected>4 hours</option>
+            <option>Next day</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A/B Testing -->
+  <div style="margin-bottom:32px">
+    <div class="section-header">
+      <div class="section-title">A/B Testing & Versions</div>
+      <button class="btn btn-outline btn-sm">&#9889; Create Experiment</button>
+    </div>
+
+    <div class="version-card active-version">
+      <div class="version-header">
+        <div class="version-name">
+          v2.3 -- Shortened Opening
+          <span class="version-badge live">Live</span>
+        </div>
+        <span style="font-size:12px;color:var(--secondary)">May 14, 2026</span>
+      </div>
+      <div class="version-stats">
+        <div class="version-stat">
+          <div class="version-stat-value">34%</div>
+          <div class="version-stat-label">Answer Rate</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">37%</div>
+          <div class="version-stat-label">Qualification</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">31%</div>
+          <div class="version-stat-label">Conversion</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">4:12</div>
+          <div class="version-stat-label">Avg Duration</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="version-card">
+      <div class="version-header">
+        <div class="version-name">
+          v2.2 -- Budget Question First
+          <span class="version-badge draft">Experiment</span>
+        </div>
+        <span style="font-size:12px;color:var(--secondary)">May 10, 2026</span>
+      </div>
+      <div class="version-stats">
+        <div class="version-stat">
+          <div class="version-stat-value">34%</div>
+          <div class="version-stat-label">Answer Rate</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">41%</div>
+          <div class="version-stat-label">Qualification</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">28%</div>
+          <div class="version-stat-label">Conversion</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">3:48</div>
+          <div class="version-stat-label">Avg Duration</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:16px">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--secondary);margin-bottom:4px">Qualification vs Live</div>
+          <div class="version-bar-wrap">
+            <div class="version-bar"><div class="version-bar-fill" style="width:41%;background:var(--emerald)"></div></div>
+            <span style="font-size:12px;font-weight:700;color:var(--emerald)">+4%</span>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--secondary);margin-bottom:4px">Conversion vs Live</div>
+          <div class="version-bar-wrap">
+            <div class="version-bar"><div class="version-bar-fill" style="width:28%;background:var(--red)"></div></div>
+            <span style="font-size:12px;font-weight:700;color:var(--red)">-3%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="version-card">
+      <div class="version-header">
+        <div class="version-name">
+          v2.1 -- Original Long Script
+          <span class="version-badge archived">Archived</span>
+        </div>
+        <span style="font-size:12px;color:var(--secondary)">May 5, 2026</span>
+      </div>
+      <div class="version-stats">
+        <div class="version-stat">
+          <div class="version-stat-value">31%</div>
+          <div class="version-stat-label">Answer Rate</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">32%</div>
+          <div class="version-stat-label">Qualification</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">29%</div>
+          <div class="version-stat-label">Conversion</div>
+        </div>
+        <div class="version-stat">
+          <div class="version-stat-value">5:38</div>
+          <div class="version-stat-label">Avg Duration</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Version History Timeline -->
+  <div>
+    <div class="section-header">
+      <div class="section-title">Revision History</div>
+    </div>
+    <div class="sub-content">
+      <div class="timeline">
+        <div class="timeline-item current">
+          <div class="timeline-item-title">v2.3 -- Shortened Opening</div>
+          <div class="timeline-item-desc">Reduced opening from 42 words to 25 words based on AI recommendation</div>
+          <div class="timeline-item-time">May 14, 2026 at 2:30 PM &middot; by Niv S.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-item-title">v2.2 -- Budget Question First (Experiment)</div>
+          <div class="timeline-item-desc">Moved budget question earlier in the flow to test qualification speed</div>
+          <div class="timeline-item-time">May 10, 2026 at 10:15 AM &middot; by Niv S.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-item-title">v2.1 -- Original Long Script</div>
+          <div class="timeline-item-desc">Initial script with full introduction and all 6 qualification questions</div>
+          <div class="timeline-item-time">May 5, 2026 at 9:00 AM &middot; by Niv S.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-item-title">v2.0 -- Script Restructure</div>
+          <div class="timeline-item-desc">Major restructure from linear script to goal-based workflow</div>
+          <div class="timeline-item-time">Apr 28, 2026 at 4:00 PM &middot; by System</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-item-title">v1.0 -- Initial Setup</div>
+          <div class="timeline-item-desc">Agent created from pasted sales script via Setup Wizard</div>
+          <div class="timeline-item-time">Apr 20, 2026 at 11:30 AM &middot; by Niv S.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     TAB 5: OPERATIONS
+     ================================================================ -->
+<div class="tab-panel" id="tab-operations">
+  <div class="ops-grid">
+
+    <!-- Voice -->
+    <div class="ops-card">
+      <div class="ops-card-title">Voice Settings</div>
+      <div class="ops-card-desc">Select and tune your agent's voice model.</div>
+
+      <div class="form-group">
+        <label class="form-label">Voice Model</label>
+        <div class="card-grid card-grid-2" style="gap:8px">
+          <div class="selectable-card selected" onclick="selectCard(this, event)" style="padding:12px">
+            <div class="card-title" style="font-size:13px">&#9654; Aria</div>
+            <div class="card-desc">Natural, warm American female</div>
+          </div>
+          <div class="selectable-card" onclick="selectCard(this, event)" style="padding:12px">
+            <div class="card-title" style="font-size:13px">&#9654; Marcus</div>
+            <div class="card-desc">Deep, professional American male</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Speed</span>
+          <span class="slider-value" id="speedVal">1.0x</span>
+        </div>
+        <input type="range" class="range-slider" min="50" max="200" value="100" oninput="document.getElementById('speedVal').textContent=(this.value/100).toFixed(1)+'x'">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Pitch</span>
+          <span class="slider-value" id="pitchVal">0%</span>
+        </div>
+        <input type="range" class="range-slider" min="-50" max="50" value="0" oninput="document.getElementById('pitchVal').textContent=(this.value>0?'+':'')+this.value+'%'">
+      </div>
+
+      <button class="btn btn-outline btn-sm" style="margin-top:4px">&#9654; Preview Voice</button>
+    </div>
+
+    <!-- Telephony -->
+    <div class="ops-card">
+      <div class="ops-card-title">Telephony</div>
+      <div class="ops-card-desc">Manage outbound and inbound phone numbers.</div>
+
+      <div style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--heading)">+1 (415) 555-0142</div>
+            <div style="font-size:12px;color:var(--secondary)">Main &middot; US California</div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--emerald);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--emerald)"></span> Active</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--heading)">+1 (212) 555-0198</div>
+            <div style="font-size:12px;color:var(--secondary)">East Coast &middot; US New York</div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--emerald);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--emerald)"></span> Active</span>
+        </div>
+      </div>
+
+      <div class="toggle-wrap" style="margin-bottom:12px">
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+        <div>
+          <div class="toggle-text">Auto-rotate numbers</div>
+          <div class="toggle-help">Improve answer rates by rotating caller ID</div>
+        </div>
+      </div>
+
+      <button class="add-btn">+ Add Number</button>
+    </div>
+
+    <!-- Compliance -->
+    <div class="ops-card">
+      <div class="ops-card-title">Compliance</div>
+      <div class="ops-card-desc">Regulatory and compliance settings.</div>
+
+      <div class="toggle-wrap" style="margin-bottom:16px">
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+        <div>
+          <div class="toggle-text">AI Disclosure</div>
+          <div class="toggle-help">Identify as AI at start of call</div>
+        </div>
+      </div>
+
+      <div class="toggle-wrap" style="margin-bottom:16px">
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+        <div>
+          <div class="toggle-text">Call Recording Notice</div>
+          <div class="toggle-help">Inform callers of recording</div>
+        </div>
+      </div>
+
+      <div class="toggle-wrap" style="margin-bottom:16px">
+        <div class="toggle-switch on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+        <div>
+          <div class="toggle-text">DNC List Check</div>
+          <div class="toggle-help">Skip numbers on do-not-call lists</div>
+        </div>
+      </div>
+
+      <div class="toggle-wrap">
+        <div class="toggle-switch" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+        <div>
+          <div class="toggle-text">State-specific Disclosure</div>
+          <div class="toggle-help">Auto-detect caller state for compliance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scheduling -->
+    <div class="ops-card">
+      <div class="ops-card-title">Scheduling & Hours</div>
+      <div class="ops-card-desc">Configure operating hours and calendar integration.</div>
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label" style="font-size:13px">Operating Hours</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="time" class="form-input" value="08:00" style="width:110px;font-size:13px">
+          <span style="font-size:13px;color:var(--secondary)">to</span>
+          <input type="time" class="form-input" value="18:00" style="width:110px;font-size:13px">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label" style="font-size:13px">Timezone</label>
+        <select class="form-select" style="font-size:13px">
+          <option selected>US/Pacific (PST)</option>
+          <option>US/Eastern (EST)</option>
+          <option>US/Central (CST)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label" style="font-size:13px">Calendar Integration</label>
+        <select class="form-select" style="font-size:13px">
+          <option selected>Calendly</option>
+          <option>Google Calendar</option>
+          <option>HubSpot</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" style="font-size:13px">Max Concurrent Calls</label>
+        <input type="number" class="form-input" value="10" style="width:80px;font-size:13px">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<!-- Save Bar -->
+<div class="save-bar" id="saveBar">
+  <div class="save-bar-text">You have unsaved changes</div>
+  <button class="btn btn-ghost" onclick="hideSaveBar()">Discard</button>
+  <button class="btn btn-primary" onclick="hideSaveBar()">Save Changes</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- JAVASCRIPT                                                    -->
+<!-- ============================================================ -->
+<script>
+// ========== Tab Navigation ==========
+function switchTab(tabId, pushState) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (btn) btn.classList.add('active');
+  const panel = document.getElementById('tab-' + tabId);
+  if (panel) panel.classList.add('active');
+  if (pushState !== false) {
+    const hash = tabId === 'wizard' ? '' : tabId;
+    const h = hash ? '#/' + hash : '#/';
+    if (window.location.hash !== h) history.pushState(null, '', h);
+  }
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ========== Agent Status Toggle ==========
+let agentActive = true;
+function toggleAgentStatus() {
+  agentActive = !agentActive;
+  const track = document.getElementById('topToggleTrack');
+  const label = document.getElementById('topToggleLabel');
+  const header = document.getElementById('headerStatus');
+  const pauseBtn = document.getElementById('pauseBtn');
+
+  if (agentActive) {
+    track.classList.add('active');
+    label.textContent = 'Active';
+    label.className = 'toggle-label active-label';
+    header.className = 'status-dot-inline active-status';
+    header.innerHTML = '<span class="dot"></span> Active';
+    pauseBtn.innerHTML = '&#10074;&#10074; Pause Agent';
+  } else {
+    track.classList.remove('active');
+    label.textContent = 'Paused';
+    label.className = 'toggle-label inactive-label';
+    header.className = 'status-dot-inline inactive-status';
+    header.innerHTML = '<span class="dot"></span> Paused';
+    pauseBtn.innerHTML = '&#9654; Resume Agent';
+  }
+}
+
+// ========== Wizard Navigation ==========
+let currentWizardStep = 0;
+const totalWizardSteps = 5;
+
+function updateWizardProgress() {
+  const dots = document.querySelectorAll('.wizard-step-dot');
+  const lines = document.querySelectorAll('.wizard-step-line');
+  dots.forEach((dot, i) => {
+    dot.classList.remove('active', 'completed');
+    if (i < currentWizardStep) dot.classList.add('completed');
+    else if (i === currentWizardStep) dot.classList.add('active');
+  });
+  lines.forEach((line, i) => {
+    line.classList.toggle('completed', i < currentWizardStep);
+  });
+  document.querySelectorAll('.wizard-step-content').forEach((s, i) => {
+    s.classList.toggle('active', i === currentWizardStep);
+  });
+}
+
+function wizardNext() {
+  if (currentWizardStep < totalWizardSteps - 1) {
+    currentWizardStep++;
+    updateWizardProgress();
+    if (currentWizardStep === 3) startProcessingAnimation();
+    history.pushState(null, '', '#/wizard/step-' + currentWizardStep);
+  }
+}
+
+function wizardPrev() {
+  if (currentWizardStep > 0) {
+    currentWizardStep--;
+    updateWizardProgress();
+    history.pushState(null, '', currentWizardStep === 0 ? '#/' : '#/wizard/step-' + currentWizardStep);
+  }
+}
+
+// ========== Processing Animation ==========
+function startProcessingAnimation() {
+  const steps = document.querySelectorAll('.processing-step');
+  let idx = 0;
+  const interval = setInterval(() => {
+    if (idx > 0) {
+      steps[idx - 1].classList.remove('active');
+      steps[idx - 1].classList.add('completed');
+      steps[idx - 1].querySelector('.processing-step-icon').innerHTML = '&#10003;';
+    }
+    if (idx < steps.length) {
+      steps[idx].classList.add('active');
+      idx++;
+    } else {
+      clearInterval(interval);
+      setTimeout(() => {
+        currentWizardStep = 4;
+        updateWizardProgress();
+      }, 800);
+    }
+  }, 900);
+}
+
+// ========== Builder View Toggle ==========
+function switchBuilderView(view, btn) {
+  document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.view-toggle-btn').forEach(b => {
+      if (b.textContent.trim().toLowerCase().replace(/[^a-z]/g,'') === view) b.classList.add('active');
+    });
+  }
+  document.querySelectorAll('.builder-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  const h = '#/builder/' + view;
+  if (window.location.hash !== h) history.pushState(null, '', h);
+}
+
+// ========== Card Selection ==========
+function selectCard(el, event) {
+  const grid = el.parentElement;
+  grid.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ========== Toggle Switch ==========
+function toggleSwitch(el) {
+  el.classList.toggle('on');
+}
+
+// ========== Mini Toggle ==========
+function toggleMini(el) {
+  el.classList.toggle('on');
+}
+
+// ========== Language Pill Toggle ==========
+function togglePill(el) {
+  el.classList.toggle('selected');
+}
+
+// ========== Knowledge Tab ==========
+function switchKnowledgeTab(btn, panelId, pushState) {
+  btn.parentElement.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#tab-knowledge .sub-tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+  if (pushState !== false) {
+    const sub = panelId.replace('knowledge-','');
+    history.pushState(null, '', '#/knowledge/' + sub);
+  }
+}
+
+// ========== Capabilities Panel ==========
+function toggleCapabilities() {
+  const body = document.getElementById('capBody');
+  const expand = document.getElementById('capExpand');
+  body.classList.toggle('open');
+  expand.classList.toggle('open');
+}
+
+// ========== Canvas Node Selection ==========
+function selectNode(el) {
+  document.querySelectorAll('.canvas-node').forEach(n => n.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ========== Doc Block Selection ==========
+function selectDocBlock(el) {
+  document.querySelectorAll('.doc-block').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ========== Persistence Dots ==========
+function setPersistence(el) {
+  const dots = el.parentElement.querySelectorAll('.persistence-dot');
+  const idx = Array.from(dots).indexOf(el);
+  dots.forEach((d, i) => {
+    d.classList.toggle('active', i <= idx);
+  });
+  const label = el.closest('.persistence-control').querySelector('span:last-child');
+  label.textContent = `Push back up to ${idx + 1} time${idx > 0 ? 's' : ''}`;
+}
+
+// ========== Save Bar ==========
+function showSaveBar() {
+  document.getElementById('saveBar').classList.add('visible');
+}
+
+function hideSaveBar() {
+  document.getElementById('saveBar').classList.remove('visible');
+}
+
+// ========== Load Example Script ==========
+function loadExampleScript() {
+  const exampleScript = `Opening:
+"Hi [first_name], this is Sarah from Honeycomb Insurance. I understand you're looking into commercial coverage for [company_name]. Do you have a few minutes to chat?"
+
+[If yes, continue. If no, offer to schedule a callback.]
+
+Question 1: Business Type
+"Great! First, can you tell me what type of business you operate?"
+[Listen for: industry, business model, key activities]
+
+Question 2: Company Size
+"And how many employees does your company have?"
+[Qualify: minimum 5 employees for commercial coverage]
+
+Question 3: Coverage Needs
+"What types of coverage are you most interested in?"
+Options: General liability, Property, Workers' comp, Professional liability, Commercial auto
+[Allow multiple selections]
+
+Value Proposition:
+"That's great context. Based on what you've shared, Honeycomb can offer AI-powered underwriting for faster quotes. Most businesses get a proposal within 24 hours, and our bundled packages typically save 15-20%."
+
+Question 4: Budget
+"What is your approximate annual budget for insurance?"
+[Ranges: Under $5K, $5K-$15K, $15K-$50K, $50K+]
+
+Question 5: Timeline
+"What is your decision timeline for selecting a provider?"
+[Within 30 days = hot lead, 30-90 days = warm, 90+ = nurture]
+
+Closing (Qualified):
+"Wonderful, [first_name]. Based on everything you've shared, I think we can put together a great package for [company_name]. Let me connect you with our sales team who can walk you through a customized proposal."
+
+Closing (Not Qualified):
+"Thank you for your time, [first_name]. While we may not be the best fit right now, I'll send you some helpful resources. Feel free to reach out anytime your needs change."`;
+
+  document.getElementById('scriptInput').value = exampleScript;
+}
+
+// ========== Deep URL Router ==========
+function handleRoute() {
+  const hash = window.location.hash || '#/';
+  const parts = hash.replace('#/', '').split('/').filter(Boolean);
+
+  if (!parts.length || parts[0] === 'wizard') {
+    switchTab('wizard', false);
+    if (parts[1]) {
+      const stepMatch = parts[1].match(/step-(\d)/);
+      if (stepMatch) {
+        currentWizardStep = parseInt(stepMatch[1]);
+        updateWizardProgress();
+      }
+    } else {
+      currentWizardStep = 0;
+      updateWizardProgress();
+    }
+  } else if (parts[0] === 'builder') {
+    switchTab('builder', false);
+    if (parts[1] && ['canvas','tree','doc'].includes(parts[1])) {
+      switchBuilderView(parts[1], null);
+    }
+  } else if (parts[0] === 'knowledge') {
+    switchTab('knowledge', false);
+    if (parts[1] && ['responses','base','objections'].includes(parts[1])) {
+      const tabMap = { responses: 'knowledge-responses', base: 'knowledge-base', objections: 'knowledge-objections' };
+      const panelId = tabMap[parts[1]];
+      const btns = document.querySelectorAll('#tab-knowledge .sub-tab');
+      btns.forEach(b => {
+        if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(panelId)) {
+          switchKnowledgeTab(b, panelId, false);
+        }
+      });
+    }
+  } else if (parts[0] === 'outcomes') {
+    switchTab('outcomes', false);
+  } else if (parts[0] === 'operations') {
+    switchTab('operations', false);
+  }
+}
+
+window.addEventListener('popstate', handleRoute);
+handleRoute();
+</script>
+
+</body>
+</html>
