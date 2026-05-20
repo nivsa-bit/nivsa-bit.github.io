@@ -3061,22 +3061,116 @@ Example:
       <div class="section-title">Outcome Actions</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
-      <div class="sub-content" style="padding:20px;border-color:var(--emerald-light)">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-          <span style="width:28px;height:28px;border-radius:50%;background:var(--emerald-light);color:#065F46;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">&#10003;</span>
-          <span style="font-size:15px;font-weight:700;color:var(--emerald)">Qualified</span>
+      <div class="sub-content" style="padding:20px;border-color:var(--emerald-light);grid-column:1/-1">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:28px;height:28px;border-radius:50%;background:var(--emerald-light);color:#065F46;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">&#10003;</span>
+            <span style="font-size:15px;font-weight:700;color:var(--emerald)">Qualified</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;color:var(--text-secondary)">Action:</span>
+            <select class="form-select" style="font-size:13px;width:auto;padding:4px 28px 4px 10px">
+              <option selected>Hot Transfer to Sales</option>
+              <option>Schedule Meeting</option>
+              <option>Send to CRM</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group" style="margin-bottom:12px">
-          <label class="form-label" style="font-size:12px">Action</label>
-          <select class="form-select" style="font-size:13px">
-            <option selected>Hot Transfer to Sales</option>
-            <option>Schedule Meeting</option>
-            <option>Send to CRM</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label class="form-label" style="font-size:12px">Transfer Number</label>
-          <input type="text" class="form-input" value="+1 (415) 555-0200" style="font-size:13px">
+
+        <div style="background:linear-gradient(135deg,#ECFDF5 0%,#F0FDF9 100%);border:1px solid var(--emerald-light);border-radius:12px;padding:20px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:18px">&#128241;</span>
+            <span style="font-size:14px;font-weight:700;color:#065F46">Hot Transfer Agent Configuration</span>
+          </div>
+          <p style="font-size:11px;color:#047857;margin:0 0 16px 0;line-height:1.4">These parameters define a dedicated call center agent that will be automatically created behind the scenes to handle the graceful handoff to your sales team.</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 16px">
+
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label" style="font-size:11px;color:#065F46;font-weight:600">Target Phone Number</label>
+              <input type="text" class="form-input" value="+1 (415) 555-0200" style="font-size:12px;background:white" placeholder="+1 (555) 000-0000">
+              <span style="font-size:10px;color:#6B7280;margin-top:2px;display:block">Call center or rep direct line</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label" style="font-size:11px;color:#065F46;font-weight:600">Concurrent Slots</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="number" class="form-input" value="5" min="1" max="50" style="font-size:12px;background:white;width:70px;text-align:center">
+                <span style="font-size:10px;color:#6B7280;line-height:1.3">Max simultaneous<br>transfer calls</span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label" style="font-size:11px;color:#065F46;font-weight:600">Dial Timeout</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="number" class="form-input" value="45" min="10" max="120" style="font-size:12px;background:white;width:70px;text-align:center">
+                <span style="font-size:11px;color:#6B7280">seconds</span>
+              </div>
+              <span style="font-size:10px;color:#6B7280;margin-top:2px;display:block">Max wait before fallback</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label" style="font-size:11px;color:#065F46;font-weight:600">Company Name</label>
+              <input type="text" class="form-input" value="Acme Corp" style="font-size:12px;background:white" placeholder="Your company name">
+              <span style="font-size:10px;color:#6B7280;margin-top:2px;display:block">Used in rep briefing script</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label" style="font-size:11px;color:#065F46;font-weight:600">Voice Model</label>
+              <select class="form-select" style="font-size:12px;background:white">
+                <option selected>Professional Female</option>
+                <option>Professional Male</option>
+                <option>Friendly Female</option>
+                <option>Friendly Male</option>
+                <option>Custom Clone</option>
+              </select>
+              <span style="font-size:10px;color:#6B7280;margin-top:2px;display:block">Agent voice during hold &amp; handoff</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label" style="font-size:11px;color:#065F46;font-weight:600">Fallback Action</label>
+              <select class="form-select" style="font-size:12px;background:white">
+                <option selected>Schedule Callback</option>
+                <option>Leave Voicemail</option>
+                <option>Transfer to Backup</option>
+                <option>End Call with SMS</option>
+              </select>
+              <span style="font-size:10px;color:#6B7280;margin-top:2px;display:block">When no rep answers in time</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;grid-column:1/-1">
+              <label class="form-label" style="font-size:11px;color:#065F46;font-weight:600">Brief Template</label>
+              <textarea class="form-input" rows="3" style="font-size:12px;background:white;resize:vertical;font-family:inherit;line-height:1.5" placeholder="What the agent tells the rep before connecting...">Hi, this is {{company_name}}'s AI assistant. I have {{contact_name}} on the line from {{company}}. They're interested in {{qualified_reason}}. They have {{employee_count}} employees and currently use {{current_solution}}.</textarea>
+              <span style="font-size:10px;color:#6B7280;margin-top:2px;display:block">Dynamic variables: {{contact_name}}, {{company}}, {{qualified_reason}}, {{employee_count}}, {{current_solution}}</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;grid-column:1/-1">
+              <label class="form-label" style="font-size:11px;color:#065F46;font-weight:600">IVR Navigation Instructions</label>
+              <textarea class="form-input" rows="2" style="font-size:12px;background:white;resize:vertical;font-family:inherit;line-height:1.5" placeholder="How the agent navigates the IVR menu to reach a human rep...">Press 2 for Sales, then press 1 for English, wait for rep to answer. If voicemail, hang up and retry.</textarea>
+              <span style="font-size:10px;color:#6B7280;margin-top:2px;display:block">Step-by-step instructions for navigating automated phone menus</span>
+            </div>
+
+            <div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:white;border-radius:8px;border:1px solid #D1FAE5">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:14px">&#128101;</span>
+                <div>
+                  <div style="font-size:12px;font-weight:600;color:#065F46">Rep Verification</div>
+                  <div style="font-size:10px;color:#6B7280">Agent confirms a human rep answered before connecting the prospect</div>
+                </div>
+              </div>
+              <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
+                <input type="checkbox" checked style="opacity:0;width:0;height:0">
+                <span style="position:absolute;inset:0;background:var(--emerald);border-radius:24px;transition:background 0.2s"></span>
+                <span style="position:absolute;left:22px;top:2px;width:20px;height:20px;background:white;border-radius:50%;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)"></span>
+              </label>
+            </div>
+
+          </div>
+
+          <div style="margin-top:16px;padding:12px 16px;background:rgba(255,255,255,0.7);border-radius:8px;border:1px dashed #A7F3D0;display:flex;align-items:center;gap:10px">
+            <span style="font-size:16px">&#9432;</span>
+            <span style="font-size:11px;color:#047857;line-height:1.4">When a prospect qualifies, the main agent tells them <em>"Let me connect you with our team"</em>, keeps them engaged with hold conversation, while this call center agent dials the target number, navigates the IVR, briefs the rep, and performs a graceful three-way handoff.</span>
+          </div>
         </div>
       </div>
 
