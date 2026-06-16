@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>AI Script Flow — Node Config Mock</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef1f6;
+    --grid:#e2e6ee;
+    --panel:#ffffff;
+    --panel-2:#f7f8fb;
+    --border:#e3e7ef;
+    --border-strong:#cfd6e4;
+    --text:#1c2333;
+    --text-2:#64708a;
+    --muted:#95a0b5;
+    --accent:#5b5bf6;
+    --accent-soft:#ececff;
+    --say:#2e8af6;
+    --say-soft:#e6f1ff;
+    --ask:#8b5cf6;
+    --ask-soft:#f1ebff;
+    --green:#1fae62;
+    --green-soft:#e4f7ec;
+    --amber:#e8920c;
+    --amber-soft:#fcf2dd;
+    --red:#e5484d;
+    --red-soft:#fcebec;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(20,30,55,.06), 0 6px 22px rgba(20,30,55,.08);
+    --shadow-lg:0 12px 50px rgba(20,30,55,.22);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:Inter,system-ui,-apple-system,sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  #root{height:100%}
+
+  /* ---------- App shell ---------- */
+  .app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  .topbar{
+    height:54px;flex:0 0 auto;display:flex;align-items:center;gap:14px;
+    padding:0 18px;background:var(--panel);border-bottom:1px solid var(--border);
+    z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
+  .brand .logo{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8b5cf6);
+    display:grid;place-items:center;color:#fff}
+  .brand small{color:var(--muted);font-weight:500;font-size:12px}
+  .topbar .spacer{flex:1}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border-strong);
+    background:var(--panel);color:var(--text);font:inherit;font-weight:600;font-size:13px;
+    padding:8px 13px;border-radius:9px;cursor:pointer;transition:.12s;white-space:nowrap;
+  }
+  .btn:hover{background:var(--panel-2);border-color:var(--muted)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:#4a4ae0}
+  .btn.ghost{border-color:transparent;background:transparent}
+  .btn.ghost:hover{background:var(--panel-2)}
+  .btn.sm{padding:5px 9px;font-size:12px;border-radius:8px}
+  .btn.icon{padding:7px;border-radius:8px}
+
+  /* ---------- Canvas ---------- */
+  .canvas{
+    flex:1;min-width:0;overflow:auto;position:relative;
+    background-color:var(--bg);
+    background-image:radial-gradient(var(--grid) 1.4px, transparent 1.4px);
+    background-size:22px 22px;
+    padding:40px;
+  }
+  .canvas-inner{display:flex;flex-wrap:wrap;gap:34px;align-items:flex-start;min-height:100%}
+
+  /* ---------- Node card ---------- */
+  .node{
+    width:430px;background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+    position:relative;
+  }
+  .node.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft),var(--shadow)}
+
+  .node-head{padding:13px 13px 12px}
+  .node-head-row{display:flex;align-items:center;gap:9px}
+
+  /* type toggle */
+  .typetog{display:inline-flex;background:var(--panel-2);border:1px solid var(--border);border-radius:9px;padding:3px}
+  .typetog button{
+    border:0;background:transparent;cursor:pointer;font:inherit;font-weight:600;font-size:12px;
+    color:var(--text-2);padding:5px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;transition:.12s;
+  }
+  .typetog button.on[data-t="say"]{background:var(--say-soft);color:var(--say)}
+  .typetog button.on[data-t="ask"]{background:var(--ask-soft);color:var(--ask)}
+  .typetog button.on[data-t="group"]{background:var(--accent-soft);color:var(--accent)}
+
+  .name-in{
+    width:100%;border:1px solid transparent;background:transparent;font:inherit;font-weight:700;font-size:17px;
+    color:var(--text);padding:7px 9px;border-radius:8px;min-width:0;
+  }
+  .name-row{margin-top:9px}
+  .name-in::placeholder{color:var(--muted);font-weight:600}
+  .name-in:hover{background:var(--panel-2)}
+  .name-in:focus{outline:none;background:#fff;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+  .badges{display:flex;gap:5px;align-items:center}
+  .badge{
+    display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 7px;border-radius:6px;
+    font-size:11px;font-weight:600;background:var(--panel-2);color:var(--text-2);border:1px solid var(--border);
+  }
+  .badge.amber{background:var(--amber-soft);color:var(--amber);border-color:transparent}
+  .badge.green{background:var(--green-soft);color:var(--green);border-color:transparent}
+  .badge.accent{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+
+  .cond-pill{
+    margin-top:10px;display:flex;align-items:center;gap:8px;background:var(--amber-soft);
+    border:1px solid #f0dca8;border-radius:9px;padding:7px 9px;
+  }
+  .cond-pill svg{color:var(--amber);flex:0 0 auto}
+  .cond-pill input{flex:1;border:0;background:transparent;font:inherit;font-size:13px;color:var(--text);
+    font-family:'JetBrains Mono',monospace}
+  .cond-pill input:focus{outline:none}
+  .cond-pill .x{cursor:pointer;color:var(--amber);opacity:.7}
+  .cond-pill .x:hover{opacity:1}
+
+  /* ---------- Sections ---------- */
+  .section{border-top:1px solid var(--border)}
+  .sec-head{
+    display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;user-select:none;
+  }
+  .sec-head:hover{background:var(--panel-2)}
+  .sec-chev{transition:.15s;color:var(--muted)}
+  .sec-chev.open{transform:rotate(90deg)}
+  .sec-icon{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;flex:0 0 auto}
+  .sec-title{font-weight:600;font-size:13.5px;flex:1}
+  .sec-count{font-size:11px;font-weight:600;color:var(--text-2);background:var(--panel-2);border:1px solid var(--border);
+    border-radius:20px;padding:2px 8px}
+  .sec-body{padding:4px 13px 14px}
+
+  /* ---------- Message rows ---------- */
+  .msg{
+    border:1px solid var(--border);border-radius:10px;background:var(--panel-2);
+    margin-bottom:9px;overflow:hidden;
+  }
+  .msg-cond{display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--amber-soft);border-bottom:1px solid #f0dca8}
+  .msg-cond svg{color:var(--amber)}
+  .msg-cond input{flex:1;border:0;background:transparent;font:inherit;font-size:12px;
+    font-family:'JetBrains Mono',monospace;color:var(--text)}
+  .msg-cond input:focus{outline:none}
+  .msg-cond .x{cursor:pointer;color:var(--amber);opacity:.7}
+  .msg-main{display:flex;align-items:flex-start;gap:8px;padding:9px}
+  .msg-grip{color:var(--muted);cursor:grab;padding-top:5px}
+  .msg-num{font-size:11px;font-weight:700;color:var(--muted);padding-top:6px;min-width:14px}
+  .msg-ta{
+    flex:1;border:0;background:transparent;resize:none;font:inherit;font-size:13.5px;line-height:1.45;
+    color:var(--text);min-height:20px;padding:3px 0;
+  }
+  .msg-ta:focus{outline:none}
+  .msg-ta::placeholder{color:var(--muted)}
+  .msg-flags{display:flex;gap:4px;padding:0 9px 9px 31px;flex-wrap:wrap}
+  .flag{
+    display:inline-flex;align-items:center;gap:4px;height:21px;padding:0 7px;border-radius:6px;
+    font-size:10.5px;font-weight:600;border:1px solid transparent;
+  }
+  .flag.forced{background:var(--red-soft);color:var(--red)}
+  .flag.repeat{background:var(--accent-soft);color:var(--accent)}
+  .flag.norepeat{background:var(--panel-2);color:var(--text-2);border:1px solid var(--border)}
+  .flag.excl{background:#e7f0ff;color:#2e6fdb}
+  .flag.explicit{background:var(--green-soft);color:var(--green)}
+  .add-row{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:7px;
+    border:1px dashed var(--border-strong);background:transparent;color:var(--text-2);
+    font:inherit;font-weight:600;font-size:12.5px;padding:9px;border-radius:9px;cursor:pointer;transition:.12s;
+  }
+  .add-row:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+  /* message type dropdown */
+  .msgtype{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--border);background:#fff;
+    border-radius:7px;padding:5px 5px;cursor:pointer;color:var(--text-2);flex:0 0 auto}
+  .msgtype:hover{border-color:var(--accent);color:var(--accent)}
+  .msgtype.prompt{background:var(--ask-soft);color:var(--ask);border-color:transparent}
+  .msgtype .caret{opacity:.6}
+
+  /* tooltip info dot */
+  .tip{display:inline-grid;place-items:center;width:14px;height:14px;color:var(--muted);cursor:help;flex:0 0 auto}
+  .tip:hover{color:var(--accent)}
+  .ttw{display:inline-flex;align-items:center;vertical-align:middle}
+  .ttw.block{display:block}
+  .tooltip{
+    background:#1c2333;color:#fff;font-family:Inter,sans-serif;font-size:11.5px;font-weight:500;
+    padding:7px 10px;border-radius:8px;box-shadow:0 8px 26px rgba(0,0,0,.32);max-width:340px;
+    white-space:pre-wrap;z-index:300;pointer-events:none;line-height:1.5;
+  }
+  .tooltip.mono{font-family:'JetBrains Mono',monospace;font-size:11px;background:#0d1326;color:#cdd6f4}
+  .tooltip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:5px solid transparent;border-top-color:#1c2333}
+  .tooltip.mono::after{border-top-color:#0d1326}
+
+  /* JSON drawer */
+  .workspace{flex:1;display:flex;min-height:0;overflow:hidden}
+  .drawer{flex:0 0 440px;width:440px;background:#0d1326;
+    box-shadow:-12px 0 50px rgba(0,0,0,.30);display:flex;flex-direction:column;min-height:0}
+  .drawer-head{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid #20283f;flex:0 0 auto}
+  .drawer-head .dt{font-weight:700;font-size:14px;color:#fff}
+  .drawer-head .gname{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#7c89b5}
+  .drawer-tabs{display:flex;gap:6px;padding:10px 15px 0;flex:0 0 auto}
+  .drawer-tab{border:1px solid #2a3350;background:#141b30;color:#9aa6c9;font:inherit;font-weight:600;font-size:12px;
+    padding:5px 11px;border-radius:7px;cursor:pointer}
+  .drawer-tab.on{background:#5b5bf6;border-color:#5b5bf6;color:#fff}
+  .drawer pre{margin:0;padding:15px;overflow:auto;flex:1;font-family:'JetBrains Mono',monospace;
+    font-size:12px;line-height:1.65;white-space:pre;color:#cdd6f4}
+  .drawer .jkey{color:#82aaff}
+  .drawer .jstr{color:#c3e88d}
+  .drawer .jnum{color:#f78c6c}
+  .drawer .jbool{color:#c792ea}
+  .drawer-btn{border:1px solid #2a3350;background:#161d34;color:#cdd6f4;font:inherit;font-weight:600;font-size:12px;
+    padding:6px 11px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .drawer-btn:hover{background:#1d2542}
+
+  /* ---------- Canvas graph ---------- */
+  .canvas-sizer{position:relative}
+  .canvas-stage{position:absolute;top:0;left:0;width:4000px;height:2600px;transform-origin:0 0}
+  .edges{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+  /* zoom control */
+  .zoombar{position:absolute;left:14px;bottom:14px;display:flex;align-items:center;gap:2px;background:var(--panel);
+    border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:3px;z-index:5}
+  .zoombar button{border:0;background:transparent;cursor:pointer;color:var(--text-2);width:28px;height:28px;border-radius:7px;
+    display:grid;place-items:center;font-size:16px;font-weight:600}
+  .zoombar button:hover{background:var(--panel-2);color:var(--text)}
+  .zoombar .zval{font-size:12px;font-weight:600;color:var(--text-2);min-width:42px;text-align:center;cursor:pointer}
+  .edge{fill:none;stroke:var(--border-strong);stroke-width:2}
+  .edge.choice{stroke:var(--say)}
+  .edge.trans{stroke:var(--amber)}
+  .edge-label{position:absolute;transform:translate(-50%,-50%);font-size:10.5px;font-weight:600;
+    background:#fff;border:1px solid var(--border);border-radius:20px;padding:2px 8px;white-space:nowrap;
+    color:var(--text-2);pointer-events:none}
+  .edge-label.choice{color:var(--say);border-color:#bcd9fb}
+  .edge-label.trans{color:var(--amber);border-color:#f0dca8}
+
+  .cnode{position:absolute;width:230px;background:var(--panel);border:1px solid var(--border);
+    border-radius:12px;box-shadow:var(--shadow);user-select:none}
+  .cnode.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft),var(--shadow)}
+  .cn-head{display:flex;align-items:center;gap:8px;padding:10px 11px 8px;cursor:grab}
+  .cn-head:active{cursor:grabbing}
+  .cn-ic{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex:0 0 auto}
+  .cn-ic.say{background:var(--say-soft);color:var(--say)}
+  .cn-ic.ask{background:var(--ask-soft);color:var(--ask)}
+  .cn-name{font-weight:700;font-size:13.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cn-name.empty{color:var(--muted);font-weight:600}
+  .cn-msg{padding:0 11px 11px;font-size:12px;color:var(--text-2);line-height:1.45;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cn-msg .genmark{color:var(--ask);font-weight:700}
+  .cn-msg.empty{color:var(--muted);font-style:italic}
+  /* connection ports: choice & transition anchors stacked bottom-right, circle on the right edge */
+  .cn-ports{padding:6px 0 2px}
+  .cn-port{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:7px;
+    padding:4px 17px 4px 12px;cursor:pointer}
+  .cn-port .plabel{font-size:11px;font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cn-port.choice .plabel{color:var(--say)}
+  .cn-port.trans .plabel{color:var(--amber)}
+  .pcircle{width:13px;height:13px;border-radius:50%;background:#fff;border:2px solid var(--border-strong);box-sizing:border-box}
+  .cn-port .pcircle{position:absolute;right:-7px;top:50%;transform:translateY(-50%);transition:box-shadow .12s}
+  .cn-port.choice .pcircle{border-color:var(--say)}
+  .cn-port.trans .pcircle{border-color:var(--amber)}
+  .cn-port:hover .pcircle{box-shadow:0 0 0 4px var(--accent-soft)}
+  .cn-port:hover .plabel{text-decoration:underline}
+  /* the renamed 'Add' anchor: centered at bottom, circle on the bottom edge */
+  .cn-add{position:relative;border-top:1px solid var(--border);display:flex;justify-content:center;padding:9px}
+  .cn-add-btn{display:inline-flex;align-items:center;gap:5px;border:1px dashed var(--border-strong);
+    background:var(--panel-2);border-radius:20px;padding:4px 14px;font-size:11.5px;font-weight:600;color:var(--text-2);cursor:pointer}
+  .cn-add:hover .cn-add-btn{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .cn-add .pcircle{position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);border-color:var(--accent);transition:box-shadow .12s}
+  .cn-add:not(.connected):hover .pcircle{box-shadow:0 0 0 4px var(--accent-soft)}
+  .cn-add.connected{padding:7px;border-top:0}   /* sequence child exists: keep only the connection circle */
+
+  /* ---------- Right options panel ---------- */
+  .panel{flex:0 0 470px;max-width:52vw;border-left:1px solid var(--border);background:var(--panel);
+    display:flex;flex-direction:column;min-height:0}
+  .panel-tabs{display:flex;align-items:center;gap:6px;padding:9px 12px;border-bottom:1px solid var(--border);flex:0 0 auto}
+  .panel-tab{border:1px solid var(--border-strong);background:var(--panel);color:var(--text-2);font:inherit;
+    font-weight:600;font-size:12.5px;padding:6px 12px;border-radius:8px;cursor:pointer}
+  .panel-tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .panel-body{flex:1;overflow:auto;min-height:0}
+  .panel .drawer{flex:1;width:auto;box-shadow:none}
+  .panel-empty{display:grid;place-items:center;height:100%;color:var(--muted);font-size:13px;text-align:center;padding:30px}
+  .node-editor{}
+
+  /* ---------- Group container goals ---------- */
+  .group-min{position:absolute;width:214px;border:2px dashed var(--border-strong);border-radius:14px;
+    background:#f4f4fd;box-shadow:var(--shadow);padding:8px;display:flex;flex-direction:column;gap:7px;user-select:none}
+  .group-min.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .group-min-head{display:flex;align-items:center;gap:8px;cursor:grab;padding:2px 3px}
+  .group-min-head:active{cursor:grabbing}
+  .group-min-head .gname{flex:1;min-width:0;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .group-min-head .gname.empty{color:var(--muted)}
+  .group-min-head .gcount{font-size:11px;font-weight:600;color:var(--accent);background:#fff;border-radius:20px;padding:1px 8px;border:1px solid var(--border)}
+  .group-min-children{display:flex;flex-direction:column;gap:5px;padding-left:2px}
+  .group-min-child{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);
+    border-radius:16px;padding:4px 11px;font-size:11.5px;font-weight:600;color:var(--text-2);cursor:pointer;align-self:flex-start;max-width:100%}
+  .group-min-child .ic{display:inline-flex;color:var(--muted)}
+  .group-min-child .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .group-min-child:hover{border-color:var(--accent);color:var(--accent)}
+  .group-min-child.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .group-min-child.sel .ic{color:var(--accent)}
+  .group-ic{width:24px;height:24px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:0 0 auto}
+
+  .group{position:absolute;width:286px;border:2px dashed var(--border-strong);border-radius:14px;
+    background:#f4f4fd;box-shadow:var(--shadow);user-select:none}
+  .group.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .group-head{display:flex;align-items:center;gap:8px;padding:10px 10px 6px;cursor:grab}
+  .group-head:active{cursor:grabbing}
+  .group-name{flex:1;min-width:0;font-weight:700;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .group-name.empty{color:var(--muted);font-weight:600}
+  .group-cond{margin:0 10px 8px;display:flex;align-items:center;gap:7px;background:var(--amber-soft);border:1px solid #f0dca8;border-radius:8px;padding:5px 8px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--amber)}
+  .group-add{display:flex;justify-content:center;padding:2px 10px 9px;position:relative}
+  .group-add .pcircle{position:absolute;top:-9px;left:50%;transform:translateX(-50%);border-color:var(--accent)}
+  .group-add-btn{display:inline-flex;align-items:center;gap:5px;border:1px dashed var(--border-strong);background:#fff;
+    border-radius:20px;padding:5px 14px;font-size:11.5px;font-weight:600;color:var(--text-2);cursor:pointer}
+  .group-add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .group-body{display:flex;flex-direction:column;gap:8px;padding:0 10px 10px}
+  .group-empty{color:var(--muted);font-size:12px;text-align:center;padding:4px 0 8px}
+  .group-fulfill{font-size:10.5px;font-weight:600;color:var(--green);background:var(--green-soft);border-radius:6px;padding:2px 7px}
+  .cnode.nested{position:static;width:auto;box-shadow:none;border-color:var(--border)}
+  .cnode.nested.sel{border-color:var(--accent)}
+  /* in-card child goals (a goal acting as a container) — fills the card width */
+  .cn-children{margin:0;border-top:1px dashed var(--border-strong);background:#f4f4fd;padding:8px 11px;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+  .cn-children-empty{color:var(--muted);font-size:11.5px;text-align:center;padding:3px;align-self:stretch}
+  .cn-children-add{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px dashed var(--border-strong);
+    background:#fff;border-radius:9px;padding:5px 11px;font-size:11.5px;font-weight:600;color:var(--text-2);cursor:pointer;align-self:stretch}
+  .cn-children-add:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  /* number input */
+  .num-in{width:90px}
+  .strlist-row{display:flex;gap:7px;align-items:flex-start;margin-bottom:7px}
+  .strlist-row .x{cursor:pointer;color:var(--muted);padding:8px 2px;flex:0 0 auto}
+  .strlist-row .x:hover{color:var(--red)}
+
+  /* ---------- Field grid (value collection) ---------- */
+  .field{margin-bottom:11px}
+  .field:last-child{margin-bottom:0}
+  .flabel{font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  select,.tin{
+    width:100%;border:1px solid var(--border-strong);background:#fff;border-radius:8px;
+    font:inherit;font-size:13px;color:var(--text);padding:8px 10px;
+  }
+  select:focus,.tin:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .tin.mono{font-family:'JetBrains Mono',monospace;font-size:12.5px}
+  textarea.tin{resize:vertical;line-height:1.45}
+  .help{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border-strong);
+    border-radius:20px;padding:4px 6px 4px 11px;font-size:12.5px;font-weight:500;
+  }
+  .chip .x{cursor:pointer;color:var(--muted);display:grid;place-items:center;width:17px;height:17px;border-radius:50%}
+  .chip .x:hover{background:var(--red-soft);color:var(--red)}
+  .chip-add{border-style:dashed;cursor:text;padding-left:8px;color:var(--text-2)}
+  .chip-add input{border:0;background:transparent;font:inherit;font-size:12.5px;width:80px}
+  .chip-add input:focus{outline:none}
+
+  /* value type segment in the goal-type toggle */
+  .typetog .vtype-div{width:1px;align-self:stretch;background:var(--border);margin:3px 2px}
+  .typetog select.vtype{border:0;background:transparent;font:inherit;font-weight:600;font-size:12px;
+    color:var(--ask);padding:5px 4px 5px 6px;border-radius:6px;cursor:pointer;max-width:130px}
+  .typetog select.vtype:focus{outline:none}
+
+  /* per-choice rows */
+  .opt-row{border:1px solid var(--border);border-radius:9px;background:var(--panel-2);margin-bottom:8px;overflow:hidden}
+  .choice-main{display:flex;align-items:center;gap:6px;padding:7px 7px 7px 9px}
+  .choice-main .tin{flex:1}
+  .choice-sub{padding:0 9px 9px 9px;display:flex;flex-direction:column;gap:8px}
+  .choice-opt .col{font-size:10.5px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+
+  /* llm tool property rows */
+  .prop{border:1px solid var(--border);border-radius:8px;background:var(--panel-2);padding:8px;margin-bottom:7px}
+  .prop-top{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .prop-top .pname{flex:1}
+  .prop-top select{flex:0 0 100px}
+  .prop-top .x{cursor:pointer;color:var(--muted);flex:0 0 auto;padding:4px}
+  .prop-top .x:hover{color:var(--red)}
+  .tool-props{margin-top:9px;display:flex;flex-direction:column;gap:6px}
+  .tprop{display:flex;align-items:baseline;gap:8px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:12px}
+  .tprop b{font-family:'JetBrains Mono',monospace;font-weight:600}
+  .tprop .ty{font-size:10.5px;font-weight:600;color:var(--ask);background:var(--ask-soft);border-radius:5px;padding:1px 6px}
+  .tprop .pd{color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0}
+  .switch{position:relative;width:38px;height:22px;flex:0 0 auto}
+  .switch input{display:none}
+  .switch span{position:absolute;inset:0;background:var(--border-strong);border-radius:20px;transition:.15s;cursor:pointer}
+  .switch span::after{content:"";position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .switch input:checked + span{background:var(--accent)}
+  .switch input:checked + span::after{left:19px}
+  .tlabel{font-size:13px;font-weight:500}
+  .tsub{font-size:11.5px;color:var(--muted)}
+
+  /* ---------- Tools ---------- */
+  .tool-group-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;
+    margin:6px 0 8px;display:flex;align-items:center;gap:7px}
+  .tool-group-label::after{content:"";flex:1;height:1px;background:var(--border)}
+  .tool{
+    border:1px solid var(--border);border-radius:10px;padding:10px 11px;margin-bottom:9px;background:#fff;
+  }
+  .tool-top{display:flex;align-items:center;gap:9px}
+  .tool-ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex:0 0 auto}
+  .tool-ic.llm{background:var(--ask-soft);color:var(--ask)}
+  .tool-ic.timing{background:var(--say-soft);color:var(--say)}
+  .tool-name{font-weight:600;font-size:13.5px;font-family:'JetBrains Mono',monospace}
+  .tool-meta{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .tool-desc{font-size:12.5px;color:var(--text-2);margin-top:8px;line-height:1.45;background:var(--panel-2);
+    padding:7px 9px;border-radius:7px}
+  .action-list{margin-top:9px;display:flex;flex-direction:column;gap:6px}
+  .action{display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--border);
+    border-radius:8px;padding:7px 9px;font-size:12.5px}
+  .action .ic{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;flex:0 0 auto}
+  .action b{font-weight:600}
+  .action .det{color:var(--text-2);font-family:'JetBrains Mono',monospace;font-size:11.5px}
+
+  /* ---------- Transitions ---------- */
+  .tcard{border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:10px;overflow:hidden}
+  .trans-head{display:flex;align-items:center;gap:9px;padding:10px 11px;background:var(--panel-2);border-bottom:1px solid var(--border)}
+  .trans-ic{width:26px;height:26px;border-radius:7px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;flex:0 0 auto}
+  .trans-name{flex:1;font-weight:600;font-size:13.5px;border:0;background:transparent;font-family:inherit}
+  .trans-name:focus{outline:none}
+  .trans-target{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--accent);
+    background:var(--accent-soft);border-radius:7px;padding:5px 9px}
+  .trans-body{padding:11px}
+  .kv{display:flex;gap:7px;align-items:center;margin-bottom:7px}
+  .kv .tin{flex:1}
+  .kv .arrow{color:var(--muted);flex:0 0 auto}
+  .kv .x{cursor:pointer;color:var(--muted);flex:0 0 auto;padding:4px}
+  .kv .x:hover{color:var(--red)}
+  .sub-add{font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:4px 2px}
+  .sub-add:hover{text-decoration:underline}
+
+  /* ---------- Menu / dropdown ---------- */
+  .menu-wrap{position:relative}
+  .menu{
+    position:absolute;top:calc(100% + 6px);right:0;min-width:208px;background:#fff;border:1px solid var(--border);
+    border-radius:11px;box-shadow:var(--shadow-lg);padding:6px;z-index:50;
+  }
+  .menu-sec{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:7px 9px 4px}
+  .mitem{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500}
+  .mitem:hover{background:var(--panel-2)}
+  .mitem svg{color:var(--text-2)}
+  .mitem .check{margin-left:auto;color:var(--accent)}
+  .mitem.danger{color:var(--red)}
+  .mitem.danger svg{color:var(--red)}
+  .mitem .mtog{margin-left:auto}
+
+  /* ---------- Modal ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,28,48,.42);display:grid;place-items:center;z-index:100;padding:20px}
+  .modal{width:520px;max-width:100%;max-height:88vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:var(--shadow-lg)}
+  .modal-head{padding:18px 20px 0}
+  .modal-title{font-size:17px;font-weight:700}
+  .modal-sub{font-size:13px;color:var(--text-2);margin-top:3px}
+  .modal-body{padding:18px 20px}
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:9px;position:sticky;bottom:0;background:#fff}
+  .tabs{display:flex;gap:8px;margin:16px 20px 0}
+  .tab{
+    flex:1;border:1px solid var(--border-strong);border-radius:11px;padding:13px;cursor:pointer;text-align:left;background:#fff;transition:.12s;
+  }
+  .tab.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-soft)}
+  .tab .tt{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:8px}
+  .tab .td{font-size:11.5px;color:var(--text-2);margin-top:5px;line-height:1.4}
+
+  .pick{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:9px;padding:10px;cursor:pointer;margin-bottom:7px;transition:.12s}
+  .pick:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .pick .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;flex:0 0 auto}
+  .pick .pt{font-weight:600;font-size:13px}
+  .pick .pd{font-size:11.5px;color:var(--muted)}
+
+  .empty{color:var(--muted);font-size:12.5px;text-align:center;padding:10px 0}
+  .hr{height:1px;background:var(--border);margin:13px 0}
+  kbd{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;padding:1px 5px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const {useState, useRef, useEffect, useCallback} = React;
+
+/* ============================= ICONS ============================= */
+const I = ({d, size=16, sw=1.9, fill="none"}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor"
+       strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>
+);
+const Icon = {
+  say:    <I d={<><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></>} />,
+  ask:    <I d={<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />,
+  dots:   <I d={<><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></>} />,
+  chev:   <I d={<polyline points="9 18 15 12 9 6"/>} />,
+  cond:   <I d={<><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></>} />,
+  repeat: <I d={<><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></>} />,
+  lock:   <I d={<><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>} />,
+  star:   <I d={<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>} />,
+  flag:   <I d={<><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></>} />,
+  msg:    <I d={<><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></>} />,
+  collect:<I d={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />,
+  tools:  <I d={<><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></>} />,
+  bolt:   <I d={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>} />,
+  clock:  <I d={<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>} />,
+  arrow:  <I d={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />,
+  plus:   <I d={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />,
+  x:      <I d={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} size={14} />,
+  check:  <I d={<polyline points="20 6 9 17 4 12"/>} size={15} />,
+  trash:  <I d={<><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></>} />,
+  grip:   <I d={<><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></>} fill="currentColor" sw="0" />,
+  set:    <I d={<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></>} />,
+  user:   <I d={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>} />,
+  hook:   <I d={<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>} />,
+  sms:    <I d={<><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></>} />,
+  phone:  <I d={<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>} />,
+  trigger:<I d={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>} />,
+  info:   <I d={<><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></>} size={13} sw="2" />,
+  sparkles:<I d={<><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></>} />,
+  shield: <I d={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>} />,
+  caret:  <I d={<polyline points="6 9 12 15 18 9"/>} size={13} />,
+  folder: <I d={<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>} />,
+  minimize:<I d={<line x1="6" y1="12" x2="18" y2="12"/>} size={15} sw="2.4" />,
+};
+
+/* ============================= BUILT-IN GOALS ============================= */
+const BUILTIN_GOALS = ["speaker verification","hold","leave message","transfer to customer","I have a question",
+  "speak slower","speak faster","hang up","schedule-callback","scheduling-via-voice","I am not interested","confirm-email"];
+
+/* ============================= TOOLTIPS ============================= */
+function Tooltip({label, mono=false, children, block=false}){
+  const [show,setShow]=useState(false);
+  const [pos,setPos]=useState(null);
+  const ref=useRef();
+  const enter=()=>{ const r=ref.current.getBoundingClientRect(); setPos({x:r.left+r.width/2, y:r.top}); setShow(true); };
+  if(!label) return children;
+  return (
+    <span ref={ref} className={"ttw"+(block?" block":"")} onMouseEnter={enter} onMouseLeave={()=>setShow(false)}>
+      {children}
+      {show&&pos&&(
+        <span className={"tooltip"+(mono?" mono":"")}
+          style={{position:"fixed", left:pos.x, top:pos.y-9, transform:"translate(-50%,-100%)"}}>{label}</span>
+      )}
+    </span>
+  );
+}
+function InfoDot({text, mono=false}){
+  return <Tooltip label={text} mono={mono}><span className="tip">{Icon.info}</span></Tooltip>;
+}
+/* label row: text + (?) human description.  json -> code tooltip wrapping the control. */
+function Field({label, desc, json, children, style, extra}){
+  return (
+    <div className="field" style={style}>
+      {label && <div className="flabel">{label}{extra}{desc && <InfoDot text={desc} />}</div>}
+      {json ? <Tooltip label={json} mono block>{children}</Tooltip> : children}
+    </div>
+  );
+}
+
+/* ============================= DATA ============================= */
+const VALUE_TYPES = ["custom","approval","selection","name","phone","email","url","date","year","month","number","unit","quantity","company name","address","country","role","timezone"];
+const UNIT_TYPES = ["any","time","length","area","volume","mass","temperature","data","money"];
+const TIMINGS = [
+  {v:"triggered", l:"Goal triggered", d:"as soon as the goal becomes active"},
+  {v:"performed", l:"Goal performed", d:"after the agent says/asks"},
+  {v:"collected", l:"Value collected", d:"when an ask value is captured"},
+  {v:"completed", l:"Goal completed", d:"goal & subgoals done (default)"},
+  {v:"agent-said", l:"Agent said…", d:"when the agent says a trigger phrase"},
+];
+const ACTION_TYPES = [
+  {v:"values",     l:"Set values",        ic:Icon.set,     color:"#5b5bf6"},
+  {v:"call_result",l:"Set contact state", ic:Icon.user,    color:"#1fae62"},
+  {v:"webhook",    l:"Webhook",           ic:Icon.hook,    color:"#e8920c"},
+  {v:"text_message",l:"Send SMS",         ic:Icon.sms,     color:"#2e8af6"},
+  {v:"trigger",    l:"Trigger goal",      ic:Icon.trigger, color:"#8b5cf6"},
+  {v:"voice_action",l:"Voice action",     ic:Icon.phone,   color:"#e5484d"},
+];
+const CALL_RESULTS = ["qualified","disqualified","converted","do_not_call"];
+const PROP_TYPES = ["string","number","integer","boolean","array","object"];
+let _id = 1; const uid = () => "id"+(_id++);
+
+const newMessage = () => ({id:uid(), mode:"message", text:"", condition:null, preMessage:null, forced:false, repeat:true, exclusive:false, explicit:null});
+const newChoice = (name="") => ({id:uid(), name, condition:null, validation:null, ack:null, triggers:null, negativeTriggers:null});
+// yes/no choices belong to 'approval'. Seed them when approval is selected; drop the untouched
+// default pair when switching to any other value type (but keep choices the user actually edited).
+function choicesForType(current, newType){
+  const isDefaultYesNo = current.length===2 &&
+    current[0].name==="yes" && current[1].name==="no" &&
+    current.every(c=>!c.condition && !c.validation && !c.ack && !c.triggers && !c.negativeTriggers);
+  if(newType==="approval") return current.length===0 ? [newChoice("yes"), newChoice("no")] : current;
+  return isDefaultYesNo ? [] : current;
+}
+const newNode = (type="say") => ({
+  id:uid(), kind:"goal", type, name:"",
+  x:80, y:60, edgeFrom:null,
+  condition:null,
+  acknowledge:"auto", ackText:"",
+  adv:{repeat:false, proactive:true},
+  triggers:{enabled:false, positive:[], negative:[]},
+  objection:{enabled:false, attempts:2, condition:"", messages:[]},
+  refusal:{enabled:false, items:[]},
+  messages:[newMessage()],
+  value:{type:"approval", validation:"", unitType:"any", range:false, rangeMin:"", rangeMax:"", tense:"any",
+         choices:[newChoice("yes"), newChoice("no")], passive:true},
+  tools:[],
+  transitions:[],
+  childGoals:false, children:[],
+  open:{messages:true, value:true, triggers:true, objection:true, refusal:true, tools:true, transitions:true, children:true},
+});
+const newTransition = () => ({id:uid(), name:"", target:"", prompt:"", conditions:"", properties:[], assigned:[]});
+// Group container goal: no type/messages — only name, conditions, fulfillment (tools) and sub-goals.
+const newGroup = () => ({id:uid(), kind:"group", name:"", x:80, y:60, edgeFrom:null,
+  condition:null, minimized:true, choiceOf:null, triggers:{enabled:false, positive:[], negative:[]}, tools:[], children:[]});
+
+// convert a node between say / ask / group, preserving shared fields (name, position, children, tools…)
+function convertNode(node, target){
+  const keep = {id:node.id, x:node.x, y:node.y, edgeFrom:node.edgeFrom, name:node.name,
+    condition:node.condition ?? null, tools:node.tools||[], children:node.children||[],
+    triggers:node.triggers||{enabled:false,positive:[],negative:[]}};
+  if(target==="group"){
+    if(node.kind==="group") return node;
+    return {...newGroup(), ...keep, minimized:false, choiceOf:node.choiceOf||null};
+  }
+  // -> goal (say/ask)
+  const base = newNode(target);
+  return {...base, ...keep, type:target, childGoals:(node.children&&node.children.length>0)||node.childGoals||false};
+}
+
+/* recursively walk the node tree — any node may carry a `children` array */
+const kids = n => (n.children && n.children.length) ? n.children : null;
+function mapNodeTree(nodes, id, fn){
+  return nodes.map(n=>{
+    if(n.id===id) return fn(n);
+    if(kids(n)) return {...n, children:mapNodeTree(n.children, id, fn)};
+    return n;
+  });
+}
+function removeNodeTree(nodes, id){
+  return nodes.filter(n=>n.id!==id).map(n=> kids(n) ? {...n, children:removeNodeTree(n.children, id)} : n);
+}
+function findNodeTree(nodes, id){
+  for(const n of nodes){
+    if(n.id===id) return n;
+    if(kids(n)){ const f=findNodeTree(n.children, id); if(f) return f; }
+  }
+  return null;
+}
+function allNodeNames(nodes){
+  const out=[];
+  nodes.forEach(n=>{ if(n.name) out.push(n.name); if(kids(n)) out.push(...allNodeNames(n.children)); });
+  return out;
+}
+
+/* ============================= MENU ============================= */
+function Menu({trigger, children, align="right", minW=208}){
+  const [open,setOpen]=useState(false);
+  const [pos,setPos]=useState(null);
+  const wrapRef=useRef();
+  const menuRef=useRef();
+  const toggle=()=>{
+    if(open){ setOpen(false); return; }
+    const r=wrapRef.current.getBoundingClientRect();
+    setPos({top:r.bottom+6, right:window.innerWidth-r.right, left:r.left});
+    setOpen(true);
+  };
+  useEffect(()=>{
+    if(!open) return;
+    const h=e=>{ if(menuRef.current && !menuRef.current.contains(e.target) &&
+                     wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    const close=()=>setOpen(false);
+    document.addEventListener("mousedown",h);
+    window.addEventListener("scroll",close,true);
+    window.addEventListener("resize",close);
+    return ()=>{ document.removeEventListener("mousedown",h);
+      window.removeEventListener("scroll",close,true); window.removeEventListener("resize",close); };
+  },[open]);
+  const style = open&&pos ? {position:"fixed", top:pos.top, minWidth:minW,
+    ...(align==="left"?{left:pos.left}:{right:pos.right})} : null;
+  return (
+    <div className="menu-wrap" ref={wrapRef}>
+      <div onClick={toggle}>{trigger}</div>
+      {open && <div className="menu" ref={menuRef} style={style}>
+        {typeof children==="function"?children(()=>setOpen(false)):children}
+      </div>}
+    </div>
+  );
+}
+const MItem = ({icon,label,onClick,active,danger,toggle,tip,desc}) => (
+  <div className={"mitem"+(danger?" danger":"")} onClick={onClick}>
+    {icon}<span>{label}</span>
+    {desc && <span onClick={e=>e.stopPropagation()}><InfoDot text={desc} /></span>}
+    {tip && <span onClick={e=>e.stopPropagation()}><InfoDot text={tip} mono /></span>}
+    {toggle!==undefined && <span className="mtog">{toggle?<span style={{color:"var(--accent)"}}>{Icon.check}</span>:<span style={{color:"var(--muted)",fontSize:11,fontWeight:600}}>off</span>}</span>}
+    {active && <span className="check">{Icon.check}</span>}
+  </div>
+);
+
+/* ============================= SWITCH ============================= */
+const Switch = ({checked,onChange}) => (
+  <label className="switch"><input type="checkbox" checked={checked} onChange={e=>onChange(e.target.checked)} /><span/></label>
+);
+
+/* ============================= SECTION ============================= */
+function Section({icon,color,title,count,open,onToggle,children}){
+  return (
+    <div className="section">
+      <div className="sec-head" onClick={onToggle}>
+        <span className={"sec-chev"+(open?" open":"")}>{Icon.chev}</span>
+        <span className="sec-icon" style={{background:color}}>{icon}</span>
+        <span className="sec-title">{title}</span>
+        {count!==undefined && count>0 && <span className="sec-count">{count}</span>}
+      </div>
+      {open && <div className="sec-body">{children}</div>}
+    </div>
+  );
+}
+
+/* ============================= CHIPS INPUT ============================= */
+function ChipInput({items,onChange,placeholder="add…"}){
+  const [v,setV]=useState("");
+  const commit=()=>{ const t=v.trim(); if(t){ onChange([...items,t]); setV(""); } };
+  return (
+    <div className="chips">
+      {items.map((c,i)=>(
+        <span className="chip" key={i}>{c}
+          <span className="x" onClick={()=>onChange(items.filter((_,j)=>j!==i))}>{Icon.x}</span>
+        </span>
+      ))}
+      <span className="chip chip-add">
+        <input value={v} placeholder={placeholder} onChange={e=>setV(e.target.value)}
+          onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();commit();} }} onBlur={commit} />
+      </span>
+    </div>
+  );
+}
+
+/* ============================= MESSAGE ROW ============================= */
+function MessageRow({msg, idx, onChange, onDelete}){
+  const up = patch => onChange({...msg, ...patch});
+  return (
+    <div className="msg">
+      {msg.condition!==null && (
+        <div className="msg-cond">
+          {Icon.cond}
+          <input title='message condition — "conditions":"call_type = phone_inbound"' value={msg.condition} placeholder="condition  e.g.  call_type = phone_inbound"
+            onChange={e=>up({condition:e.target.value})} />
+          <span className="x" onClick={()=>up({condition:null})}>{Icon.x}</span>
+        </div>
+      )}
+      {msg.preMessage!==null && (
+        <div className="msg-cond" style={{background:"var(--say-soft)",borderColor:"#bcd9fb",borderBottom:"1px solid #bcd9fb"}}>
+          {Icon.lock}
+          <input style={{color:"var(--say)"}} title='"pre_message":"..."' value={msg.preMessage}
+            placeholder="forced pre-message — said verbatim before generation"
+            onChange={e=>up({preMessage:e.target.value})} />
+          <span className="x" style={{color:"var(--say)"}} onClick={()=>up({preMessage:null})}>{Icon.x}</span>
+        </div>
+      )}
+      <div className="msg-main">
+        <Menu align="left" minW={210}
+          trigger={
+            <button className={"msgtype"+(msg.mode==="prompt"?" prompt":"")}>
+              {msg.mode==="prompt"?Icon.sparkles:Icon.msg}<span className="caret">{Icon.caret}</span>
+            </button>}>
+          {close=>(<>
+            <div className="menu-sec">Message content</div>
+            <MItem icon={Icon.msg}      label="Use message"            active={msg.mode!=="prompt"}
+              desc="A direct message. The agent may rephrase or merge it into its reply." tip='"messages": ["<text>"]'
+              onClick={()=>{up({mode:"message"});close();}} />
+            <MItem icon={Icon.sparkles} label="Use instruction prompt" active={msg.mode==="prompt"}
+              desc="A behavior prompt injected into the agent's instructions (generative goal)." tip='"goal_type": "say_generative"'
+              onClick={()=>{up({mode:"prompt", forced:false});close();}} />
+          </>)}
+        </Menu>
+        <span className="msg-num">{idx+1}</span>
+        <textarea className="msg-ta" rows={1} value={msg.text}
+          placeholder={msg.mode==="prompt" ? "Instruction prompt for the agent…" : "What should the agent say / ask…"}
+          onChange={e=>{up({text:e.target.value}); e.target.style.height="auto"; e.target.style.height=e.target.scrollHeight+"px";}}
+          ref={el=>{ if(el){ el.style.height="auto"; el.style.height=el.scrollHeight+"px"; } }} />
+        <Menu trigger={<button className="btn icon ghost sm">{Icon.dots}</button>}>
+          {close=>(<>
+            <div className="menu-sec">Add</div>
+            <MItem icon={Icon.cond} label={msg.condition!==null?"Edit condition":"Add condition"}
+              tip='"conditions": "call_type = phone_inbound"'
+              onClick={()=>{ up({condition:msg.condition??""}); close(); }} />
+            <MItem icon={Icon.lock} label={msg.preMessage!==null?"Edit pre-message":"Add pre-message"}
+              desc="A fixed, forced message the agent says verbatim before any generated content."
+              tip='"pre_message": "One moment while I check that…"'
+              onClick={()=>{ up({preMessage:msg.preMessage??""}); close(); }} />
+            <div className="menu-sec">Advanced</div>
+            {msg.mode!=="prompt" && (
+              <MItem icon={Icon.lock} label="Forced (exact text)" toggle={msg.forced}
+                desc="The agent will say this message exactly — it cannot edit, rephrase, or generate a different message."
+                tip='"force_exact_response": true'
+                onClick={()=>up({forced:!msg.forced})} />
+            )}
+            <MItem icon={Icon.repeat} label="Repeat" toggle={msg.repeat}
+              desc="On by default. Allows this message to be re-used across turns. Disable to use it only once."
+              tip='"repeat": false'
+              onClick={()=>up({repeat:!msg.repeat})} />
+            <MItem icon={Icon.star} label="Exclusive message" toggle={msg.exclusive}
+              desc="Deliver this message on its own — no acknowledgement from a previous goal is prepended."
+              tip='"exclusive_message": true'
+              onClick={()=>up({exclusive:!msg.exclusive})} />
+            <div className="hr" style={{margin:"6px 4px"}}/>
+            <MItem icon={Icon.trash} label="Delete message" danger onClick={()=>{onDelete();close();}} />
+          </>)}
+        </Menu>
+      </div>
+      {(msg.forced || !msg.repeat || msg.exclusive) && (
+        <div className="msg-flags">
+          {msg.forced && msg.mode!=="prompt" && <span className="flag forced">{Icon.lock} forced</span>}
+          {!msg.repeat && <span className="flag norepeat">{Icon.repeat} no repeat</span>}
+          {msg.exclusive && <span className="flag excl">{Icon.star} exclusive</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================= VALUE COLLECTION ============================= */
+function ChoiceRow({choice, onChange, onDelete}){
+  const up = patch => onChange({...choice, ...patch});
+  return (
+    <div className="opt-row">
+      <div className="choice-main">
+        <input className="tin" placeholder="option name" value={choice.name} onChange={e=>up({name:e.target.value})} />
+        <Menu trigger={<button className="btn icon ghost sm">{Icon.dots}</button>}>
+          {close=>(<>
+            <div className="menu-sec">Eligibility</div>
+            <MItem icon={Icon.cond} label={choice.condition!==null?"Edit condition":"Add condition"}
+              tip='"conditions": "..."' onClick={()=>{ up({condition:choice.condition??""}); close(); }} />
+            <div className="menu-sec">Detection</div>
+            <MItem icon={Icon.collect} label={choice.validation!==null?"Edit validation prompt":"Add validation prompt"}
+              tip='"validation_prompt": "..."' onClick={()=>{ up({validation:choice.validation??""}); close(); }} />
+            <MItem icon={Icon.bolt} label={choice.triggers!==null?"Edit triggers":"Add triggers"}
+              tip='"triggers": ["..."]' onClick={()=>{ up({triggers:choice.triggers??[]}); close(); }} />
+            <MItem icon={Icon.bolt} label={choice.negativeTriggers!==null?"Edit negative triggers":"Add negative triggers"}
+              tip='"negative_triggers": ["..."]' onClick={()=>{ up({negativeTriggers:choice.negativeTriggers??[]}); close(); }} />
+            <div className="menu-sec">Behavior</div>
+            <MItem icon={Icon.msg} label={choice.ack!==null?"Edit acknowledge":"Add acknowledge"}
+              desc="Acknowledgement used when this option is selected (overrides the goal acknowledge)."
+              tip='"acknowledge": "..."' onClick={()=>{ up({ack:choice.ack??""}); close(); }} />
+            <div className="hr" style={{margin:"6px 4px"}}/>
+            <MItem icon={Icon.trash} label="Delete option" danger onClick={()=>{ onDelete(); close(); }} />
+          </>)}
+        </Menu>
+      </div>
+      {(choice.condition!==null || choice.validation!==null || choice.ack!==null || choice.triggers!==null || choice.negativeTriggers!==null) && (
+        <div className="choice-sub">
+          {choice.condition!==null && (
+            <div className="choice-opt">
+              <div className="col">Condition <InfoDot text="Logical condition that controls whether this option is eligible." mono={false} /><span style={{flex:1}}/><span className="x" style={{cursor:"pointer"}} onClick={()=>up({condition:null})}>{Icon.x}</span></div>
+              <input className="tin mono" placeholder="e.g.  score > 5" value={choice.condition} onChange={e=>up({condition:e.target.value})} />
+            </div>
+          )}
+          {choice.validation!==null && (
+            <div className="choice-opt">
+              <div className="col">Validation prompt <InfoDot text="Hypothesis that detects this option (replaces the default name-based hypothesis)." mono={false} /><span style={{flex:1}}/><span className="x" style={{cursor:"pointer"}} onClick={()=>up({validation:null})}>{Icon.x}</span></div>
+              <input className="tin" placeholder="e.g.  user wants more details" value={choice.validation} onChange={e=>up({validation:e.target.value})} />
+            </div>
+          )}
+          {choice.ack!==null && (
+            <div className="choice-opt">
+              <div className="col">Acknowledge<span style={{flex:1}}/><span className="x" style={{cursor:"pointer"}} onClick={()=>up({ack:null})}>{Icon.x}</span></div>
+              <input className="tin" placeholder="e.g.  I see." value={choice.ack} onChange={e=>up({ack:e.target.value})} />
+            </div>
+          )}
+          {choice.triggers!==null && (
+            <div className="choice-opt">
+              <div className="col">Triggers<span style={{flex:1}}/><span className="x" style={{cursor:"pointer"}} onClick={()=>up({triggers:null})}>{Icon.x}</span></div>
+              <ChipInput items={choice.triggers} onChange={t=>up({triggers:t})} placeholder="user intent…" />
+            </div>
+          )}
+          {choice.negativeTriggers!==null && (
+            <div className="choice-opt">
+              <div className="col">Negative triggers<span style={{flex:1}}/><span className="x" style={{cursor:"pointer"}} onClick={()=>up({negativeTriggers:null})}>{Icon.x}</span></div>
+              <ChipInput items={choice.negativeTriggers} onChange={t=>up({negativeTriggers:t})} placeholder="intent to exclude…" />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ValueCollection({value, onChange}){
+  const up = patch => onChange({...value, ...patch});
+  const t = value.type;
+  const numeric = ["number","quantity","unit","year","month"].includes(t);
+  const tense   = ["year","month","date"].includes(t);
+  return (
+    <>
+      {(t==="unit" || tense) && (
+        <div className="grid2">
+          {t==="unit" && (
+            <Field label="Unit type" desc="Restrict the unit family the agent will accept (e.g. only monetary values)."
+              json={`"options": { "unit_type": ${JSON.stringify(value.unitType)} }`}>
+              <select value={value.unitType} onChange={e=>up({unitType:e.target.value})}>
+                {UNIT_TYPES.map(v=><option key={v} value={v}>{v}</option>)}
+              </select>
+            </Field>
+          )}
+          {tense && (
+            <Field label="Tense filter" desc="Only accept dates/years in the past or future."
+              json={`"options": { "tense": ${JSON.stringify(value.tense)} }`}>
+              <select value={value.tense} onChange={e=>up({tense:e.target.value})}>
+                <option value="any">any</option><option value="past">past</option><option value="future">future</option>
+              </select>
+            </Field>
+          )}
+        </div>
+      )}
+
+      {t==="custom" && (
+        <Field label="Validation prompt" desc="Instruction the LLM uses to extract and validate this value from the user message."
+          json={`"validation_prompt": ${JSON.stringify(value.validation||"return the value the user provided")}`}>
+          <textarea className="tin" rows={2} value={value.validation}
+            placeholder="Describe how to extract / validate this value via LLM…"
+            onChange={e=>up({validation:e.target.value})} />
+        </Field>
+      )}
+
+      {(
+        <Field label="Choices"
+          extra={t!=="selection" && <span style={{color:"var(--muted)",fontWeight:500,textTransform:"none",letterSpacing:0}}>· augment detection</span>}
+          desc="Selectable options, one per line. For 'selection' these are the values; for other types they augment detection. Each choice can hold detection & behavior options.">
+          {value.choices.map(c=>(
+            <ChoiceRow key={c.id} choice={c}
+              onChange={nc=>up({choices:value.choices.map(x=>x.id===c.id?nc:x)})}
+              onDelete={()=>up({choices:value.choices.filter(x=>x.id!==c.id)})} />
+          ))}
+          <button className="add-row" onClick={()=>up({choices:[...value.choices,newChoice("")]})}>{Icon.plus} Add option</button>
+        </Field>
+      )}
+
+      {numeric && (
+        <div className="field" style={{marginBottom:0}}>
+          <Tooltip label={value.range ? `"options": { "range": [${value.rangeMin||0}, ${value.rangeMax||100}] }` : "// no range limit"} mono block>
+            <div className="toggle-row" style={{padding:0,marginBottom:value.range?9:0}}>
+              <div><div className="tlabel">Numeric range <InfoDot text="Limit collected numbers to a [min, max] window. Works for number, unit, year, etc." /></div><div className="tsub">limit valid values to [min, max]</div></div>
+              <Switch checked={value.range} onChange={v=>up({range:v})} />
+            </div>
+          </Tooltip>
+          {value.range && (
+            <div className="grid2">
+              <input className="tin mono" placeholder="min" value={value.rangeMin} onChange={e=>up({rangeMin:e.target.value})} />
+              <input className="tin mono" placeholder="max" value={value.rangeMax} onChange={e=>up({rangeMax:e.target.value})} />
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ============================= STRING LIST ============================= */
+function StringList({items, onChange, placeholder, addLabel="Add"}){
+  return (
+    <>
+      {items.map((s,i)=>(
+        <div className="strlist-row" key={i}>
+          <textarea className="tin" rows={1} value={s} placeholder={placeholder}
+            onChange={e=>{ onChange(items.map((x,j)=>j===i?e.target.value:x)); e.target.style.height="auto"; e.target.style.height=e.target.scrollHeight+"px"; }}
+            ref={el=>{ if(el){ el.style.height="auto"; el.style.height=el.scrollHeight+"px"; } }} />
+          <span className="x" onClick={()=>onChange(items.filter((_,j)=>j!==i))}>{Icon.x}</span>
+        </div>
+      ))}
+      <button className="add-row" onClick={()=>onChange([...items,""])}>{Icon.plus} {addLabel}</button>
+    </>
+  );
+}
+
+/* ============================= ACTIONS EDITOR ============================= */
+function newAction(type, goalNames){
+  const base = {type};
+  if(type==="values") base.values={"":""};
+  if(type==="call_result") base.call_result="qualified";
+  if(type==="webhook") base.url="https://";
+  if(type==="text_message") base.message="";
+  if(type==="trigger") base.target=goalNames[0]||BUILTIN_GOALS[0];
+  if(type==="voice_action") base.voice="hang_up";
+  return base;
+}
+function ActionsEditor({actions, setActions, goalNames}){
+  const [picking,setPicking]=useState(false);
+  const updAction=(i,patch)=>setActions(actions.map((x,j)=>j===i?{...x,...patch}:x));
+  const delAction=i=>setActions(actions.filter((_,j)=>j!==i));
+  const addAction=type=>{ setActions([...actions,newAction(type,goalNames)]); setPicking(false); };
+  const meta=t=>ACTION_TYPES.find(x=>x.v===t)||{};
+  return (
+    <>
+      {actions.map((a,i)=>(
+        <div className="tool" key={i} style={{background:"var(--panel-2)"}}>
+          <div className="tool-top" style={{marginBottom:8}}>
+            <span className="tool-ic" style={{background:meta(a.type).color,color:"#fff"}}>{meta(a.type).ic}</span>
+            <b style={{flex:1,fontSize:13}} title={'fulfillment action: "'+a.type+'"'}>{meta(a.type).l}</b>
+            <button className="btn icon ghost sm" onClick={()=>delAction(i)}>{Icon.trash}</button>
+          </div>
+          {a.type==="values" && (
+            <div className="kv">
+              <input className="tin mono" placeholder="field" title='"values":{"<field>":"<value>"}' value={Object.keys(a.values)[0]||""}
+                onChange={e=>{const v=Object.values(a.values)[0]||""; updAction(i,{values:{[e.target.value]:v}});}} />
+              <span className="arrow">{Icon.arrow}</span>
+              <input className="tin mono" placeholder="value" value={Object.values(a.values)[0]||""}
+                onChange={e=>{const k=Object.keys(a.values)[0]||""; updAction(i,{values:{[k]:e.target.value}});}} />
+            </div>
+          )}
+          {a.type==="call_result" && (
+            <select value={a.call_result} title='"call_result":"qualified"' onChange={e=>updAction(i,{call_result:e.target.value})}>
+              {CALL_RESULTS.map(r=><option key={r} value={r}>{r}</option>)}
+            </select>
+          )}
+          {a.type==="webhook" && (
+            <input className="tin mono" placeholder="https://endpoint/{chat_id}" title='"webhook":{"url":"..."}' value={a.url} onChange={e=>updAction(i,{url:e.target.value})} />
+          )}
+          {a.type==="text_message" && (
+            <input className="tin" placeholder="Hi {contact_name}!" title='"text_message":{"message":"..."}' value={a.message} onChange={e=>updAction(i,{message:e.target.value})} />
+          )}
+          {a.type==="trigger" && (
+            <select value={a.target} title='"trigger":"<goal name>"' onChange={e=>updAction(i,{target:e.target.value})}>
+              <optgroup label="This script">
+                {goalNames.length===0 && <option value="">(no goals yet)</option>}
+                {goalNames.map(g=><option key={g} value={g}>{g}</option>)}
+              </optgroup>
+              <optgroup label="Built-in goals">
+                {BUILTIN_GOALS.map(g=><option key={g} value={g}>{g}</option>)}
+              </optgroup>
+            </select>
+          )}
+          {a.type==="voice_action" && (
+            <select value={a.voice} title='"voice_action":"hang_up"' onChange={e=>updAction(i,{voice:e.target.value})}>
+              <option value="hang_up">hang_up</option>
+              <option value="hang_up_immediately">hang_up_immediately</option>
+              <option value="transfer">transfer</option>
+            </select>
+          )}
+        </div>
+      ))}
+      {picking ? (
+        <div style={{marginTop:4}}>
+          {ACTION_TYPES.map(a=>(
+            <div className="pick" key={a.v} onClick={()=>addAction(a.v)}>
+              <span className="ic" style={{background:a.color}}>{a.ic}</span>
+              <div><div className="pt">{a.l}</div></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <button className="add-row" onClick={()=>setPicking(true)}>{Icon.plus} Add action</button>
+      )}
+    </>
+  );
+}
+
+/* ============================= TOOL CARD ============================= */
+function ActionRow({a}){
+  const meta = ACTION_TYPES.find(x=>x.v===a.type) || {};
+  let detail = null;
+  if(a.type==="values") detail = Object.entries(a.values||{}).map(([k,v])=>`${k} = ${v}`).join("  ·  ");
+  else if(a.type==="call_result") detail = a.call_result;
+  else if(a.type==="webhook") detail = a.url;
+  else if(a.type==="text_message") detail = a.message;
+  else if(a.type==="trigger") detail = "→ "+a.target;
+  else if(a.type==="voice_action") detail = a.voice;
+  return (
+    <div className="action">
+      <span className="ic" style={{background:meta.color}}>{meta.ic}</span>
+      <b>{meta.l}</b>
+      {detail && <span className="det" style={{marginLeft:"auto",maxWidth:200,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{detail}</span>}
+    </div>
+  );
+}
+function PropsEditor({props, setProps}){
+  const up=(i,patch)=>setProps(props.map((p,j)=>j===i?{...p,...patch}:p));
+  return (
+    <>
+      {props.map((p,i)=>(
+        <div className="prop" key={i}>
+          <div className="prop-top">
+            <input className="tin mono pname" placeholder="property_name" value={p.name} onChange={e=>up(i,{name:e.target.value})} />
+            <select className="tin" value={p.type} onChange={e=>up(i,{type:e.target.value})}>
+              {PROP_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+            <span className="x" onClick={()=>setProps(props.filter((_,j)=>j!==i))}>{Icon.x}</span>
+          </div>
+          <input className="tin" placeholder="description — what this parameter is for" value={p.description} onChange={e=>up(i,{description:e.target.value})} />
+        </div>
+      ))}
+      <button className="add-row" onClick={()=>setProps([...props,{name:"",type:"string",description:""}])}>{Icon.plus} Add property</button>
+    </>
+  );
+}
+
+function ToolCard({tool, onDelete}){
+  if(tool.kind==="llm"){
+    const acts = tool.actions||[];
+    const props = tool.properties||[];
+    return (
+      <div className="tool">
+        <div className="tool-top">
+          <span className="tool-ic llm">{Icon.bolt}</span>
+          <div style={{flex:1,minWidth:0}}>
+            <div className="tool-name">{tool.tool_name||"unnamed_tool"}</div>
+            <div className="tool-meta">LLM-triggered function{props.length>0?` · ${props.length} param${props.length!==1?"s":""}`:""}{acts.length>0?` · ${acts.length} action${acts.length!==1?"s":""}`:""}</div>
+          </div>
+          <button className="btn icon ghost sm" onClick={onDelete}>{Icon.trash}</button>
+        </div>
+        {tool.description && <div className="tool-desc">{tool.description}</div>}
+        {props.length>0 && <div className="tool-props">{props.map((p,i)=>(
+          <div className="tprop" key={i}><b>{p.name||"param"}</b><span className="ty">{p.type}</span><span className="pd">{p.description}</span></div>
+        ))}</div>}
+        {acts.length>0 && <div className="action-list">{acts.map((a,i)=><ActionRow a={a} key={i} />)}</div>}
+      </div>
+    );
+  }
+  const tm = TIMINGS.find(x=>x.v===tool.timing) || {};
+  return (
+    <div className="tool">
+      <div className="tool-top">
+        <span className="tool-ic timing">{Icon.clock}</span>
+        <div style={{flex:1,minWidth:0}}>
+          <div className="tool-name" style={{fontFamily:"Inter"}}>{tm.l}</div>
+          <div className="tool-meta">Timing-triggered · {tool.actions.length} action{tool.actions.length!==1?"s":""}</div>
+        </div>
+        <button className="btn icon ghost sm" onClick={onDelete}>{Icon.trash}</button>
+      </div>
+      <div className="action-list">
+        {tool.actions.length===0 && <div className="empty">No actions</div>}
+        {tool.actions.map((a,i)=><ActionRow a={a} key={i} />)}
+      </div>
+    </div>
+  );
+}
+
+/* ============================= ADD TOOL MODAL ============================= */
+function AddToolModal({onAdd, onClose, goalNames}){
+  const [tab,setTab]=useState("llm");
+  // llm
+  const [name,setName]=useState(""); const [desc,setDesc]=useState("");
+  const [llmProps,setLlmProps]=useState([]);
+  const [llmActions,setLlmActions]=useState([]);
+  // timing
+  const [timing,setTiming]=useState("completed");
+  const [actions,setActions]=useState([]);
+
+  const save = () => {
+    if(tab==="llm") onAdd({kind:"llm", tool_name:name.trim()||"new_tool", description:desc.trim(), properties:llmProps, actions:llmActions});
+    else onAdd({kind:"timing", timing, actions});
+  };
+
+  return (
+    <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="modal">
+        <div className="modal-head">
+          <div className="modal-title">Add tool</div>
+          <div className="modal-sub">Choose how this tool is invoked during the turn.</div>
+        </div>
+        <div className="tabs">
+          <button className={"tab"+(tab==="llm"?" on":"")} onClick={()=>setTab("llm")}>
+            <div className="tt"><span style={{color:"var(--ask)"}}>{Icon.bolt}</span> LLM triggered</div>
+            <div className="td">The model decides when to call it, based on a name &amp; description.</div>
+          </button>
+          <button className={"tab"+(tab==="timing"?" on":"")} onClick={()=>setTab("timing")}>
+            <div className="tt"><span style={{color:"var(--say)"}}>{Icon.clock}</span> Timing triggered</div>
+            <div className="td">Fulfillment actions that fire at a fixed point of the goal flow.</div>
+          </button>
+        </div>
+
+        <div className="modal-body">
+          {tab==="llm" ? (
+            <>
+              <Field label="Tool name" desc="The function name the model calls. Use snake_case, no spaces."
+                json={`"options": { "llm_tools": [{ "tool_name": ${JSON.stringify(name||"lookup_account")} }] }`}>
+                <input className="tin mono" placeholder="lookup_account" value={name} onChange={e=>setName(e.target.value)} />
+              </Field>
+              <Field label="Description" desc="Tells the model what the tool does and when to use it. This drives the model's decision to call it."
+                json={`"description": ${JSON.stringify(desc||"<when to use this tool>")}`}>
+                <textarea className="tin" rows={4} placeholder="Explain to the model what this tool does and when to use it…"
+                  value={desc} onChange={e=>setDesc(e.target.value)} />
+                <div className="help">The LLM uses this to decide whether and when to trigger the tool.</div>
+              </Field>
+              <Field label="Properties"
+                extra={<span style={{color:"var(--muted)",fontWeight:500,textTransform:"none",letterSpacing:0}}> · parameters</span>}
+                desc="Input parameters the model fills when calling this tool — one per line, each with a name, type and description."
+                json={`"properties": { ${llmProps.filter(p=>p.name).map(p=>`${JSON.stringify(p.name)}: { "type": ${JSON.stringify(p.type)}, "description": ${JSON.stringify(p.description)} }`).join(", ")} }`}>
+                <PropsEditor props={llmProps} setProps={setLlmProps} />
+              </Field>
+              <div className="hr"/>
+              <Field label="Actions when invoked"
+                extra={<span style={{color:"var(--muted)",fontWeight:500,textTransform:"none",letterSpacing:0}}> · optional</span>}
+                desc="Fulfillment actions that run when the model invokes this tool (set values, webhook, etc.). Optional."
+                style={{marginBottom:0}}>
+                <ActionsEditor actions={llmActions} setActions={setLlmActions} goalNames={goalNames} />
+              </Field>
+            </>
+          ) : (
+            <>
+              <Field label={<>{Icon.clock} Timing</>} desc="When in the goal's life-cycle these actions fire."
+                json={`"fulfillment": [{ "timing": ${JSON.stringify(timing)} }]`}>
+                <select value={timing} onChange={e=>setTiming(e.target.value)}>
+                  {TIMINGS.map(t=><option key={t.v} value={t.v}>{t.l} — {t.d}</option>)}
+                </select>
+              </Field>
+              <Field label="Fulfillment actions" desc="Actions performed at the selected timing — set values, contact state, webhook, SMS, trigger another goal, voice control.">
+                <ActionsEditor actions={actions} setActions={setActions} goalNames={goalNames} />
+              </Field>
+            </>
+          )}
+        </div>
+
+        <div className="modal-foot">
+          <button className="btn" onClick={onClose}>Cancel</button>
+          <button className="btn primary" onClick={()=>{save();onClose();}}>Add tool</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================= TRANSITION ============================= */
+function TransitionCard({tr, onChange, onDelete, goalNames}){
+  const up = patch => onChange({...tr, ...patch});
+  return (
+    <div className="tcard">
+      <div className="trans-head">
+        <span className="trans-ic">{Icon.arrow}</span>
+        <Tooltip label={`"name": ${JSON.stringify(tr.name||"<transition name>")}`} mono>
+          <input className="trans-name" placeholder="Transition name" value={tr.name} onChange={e=>up({name:e.target.value})} />
+        </Tooltip>
+        <Menu trigger={<Tooltip label={`"target": ${JSON.stringify(tr.target||"<target goal>")}`} mono><span className="trans-target">{Icon.arrow} {tr.target||"target"}</span></Tooltip>}>
+          {close=>(<div style={{maxHeight:360,overflow:"auto"}}>
+            <div className="menu-sec">This script</div>
+            {goalNames.length===0 && <div className="empty">No other goals</div>}
+            {goalNames.map(g=><MItem key={g} icon={Icon.say} label={g} active={tr.target===g} onClick={()=>{up({target:g});close();}} />)}
+            <div className="menu-sec">Built-in goals</div>
+            {BUILTIN_GOALS.map(g=><MItem key={g} icon={Icon.star} label={g} active={tr.target===g} onClick={()=>{up({target:g});close();}} />)}
+            <div className="hr" style={{margin:"6px 4px"}}/>
+            <MItem icon={Icon.plus} label="New goal…" onClick={()=>{up({target:tr.name||"new goal"});close();}} />
+          </div>)}
+        </Menu>
+        <button className="btn icon ghost sm" onClick={onDelete}>{Icon.trash}</button>
+      </div>
+      <div className="trans-body">
+        <Field label="Prompt" desc="Natural-language instruction describing when to activate this transition."
+          json={`"prompt": ${JSON.stringify(tr.prompt||"activate this transition when the user requests to order a product")}`}>
+          <textarea className="tin" rows={2} placeholder="e.g.  activate this transition when the user requests to order a product"
+            value={tr.prompt} onChange={e=>up({prompt:e.target.value})} />
+        </Field>
+        <Field label="Conditions" extra={<span style={{color:"var(--muted)",fontWeight:500,textTransform:"none",letterSpacing:0}}> · optional</span>}
+          desc="Logical condition that must hold for this transition to be eligible."
+          json={`"conditions": ${JSON.stringify(tr.conditions||"a = b")}`}>
+          <input className="tin mono" placeholder="e.g.  status = active and score > 5"
+            value={tr.conditions} onChange={e=>up({conditions:e.target.value})} />
+        </Field>
+        <Field label="Extracted properties"
+          desc="Values to extract from the user message — one per line, each with a name, type and description."
+          json={`"properties": { ${tr.properties.filter(p=>p.name).map(p=>`${JSON.stringify(p.name)}: { "type": ${JSON.stringify(p.type)}, "description": ${JSON.stringify(p.description)} }`).join(", ")} }`}>
+          <PropsEditor props={tr.properties} setProps={p=>up({properties:p})} />
+        </Field>
+        <Field label="Assigned values" style={{marginBottom:0}}
+          desc="Fixed values written to conversation memory when this transition runs."
+          json={`"values": { ${tr.assigned.filter(kv=>kv.k).map(kv=>`${JSON.stringify(kv.k)}: ${JSON.stringify(kv.v)}`).join(", ")} }`}>
+          {tr.assigned.map((kv,i)=>(
+            <div className="kv" key={i}>
+              <input className="tin mono" placeholder="field" value={kv.k} onChange={e=>up({assigned:tr.assigned.map((x,j)=>j===i?{...x,k:e.target.value}:x)})} />
+              <span className="arrow">{Icon.arrow}</span>
+              <input className="tin mono" placeholder="value" value={kv.v} onChange={e=>up({assigned:tr.assigned.map((x,j)=>j===i?{...x,v:e.target.value}:x)})} />
+              <span className="x" onClick={()=>up({assigned:tr.assigned.filter((_,j)=>j!==i)})}>{Icon.x}</span>
+            </div>
+          ))}
+          <span className="sub-add" onClick={()=>up({assigned:[...tr.assigned,{k:"",v:""}]})}>{Icon.plus} add assigned value</span>
+        </Field>
+      </div>
+    </div>
+  );
+}
+
+/* ============================= NODE EDITOR (right panel) ============================= */
+function NodeEditor({node, onChange, onDelete, allGoalNames, onAddChild, onSelect}){
+  const up = patch => onChange({...node, ...patch});
+  const upAdv = patch => up({adv:{...node.adv, ...patch}});
+  const upObj = patch => up({objection:{...node.objection, ...patch}});
+  const upRef = patch => up({refusal:{...node.refusal, ...patch}});
+  const upTrig = patch => up({triggers:{...node.triggers, ...patch}});
+  const upVal = patch => up({value:{...node.value, ...patch}});
+  const toggleSec = k => up({open:{...node.open, [k]:!node.open[k]}});
+  const [addingTool,setAddingTool]=useState(false);
+
+  const isAsk = node.type==="ask";
+  const vt = node.value.type;
+  const showValueSection = isAsk;   // choices apply to every value type, so always show for ask goals
+  const otherGoals = allGoalNames.filter(g=>g && g!==node.name);
+  const ackJson = node.acknowledge==="off" ? '"acknowledge": false'
+                : node.acknowledge==="custom" ? `"acknowledge": ${JSON.stringify(node.ackText||"Great, thanks!")}`
+                : '// acknowledge: auto-generated';
+
+  const advBadges = [];
+  if(node.adv.repeat) advBadges.push(<span className="badge accent" key="r">{Icon.repeat} repeat</span>);
+  if(!node.adv.proactive) advBadges.push(<span className="badge" key="p">reactive only</span>);
+  if(node.triggers.enabled) advBadges.push(<span className="badge" key="t" style={{background:"var(--say-soft)",color:"var(--say)",borderColor:"transparent"}}>{Icon.bolt} triggers</span>);
+  if(node.objection.enabled) advBadges.push(<span className="badge" key="o" style={{background:"var(--red-soft)",color:"var(--red)",borderColor:"transparent"}}>{Icon.shield} objections</span>);
+  if(node.refusal.enabled) advBadges.push(<span className="badge amber" key="rf">{Icon.flag} refusal</span>);
+  if(node.childGoals) advBadges.push(<span className="badge accent" key="cg">{Icon.folder} sub-goals</span>);
+
+  const fulfillment = node.tools.filter(t=>t.kind==="timing");
+  const llm = node.tools.filter(t=>t.kind==="llm");
+
+  return (
+    <div className="node-editor">
+      {/* HEAD */}
+      <div className="node-head">
+        <div className="node-head-row">
+          <div className="typetog">
+            <button data-t="say" title='"goal_type":"say"' className={!isAsk?"on":""} onClick={()=>up({type:"say"})}>{Icon.say} Say</button>
+            <button data-t="ask" title='"goal_type":"ask"' className={isAsk?"on":""}
+              onClick={()=>up({type:"ask", value:{...node.value, choices:choicesForType(node.value.choices, node.value.type)}})}>{Icon.ask} Ask</button>
+            <button data-t="group" title="Convert to a group container" onClick={()=>onChange(convertNode(node,"group"))}>{Icon.folder} Group</button>
+          </div>
+          {isAsk && (
+            <div className="typetog">
+              <Tooltip label={`"value_type": ${JSON.stringify(vt)}`} mono>
+                <select className="vtype" value={vt}
+                  onChange={e=>upVal({type:e.target.value, choices:choicesForType(node.value.choices, e.target.value)})}>
+                  {VALUE_TYPES.map(v=><option key={v} value={v}>{v}</option>)}
+                </select>
+              </Tooltip>
+            </div>
+          )}
+          <div style={{flex:1}}/>
+          <Menu trigger={<button className="btn icon ghost">{Icon.dots}</button>}>
+            {close=>(<>
+              <div className="menu-sec">Add</div>
+              <MItem icon={Icon.cond} label={node.condition!==null?"Edit condition":"Add condition"}
+                onClick={()=>{ up({condition:node.condition??""}); close(); }} />
+              <MItem icon={Icon.folder} label="Child goals" toggle={node.childGoals}
+                desc="Let this goal contain sub-goals (serialized as its 'goals')."
+                tip='"goals": [ … ]' onClick={()=>up({childGoals:!node.childGoals})} />
+              <div className="menu-sec">Advanced behavior</div>
+              <MItem icon={Icon.bolt}   label="Triggers"           toggle={node.triggers.enabled}  tip='"triggers": ["..."], "negative_triggers": ["..."]' onClick={()=>upTrig({enabled:!node.triggers.enabled})} />
+              <MItem icon={Icon.repeat} label="Repeat goal"       toggle={node.adv.repeat}    tip='"repeat": true'     onClick={()=>upAdv({repeat:!node.adv.repeat})} />
+              <MItem icon={Icon.bolt}   label="Proactive"          toggle={node.adv.proactive} tip='"proactive": false' onClick={()=>upAdv({proactive:!node.adv.proactive})} />
+              {isAsk && <MItem icon={Icon.collect} label="Passive detection" toggle={node.value.passive}
+                desc="Capture this value even if the user volunteers it without being asked. On by default."
+                tip='"qualifier_blocks_passive_detection": true' onClick={()=>upVal({passive:!node.value.passive})} />}
+              <MItem icon={Icon.shield} label="Objection handling" toggle={node.objection.enabled} tip='"objection_attempts": 2' onClick={()=>upObj({enabled:!node.objection.enabled})} />
+              <MItem icon={Icon.flag}   label="Refusal handling"   toggle={node.refusal.enabled}   tip='"refusal_handling": ["..."]'
+                onClick={()=>upRef({enabled:!node.refusal.enabled, items:(!node.refusal.enabled && node.refusal.items.length===0)?[""]:node.refusal.items})} />
+              <div className="hr" style={{margin:"6px 4px"}}/>
+              <MItem icon={Icon.trash} label="Delete goal" danger onClick={()=>{onDelete();close();}} />
+            </>)}
+          </Menu>
+        </div>
+        <div className="name-row"><input className="name-in" title='"name":"<goal name>"' placeholder="Goal name…" value={node.name} onChange={e=>up({name:e.target.value})} /></div>
+        {advBadges.length>0 && <div className="badges" style={{marginTop:10}}>{advBadges}</div>}
+        {node.condition!==null && (
+          <div className="cond-pill">
+            {Icon.cond}
+            <input title='"conditions":"email != empty and consents = yes"' value={node.condition} placeholder="goal condition  e.g.  email != empty and consents = yes"
+              onChange={e=>up({condition:e.target.value})} />
+            <span className="x" onClick={()=>up({condition:null})}>{Icon.x}</span>
+          </div>
+        )}
+      </div>
+
+      {/* MESSAGES */}
+      <Section icon={Icon.msg} color="#2e8af6" title="Messages" count={node.messages.length}
+        open={node.open.messages} onToggle={()=>toggleSec("messages")}>
+        {node.messages.map((m,i)=>(
+          <MessageRow key={m.id} msg={m} idx={i}
+            onChange={nm=>up({messages:node.messages.map(x=>x.id===m.id?nm:x)})}
+            onDelete={()=>up({messages:node.messages.filter(x=>x.id!==m.id)})} />
+        ))}
+        <button className="add-row" onClick={()=>up({messages:[...node.messages,newMessage()]})}>{Icon.plus} Add message</button>
+        <div className="hr"/>
+        <Field label="Acknowledge answer" style={{marginBottom:0}}
+          desc="How the agent confirms the user's previous answer before continuing. Auto-generates by default; can be disabled or set to fixed text."
+          json={ackJson}>
+          <select value={node.acknowledge} onChange={e=>up({acknowledge:e.target.value})}>
+            <option value="auto">Auto-generate</option>
+            <option value="off">Disabled</option>
+            <option value="custom">Custom text…</option>
+          </select>
+          {node.acknowledge==="custom" && (
+            <input className="tin" style={{marginTop:7}} placeholder="e.g.  Great, thanks!" value={node.ackText} onChange={e=>up({ackText:e.target.value})} />
+          )}
+        </Field>
+      </Section>
+
+      {/* TRIGGERS */}
+      {node.triggers.enabled && (
+        <Section icon={Icon.bolt} color="#2e8af6" title="Triggers"
+          open={node.open.triggers} onToggle={()=>toggleSec("triggers")}>
+          <Field label="Positive triggers" desc="User intents that activate this goal reactively."
+            json={`"triggers": [${node.triggers.positive.map(t=>JSON.stringify(t)).join(", ")}]`}>
+            <ChipInput items={node.triggers.positive} onChange={t=>upTrig({positive:t})} placeholder="user intent…" />
+          </Field>
+          <Field label="Negative triggers" style={{marginBottom:0}}
+            desc="User intents that should NOT activate this goal — fine-tunes detection and blocks proactive triggering."
+            json={`"negative_triggers": [${node.triggers.negative.map(t=>JSON.stringify(t)).join(", ")}]`}>
+            <ChipInput items={node.triggers.negative} onChange={t=>upTrig({negative:t})} placeholder="user intent to exclude…" />
+          </Field>
+        </Section>
+      )}
+
+      {/* VALUE COLLECTION (ask only, when the value type has options) */}
+      {showValueSection && (
+        <Section icon={Icon.collect} color="#8b5cf6" title="Value collection"
+          open={node.open.value} onToggle={()=>toggleSec("value")}>
+          <ValueCollection value={node.value} onChange={v=>up({value:v})} />
+        </Section>
+      )}
+
+      {/* OBJECTION HANDLING */}
+      {node.objection.enabled && (
+        <Section icon={Icon.shield} color="#e5484d" title="Objection handling"
+          open={node.open.objection} onToggle={()=>toggleSec("objection")}>
+          <Field label="Max attempts" desc="How many times the agent tries to overcome an objection before giving up and moving on."
+            json={`"objection_attempts": ${Number(node.objection.attempts)||0}`}>
+            <input className="tin num-in" type="number" min="1" value={node.objection.attempts}
+              onChange={e=>upObj({attempts:e.target.value})} />
+            <div className="help">How many times the agent tries to overcome an objection before giving up.</div>
+          </Field>
+          <Field label="Objection condition"
+            extra={<span style={{color:"var(--muted)",fontWeight:500,textTransform:"none",letterSpacing:0}}> · optional</span>}
+            desc="A logical condition that defines when the user is objecting, based on collected values — e.g. 'interested = no'. Defaults to '<goal name> = no' for yes/no goals."
+            json={`"objection_condition": ${JSON.stringify(node.objection.condition || (isAsk && node.value.type==="approval" ? `${node.name||"goal name"} = no` : "<condition>"))}`}>
+            <input className="tin mono" value={node.objection.condition}
+              placeholder={isAsk && node.value.type==="approval" ? `${node.name||"goal name"} = no  (default)` : "e.g.  interested = no"}
+              onChange={e=>upObj({condition:e.target.value})} />
+          </Field>
+          <div className="flabel" style={{marginTop:4}}>Handler messages
+            <span style={{color:"var(--muted)",fontWeight:500,textTransform:"none",letterSpacing:0}}> · optional</span>
+            <InfoDot text="Messages the agent uses to handle the objection. Each is a message with objection_handler:true. Optional — agent generates its own if empty." />
+          </div>
+          {node.objection.messages.map((m,i)=>(
+            <MessageRow key={m.id} msg={m} idx={i}
+              onChange={nm=>upObj({messages:node.objection.messages.map(x=>x.id===m.id?nm:x)})}
+              onDelete={()=>upObj({messages:node.objection.messages.filter(x=>x.id!==m.id)})} />
+          ))}
+          <button className="add-row" onClick={()=>upObj({messages:[...node.objection.messages,newMessage()]})}>{Icon.plus} Add handler message</button>
+        </Section>
+      )}
+
+      {/* REFUSAL HANDLING */}
+      {node.refusal.enabled && (
+        <Section icon={Icon.flag} color="#e8920c" title="Refusal handling"
+          open={node.open.refusal} onToggle={()=>toggleSec("refusal")}>
+          <Field label="Responses if the user refuses" style={{marginBottom:0}}
+            desc="What the agent can say if the user refuses to answer. Each line is one full response the agent may use."
+            json={`"refusal_handling": [${node.refusal.items.filter(Boolean).map(r=>JSON.stringify(r)).join(", ")}]`}>
+            <StringList items={node.refusal.items} onChange={r=>upRef({items:r})}
+              placeholder="e.g.  I need this to continue helping you." addLabel="Add response" />
+          </Field>
+        </Section>
+      )}
+
+      {/* TOOLS */}
+      <Section icon={Icon.tools} color="#1fae62" title="Tools" count={node.tools.length}
+        open={node.open.tools} onToggle={()=>toggleSec("tools")}>
+        {node.tools.length===0 && <div className="empty" style={{paddingBottom:12}}>No tools yet — add fulfillment actions or LLM functions.</div>}
+        {fulfillment.length>0 && <div className="tool-group-label">{Icon.clock} Fulfillment actions</div>}
+        {fulfillment.map((t)=>(
+          <ToolCard key={t.id} tool={t} onDelete={()=>up({tools:node.tools.filter(x=>x.id!==t.id)})} />
+        ))}
+        {llm.length>0 && <div className="tool-group-label">{Icon.bolt} LLM tools</div>}
+        {llm.map((t)=>(
+          <ToolCard key={t.id} tool={t} onDelete={()=>up({tools:node.tools.filter(x=>x.id!==t.id)})} />
+        ))}
+        <button className="add-row" onClick={()=>setAddingTool(true)}>{Icon.plus} Add tool</button>
+      </Section>
+
+      {/* TRANSITIONS */}
+      <Section icon={Icon.arrow} color="#e8920c" title="Transitions" count={node.transitions.length}
+        open={node.open.transitions} onToggle={()=>toggleSec("transitions")}>
+        {node.transitions.length===0 && <div className="empty" style={{paddingBottom:12}}>No transitions — add a branch to another goal.</div>}
+        {node.transitions.map((tr)=>(
+          <TransitionCard key={tr.id} tr={tr} goalNames={otherGoals}
+            onChange={nt=>up({transitions:node.transitions.map(x=>x.id===tr.id?nt:x)})}
+            onDelete={()=>up({transitions:node.transitions.filter(x=>x.id!==tr.id)})} />
+        ))}
+        <button className="add-row" onClick={()=>up({transitions:[...node.transitions,newTransition()]})}>{Icon.plus} Add transition</button>
+      </Section>
+
+      {/* CHILD GOALS */}
+      {node.childGoals && (
+        <Section icon={Icon.folder} color="#5b5bf6" title="Sub-goals" count={node.children.length}
+          open={node.open.children} onToggle={()=>toggleSec("children")}>
+          {node.children.length===0 && <div className="empty" style={{paddingBottom:10}}>No sub-goals yet.</div>}
+          {node.children.map(c=>(
+            <div key={c.id} className="msg" style={{cursor:"pointer",display:"flex",alignItems:"center",gap:8,padding:"9px 11px"}} onClick={()=>onSelect && onSelect(c.id)}>
+              <span className={"cn-ic "+(c.kind==="group"?"":(c.type||"say"))} style={{width:22,height:22}}>{c.kind==="group"?Icon.folder:(c.type==="ask"?Icon.ask:Icon.say)}</span>
+              <span style={{flex:1,fontWeight:600,fontSize:13}}>{c.name||"Untitled goal"}</span>
+              <span style={{color:"var(--muted)"}}>{Icon.chev}</span>
+            </div>
+          ))}
+          <button className="add-row" onClick={()=>onAddChild && onAddChild(node.id)}>{Icon.plus} Add sub-goal</button>
+        </Section>
+      )}
+
+      {addingTool && <AddToolModal goalNames={allGoalNames.filter(Boolean)}
+        onClose={()=>setAddingTool(false)}
+        onAdd={t=>up({tools:[...node.tools,{...t,id:uid()}]})} />}
+    </div>
+  );
+}
+
+/* ============================= SERIALIZER ============================= */
+const toNum = s => { if(s==="") return null; const x=Number(s); return isNaN(x)?s:x; };
+function actionsToFulfillment(timing, actions){
+  const f={timing};
+  (actions||[]).forEach(a=>{
+    if(a.type==="values"){ const v={}; Object.entries(a.values||{}).forEach(([k,val])=>{ if(k) v[k]=val; }); f.values={...(f.values||{}),...v}; }
+    else if(a.type==="call_result") f.call_result=a.call_result;
+    else if(a.type==="webhook") f.webhook={url:a.url};
+    else if(a.type==="text_message") f.text_message={message:a.message};
+    else if(a.type==="trigger") f.trigger=a.target;
+    else if(a.type==="voice_action") f.voice_action=a.voice;
+  });
+  return f;
+}
+function serializeMessage(m, goalGenerative, extra){
+  const forced = m.forced && m.mode!=="prompt";
+  const o={message:m.text};
+  if(m.preMessage) o.pre_message=m.preMessage;
+  if(m.condition) o.conditions=m.condition;
+  if(m.explicit) o.explicit_part=m.explicit;
+  if(forced) o.force_exact_response=true;
+  if(!m.repeat) o.repeat=false;            // repeat is on by default; only emit when disabled
+  if(m.exclusive) o.exclusive_message=true;
+  if(goalGenerative && m.mode!=="prompt") o.generative=false;  // mark plain messages inside a generative goal
+  if(extra) Object.assign(o, extra);
+  return Object.keys(o).length===1 ? m.text : o;   // plain string only when no extra fields
+}
+function serializeLlmTool(t){
+  const o={tool_name:t.tool_name, description:t.description};
+  const props=(t.properties||[]).filter(p=>p.name);
+  if(props.length){ o.properties={}; props.forEach(p=>{ o.properties[p.name]={type:p.type, description:p.description}; }); }
+  if(t.actions && t.actions.length) o.fulfillment=[actionsToFulfillment("triggered",t.actions)];
+  return o;
+}
+// ctx.choiceGroups: Map("<parentId>::<choiceId>" -> group node) so a choice can nest its sub-goals
+function buildSerializeCtx(allNodes){
+  const choiceGroups = new Map();
+  const walk = ns => ns.forEach(n=>{ if(n.kind==="group" && n.choiceOf) choiceGroups.set(n.choiceOf.parentId+"::"+n.choiceOf.choiceId, n); if(n.children && n.children.length) walk(n.children); });
+  walk(allNodes);
+  return { choiceGroups };
+}
+function serializeAny(node, ctx={choiceGroups:new Map()}){ return node.kind==="group" ? serializeGroup(node, ctx) : serializeGoal(node, ctx); }
+function serializeGroup(node, ctx){
+  const g={ name: node.name || "group" };
+  if(node.condition && node.condition.trim()) g.conditions = node.condition.trim();
+  if(node.triggers && node.triggers.enabled){
+    const pos=node.triggers.positive.filter(Boolean), neg=node.triggers.negative.filter(Boolean);
+    if(pos.length) g.triggers=pos;
+    if(neg.length) g.negative_triggers=neg;
+  }
+  const fulfillment = node.tools.filter(t=>t.kind==="timing").map(t=>actionsToFulfillment(t.timing,t.actions));
+  if(fulfillment.length) g.fulfillment = fulfillment;
+  const llm = node.tools.filter(t=>t.kind==="llm");
+  if(llm.length) g.options = { llm_tools: llm.map(serializeLlmTool) };
+  if(node.children.length) g.goals = node.children.map(c=>serializeAny(c, ctx));
+  return g;
+}
+function serializeGoal(node, ctx={choiceGroups:new Map()}){
+  const g={};
+  g.name = node.name || "untitled goal";
+  const isAsk = node.type==="ask";
+  const generative = node.messages.some(m=>m.mode==="prompt");
+  g.goal_type = isAsk ? (generative?"ask_generative":"ask") : (generative?"say_generative":"say");
+  if(node.condition && node.condition.trim()) g.conditions = node.condition.trim();
+  if(node.adv.repeat) g.repeat = true;
+  if(!node.adv.proactive) g.proactive = false;
+
+  if(node.triggers.enabled){
+    const pos=node.triggers.positive.filter(Boolean);
+    const neg=node.triggers.negative.filter(Boolean);
+    if(pos.length) g.triggers=pos;
+    if(neg.length) g.negative_triggers=neg;
+  }
+
+  const msgs = node.messages
+    .filter(m=>(m.text&&m.text.trim()) || m.condition || m.explicit || m.preMessage)
+    .map(m=>serializeMessage(m, generative));
+  if(node.objection.enabled){
+    node.objection.messages.filter(m=>m.text&&m.text.trim())
+      .forEach(m=>msgs.push(serializeMessage(m, generative, {objection_handler:true})));
+  }
+  if(msgs.length) g.messages = msgs;
+
+  if(node.acknowledge==="off") g.acknowledge=false;
+  else if(node.acknowledge==="custom") g.acknowledge=node.ackText||"";
+
+  if(isAsk){
+    g.value_type = node.value.type;
+    const options={};
+    if(node.value.type==="unit" && node.value.unitType!=="any") options.unit_type=node.value.unitType;
+    if(["year","month","date"].includes(node.value.type) && node.value.tense!=="any") options.tense=node.value.tense;
+    if(node.value.range && (node.value.rangeMin!==""||node.value.rangeMax!=="")) options.range=[toNum(node.value.rangeMin), toNum(node.value.rangeMax)];
+    if(Object.keys(options).length) g.options=options;
+    if(node.value.type==="custom" && node.value.validation.trim()) g.validation_prompt=node.value.validation.trim();
+    if(node.value.choices.length){
+      g.choices = node.value.choices.map(c=>{
+        const o={name:c.name};
+        if(c.condition) o.conditions=c.condition;
+        if(c.validation) o.validation_prompt=c.validation;
+        if(c.ack) o.acknowledge=c.ack;
+        if(c.triggers && c.triggers.length) o.triggers=c.triggers;
+        if(c.negativeTriggers && c.negativeTriggers.length) o.negative_triggers=c.negativeTriggers;
+        const grp = ctx.choiceGroups.get(node.id+"::"+c.id);   // sub-goals added via the choice anchor
+        if(grp && grp.children.length) o.goals = grp.children.map(ch=>serializeAny(ch, ctx));
+        return o;
+      });
+    }
+    if(!node.value.passive) g.qualifier_blocks_passive_detection=true;
+  }
+
+  if(node.refusal.enabled){
+    const r=node.refusal.items.filter(Boolean);
+    if(r.length) g.refusal_handling=r;
+  }
+
+  if(node.objection.enabled){
+    g.objection_attempts = toNum(String(node.objection.attempts)) ?? 0;
+    const cond = node.objection.condition.trim() || (isAsk && node.value.type==="approval" ? `${node.name||"goal"} = no` : "");
+    if(cond) g.objection_condition = cond;
+  }
+
+  const fulfillment = node.tools.filter(t=>t.kind==="timing").map(t=>actionsToFulfillment(t.timing,t.actions));
+  if(fulfillment.length) g.fulfillment=fulfillment;
+
+  const llm = node.tools.filter(t=>t.kind==="llm");
+  if(llm.length){
+    g.options = g.options || {};
+    g.options.llm_tools = llm.map(serializeLlmTool);
+  }
+
+  if(node.transitions.length) g.transitions = node.transitions.map(tr=>{
+    const o={};
+    if(tr.name) o.name=tr.name;
+    if(tr.target) o.target=tr.target;
+    if(tr.prompt) o.prompt=tr.prompt;
+    if(tr.conditions) o.conditions=tr.conditions;
+    const values={}; tr.assigned.forEach(kv=>{ if(kv.k) values[kv.k]=kv.v; });
+    if(Object.keys(values).length) o.values=values;
+    const props={}; (tr.properties||[]).forEach(p=>{ if(p.name) props[p.name]={type:p.type, description:p.description}; });
+    if(Object.keys(props).length) o.properties=props;
+    return o;
+  });
+
+  if(node.children && node.children.length) g.goals = node.children.map(c=>serializeAny(c, ctx));
+  return g;
+}
+/* tiny JSON syntax highlighter -> HTML */
+function highlightJson(obj){
+  const json = JSON.stringify(obj, null, 2)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?)/g, m=>{
+    let cls="jnum";
+    if(/^"/.test(m)) cls = /:$/.test(m) ? "jkey" : "jstr";
+    else if(/true|false/.test(m)) cls="jbool";
+    else if(/null/.test(m)) cls="jbool";
+    return `<span class="${cls}">${m}</span>`;
+  });
+}
+
+/* ============================= CANVAS GRAPH ============================= */
+const CN_W = 230;
+// Output ports (bottom-right, one per line): one per choice, one per transition.
+function nodePorts(node){
+  const a = [];
+  if(node.type==="ask"){
+    node.value.choices.forEach(c=>a.push({key:"choice:"+c.id, type:"choice", label:c.name||"option"}));
+  }
+  node.transitions.forEach(t=>a.push({key:"trans:"+t.id, type:"trans", label:t.name||"transition"}));
+  return a;
+}
+function firstMessage(node){
+  const m = node.messages.find(x=>x.text && x.text.trim());
+  return m ? {text:m.text, prompt:m.mode==="prompt"} : null;
+}
+
+function CanvasNode({node, selected, hasSeqChild, nested, zoom=1, selectedId, onSelectId, onAddChild, onSelect, onStartDrag, onAnchor, reportGeom}){
+  const ref = useRef();
+  const circs = useRef({});
+  useEffect(()=>{
+    if(nested || !ref.current || !reportGeom) return;
+    const cr = ref.current.getBoundingClientRect();
+    const anchors = {};
+    Object.entries(circs.current).forEach(([key,el])=>{
+      if(!el) return;
+      const r = el.getBoundingClientRect();
+      // rects are in screen px (scaled); divide by zoom to get unscaled stage coords for edges
+      anchors[key] = { dx: Math.round((r.left+r.width/2-cr.left)/zoom), dy: Math.round((r.top+r.height/2-cr.top)/zoom) };
+    });
+    reportGeom(node.id, anchors);
+  });
+  const isAsk = node.type==="ask";
+  const fm = firstMessage(node);
+  const ports = nodePorts(node);
+  return (
+    <div ref={ref} className={"cnode"+(nested?" nested":"")+(selected?" sel":"")}
+      style={nested?undefined:{left:node.x, top:node.y}}
+      onMouseDown={e=>{ if(nested) e.stopPropagation(); onSelect(); }}>
+      <div className="cn-head" style={nested?{cursor:"pointer"}:undefined}
+        onMouseDown={e=>{ if(nested) e.stopPropagation(); else onStartDrag(e, node); }}>
+        <span className={"cn-ic "+node.type}>{isAsk?Icon.ask:Icon.say}</span>
+        <span className={"cn-name"+(node.name?"":" empty")}>{node.name||"Untitled goal"}</span>
+      </div>
+      <div className={"cn-msg"+(fm?"":" empty")}>
+        {fm ? (<>{fm.prompt && <span className="genmark">✦ </span>}{fm.text}</>) : "No message yet"}
+      </div>
+      {!nested && node.childGoals && (
+        <div className="cn-children" onMouseDown={e=>e.stopPropagation()}>
+          {(!node.children || node.children.length===0) && <div className="cn-children-empty">No sub-goals yet</div>}
+          {(node.children||[]).map(c=>(
+            <div key={c.id} className={"group-min-child"+(selectedId===c.id?" sel":"")}
+              onMouseDown={e=>e.stopPropagation()} onClick={e=>{ e.stopPropagation(); onSelectId(c.id); }}>
+              <span className="ic">{c.kind==="group"?Icon.folder:(c.type==="ask"?Icon.ask:Icon.say)}</span>
+              <span className="lbl">{c.name||"Untitled goal"}</span>
+            </div>
+          ))}
+          <button className="cn-children-add" onClick={e=>{ e.stopPropagation(); onAddChild(node.id); }}>{Icon.plus} Add sub-goal</button>
+        </div>
+      )}
+      {ports.length>0 && (
+        <div className="cn-ports">
+          {ports.map(p=>(
+            <div key={p.key} className={"cn-port "+p.type}
+              title={p.type==="choice"?`Add a sub-goal under choice "${p.label}"`:`Add the target goal of transition "${p.label}"`}
+              onMouseDown={e=>e.stopPropagation()}
+              onClick={e=>{ e.stopPropagation(); onAnchor(node, p); }}>
+              <span className="plabel">{p.label}</span>
+              <span className="pcircle" ref={el=>circs.current[p.key]=el} />
+            </div>
+          ))}
+        </div>
+      )}
+      {(!nested || !hasSeqChild) && (
+        <div className={"cn-add"+(hasSeqChild?" connected":"")}
+          title={hasSeqChild?"":"Add the next goal in sequence"}
+          onMouseDown={e=>e.stopPropagation()}
+          onClick={hasSeqChild ? undefined : (e=>{ e.stopPropagation(); onAnchor(node, {key:"seq", type:"seq", label:"add"}); })}>
+          {!hasSeqChild && <span className="cn-add-btn">{Icon.plus} Add</span>}
+          {!nested && <span className="pcircle" ref={el=>circs.current["seq"]=el} />}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GroupNode({group, selectedId, onSelect, onStartDrag, onAddChild, onSetMinimized}){
+  if(group.minimized){
+    return (
+      <div className={"group-min"+(selectedId===group.id?" sel":"")} style={{left:group.x, top:group.y}}>
+        <div className="group-min-head" title="Click to expand group"
+          onMouseDown={e=>onStartDrag(e, group)}
+          onClick={()=>{ onSelect(group.id); onSetMinimized(group.id,false); }}>
+          <span className="group-ic">{Icon.folder}</span>
+          <span className={"gname"+(group.name?"":" empty")}>{group.name||"Group"}</span>
+          <span className="gcount">{group.children.length}</span>
+        </div>
+        {group.children.length>0 && (
+          <div className="group-min-children">
+            {group.children.map(c=>(
+              <div key={c.id} className={"group-min-child"+(selectedId===c.id?" sel":"")}
+                onMouseDown={e=>e.stopPropagation()} onClick={()=>onSelect(c.id)}>
+                <span className="ic">{c.kind==="group"?Icon.folder:(c.type==="ask"?Icon.ask:Icon.say)}</span>
+                <span className="lbl">{c.name||"Untitled goal"}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className={"group"+(selectedId===group.id?" sel":"")} style={{left:group.x, top:group.y}}
+      onMouseDown={()=>onSelect(group.id)}>
+      <div className="group-head" onMouseDown={e=>onStartDrag(e, group)}>
+        <span className="group-ic">{Icon.folder}</span>
+        <span className={"group-name"+(group.name?"":" empty")}>{group.name||"Untitled group"}</span>
+        {group.triggers && group.triggers.enabled && <span className="group-fulfill" style={{background:"var(--say-soft)",color:"var(--say)"}}>{Icon.bolt}</span>}
+        {group.tools.length>0 && <span className="group-fulfill">{group.tools.length} fulfillment</span>}
+        <button className="btn icon ghost sm" title="Minimize group"
+          onMouseDown={e=>e.stopPropagation()} onClick={e=>{ e.stopPropagation(); onSetMinimized(group.id,true); }}>{Icon.minimize}</button>
+      </div>
+      {group.condition!==null && <div className="group-cond">{Icon.cond}<span style={{flex:1}}>{group.condition||"<condition>"}</span></div>}
+      <div className="group-add">
+        <span className="pcircle"/>
+        <button className="group-add-btn" onMouseDown={e=>e.stopPropagation()}
+          onClick={e=>{ e.stopPropagation(); onAddChild(group.id); }}>{Icon.plus} Add goal</button>
+      </div>
+      <div className="group-body">
+        {group.children.length===0 && <div className="group-empty">No sub-goals yet</div>}
+        {group.children.map((c,i)=>(
+          <CanvasNode key={c.id} node={c} nested selected={selectedId===c.id}
+            hasSeqChild={i < group.children.length-1}
+            onSelect={()=>onSelect(c.id)} onAnchor={()=>onAddChild(group.id)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Canvas({nodes, selectedId, onSelect, onMoveNode, onAnchor, onAddChild, onSetMinimized}){
+  const [anchorPos,setAnchorPos] = useState({});
+  const reportGeom = useCallback((id,anchors)=>{
+    setAnchorPos(prev=>{
+      const old = prev[id];
+      if(old && JSON.stringify(old)===JSON.stringify(anchors)) return prev;
+      return {...prev, [id]:anchors};
+    });
+  },[]);
+  const drag = useRef(null);
+  const canvasRef = useRef();
+  const [zoom,setZoom] = useState(1);
+  const zoomRef = useRef(1); zoomRef.current = zoom;
+  const STAGE_W=4000, STAGE_H=2600;
+  const clampZoom = z => Math.min(2.5, Math.max(0.3, z));
+
+  // pinch / ctrl+wheel zoom, anchored to the cursor
+  useEffect(()=>{
+    const c = canvasRef.current; if(!c) return;
+    const onWheel = e => {
+      if(!e.ctrlKey) return;            // trackpad pinch & ctrl+wheel both set ctrlKey
+      e.preventDefault();
+      const z0 = zoomRef.current;
+      const z1 = clampZoom(z0 * Math.exp(-e.deltaY*0.002));
+      if(z1===z0) return;
+      const rect = c.getBoundingClientRect();
+      const cx = e.clientX-rect.left, cy = e.clientY-rect.top;
+      const contentX = (c.scrollLeft+cx)/z0, contentY = (c.scrollTop+cy)/z0;
+      zoomRef.current = z1; setZoom(z1);
+      requestAnimationFrame(()=>{ c.scrollLeft = contentX*z1-cx; c.scrollTop = contentY*z1-cy; });
+    };
+    c.addEventListener("wheel", onWheel, {passive:false});
+    return ()=>c.removeEventListener("wheel", onWheel);
+  },[]);
+  // button zoom, anchored to the canvas centre
+  const zoomBy = factor => {
+    const c = canvasRef.current; if(!c) return;
+    const z0 = zoomRef.current, z1 = clampZoom(z0*factor);
+    if(z1===z0) return;
+    const cx = c.clientWidth/2, cy = c.clientHeight/2;
+    const contentX = (c.scrollLeft+cx)/z0, contentY = (c.scrollTop+cy)/z0;
+    zoomRef.current = z1; setZoom(z1);
+    requestAnimationFrame(()=>{ c.scrollLeft = contentX*z1-cx; c.scrollTop = contentY*z1-cy; });
+  };
+  const resetZoom = ()=>{ zoomRef.current=1; setZoom(1); };
+
+  // keep the selected node in view (new nodes are placed to the right and would otherwise be off-screen)
+  useEffect(()=>{
+    if(!selectedId || !canvasRef.current || drag.current) return;
+    const c = canvasRef.current;
+    const el = c.querySelector(".sel");
+    if(!el) return;
+    const cRect = c.getBoundingClientRect(), eRect = el.getBoundingClientRect();
+    const targetLeft = c.scrollLeft + (eRect.left - cRect.left) - (c.clientWidth  - eRect.width )/2;
+    const targetTop  = c.scrollTop  + (eRect.top  - cRect.top ) - (c.clientHeight - eRect.height)/2;
+    c.scrollTo({ left:Math.max(0,targetLeft), top:Math.max(0,targetTop), behavior:"smooth" });
+  },[selectedId, nodes.length]);
+
+  const startDrag = (e, node) => {
+    e.preventDefault();
+    drag.current = {id:node.id, sx:e.clientX, sy:e.clientY, nx:node.x, ny:node.y};
+    const move = ev => { if(!drag.current) return; const z=zoomRef.current;
+      onMoveNode(drag.current.id, Math.round(drag.current.nx + (ev.clientX-drag.current.sx)/z), Math.round(drag.current.ny + (ev.clientY-drag.current.sy)/z)); };
+    const upH = () => { drag.current=null; document.removeEventListener("mousemove",move); document.removeEventListener("mouseup",upH); };
+    document.addEventListener("mousemove",move); document.addEventListener("mouseup",upH);
+  };
+
+  // Nodes that already have a sequence child -> not the last goal, hide their Add button.
+  const seqParents = new Set(nodes.filter(n=>n.edgeFrom && n.edgeFrom.type==="seq").map(n=>n.edgeFrom.fromId));
+  // Build edges originating from each parent's anchor circle.
+  const byId = {}; nodes.forEach(n=>byId[n.id]=n);
+  const edges = [];
+  nodes.forEach(n=>{
+    if(!n.edgeFrom) return;
+    const p = byId[n.edgeFrom.fromId];
+    if(!p) return;
+    const src = (anchorPos[p.id]||{})[n.edgeFrom.key];
+    const horiz = n.edgeFrom.type!=="seq";          // right-edge ports exit sideways; 'add' exits down
+    let sx, sy;
+    if(src){ sx = p.x+src.dx; sy = p.y+src.dy; }
+    else if(n.edgeFrom.type==="seq"){ sx = p.x+CN_W/2; sy = p.y+150; }   // fallback before measurement
+    else return;                                     // choice/transition anchor not measured yet
+    const tx = n.x + CN_W/2, ty = n.y;
+    let d;
+    if(horiz){ d = `M ${sx} ${sy} C ${sx+50} ${sy}, ${tx} ${ty-55}, ${tx} ${ty}`; }
+    else { const dy=Math.max(40,(ty-sy)/2); d = `M ${sx} ${sy} C ${sx} ${sy+dy}, ${tx} ${ty-dy}, ${tx} ${ty}`; }
+    edges.push({ id:n.id, type:n.edgeFrom.type, d, sx, sy });
+  });
+
+  return (
+    <div className="canvas" ref={canvasRef}
+      onMouseDown={e=>{ if(e.target.classList.contains("canvas")||e.target.classList.contains("canvas-stage")||e.target.classList.contains("canvas-sizer")) onSelect(null); }}>
+      <div className="canvas-sizer" style={{width:STAGE_W*zoom, height:STAGE_H*zoom}}>
+        <div className="canvas-stage" style={{transform:`scale(${zoom})`}}>
+          <svg className="edges">
+            {edges.map(e=><path key={e.id} className={"edge "+e.type} d={e.d} />)}
+          </svg>
+          {nodes.map(n=> n.kind==="group" ? (
+            <GroupNode key={n.id} group={n} selectedId={selectedId} onSelect={onSelect} onStartDrag={startDrag}
+              onAddChild={onAddChild} onSetMinimized={onSetMinimized} />
+          ) : (
+            <CanvasNode key={n.id} node={n} selected={selectedId===n.id} hasSeqChild={seqParents.has(n.id)} zoom={zoom}
+              selectedId={selectedId} onSelectId={onSelect} onAddChild={onAddChild}
+              onSelect={()=>onSelect(n.id)} onStartDrag={startDrag} onAnchor={onAnchor} reportGeom={reportGeom} />
+          ))}
+        </div>
+      </div>
+      <div className="zoombar">
+        <button title="Zoom out" onClick={()=>zoomBy(1/1.2)}>−</button>
+        <span className="zval" title="Reset to 100%" onClick={resetZoom}>{Math.round(zoom*100)}%</span>
+        <button title="Zoom in" onClick={()=>zoomBy(1.2)}>+</button>
+      </div>
+    </div>
+  );
+}
+
+/* ============================= JSON DRAWER ============================= */
+function JsonDrawer({node, allNodes, onClose}){
+  const [scope,setScope]=useState("goal");
+  const ctx = buildSerializeCtx(allNodes);
+  const data = scope==="goal"
+    ? (node ? serializeAny(node, ctx) : {})
+    : { goals: allNodes.filter(n=>!n.choiceOf).map(n=>serializeAny(n, ctx)) };  // choice-groups nest under their choice
+  const [copied,setCopied]=useState(false);
+  const copy=()=>{ navigator.clipboard?.writeText(JSON.stringify(data,null,2)); setCopied(true); setTimeout(()=>setCopied(false),1200); };
+  return (
+    <div className="drawer">
+      <div className="drawer-head">
+        <span style={{color:"#82aaff"}}>{Icon.collect}</span>
+        <div style={{flex:1}}>
+          <div className="dt">Live JSON</div>
+          <div className="gname">{scope==="goal" ? (node?.name||"untitled goal") : `${allNodes.length} goals`}</div>
+        </div>
+        <button className="drawer-btn" onClick={copy}>{copied?Icon.check:Icon.collect} {copied?"Copied":"Copy"}</button>
+        <button className="drawer-btn" onClick={onClose}>{Icon.x}</button>
+      </div>
+      <div className="drawer-tabs">
+        <button className={"drawer-tab"+(scope==="goal"?" on":"")} onClick={()=>setScope("goal")}>Selected goal</button>
+        <button className={"drawer-tab"+(scope==="all"?" on":"")} onClick={()=>setScope("all")}>Full script</button>
+      </div>
+      <pre dangerouslySetInnerHTML={{__html:highlightJson(data)}} />
+    </div>
+  );
+}
+
+/* ============================= GROUP EDITOR (right panel) ============================= */
+function GroupEditor({node, onChange, onDelete, onAddChild, onSelect}){
+  const up = patch => onChange({...node, ...patch});
+  const upTrig = patch => up({triggers:{...node.triggers, ...patch}});
+  const [addingTool,setAddingTool]=useState(false);
+  const [openSub,setOpenSub]=useState(true);
+  const [openTools,setOpenTools]=useState(true);
+  const [openTrig,setOpenTrig]=useState(true);
+  const fulfillment = node.tools.filter(t=>t.kind==="timing");
+  const llm = node.tools.filter(t=>t.kind==="llm");
+  return (
+    <div className="node-editor">
+      <div className="node-head">
+        <div className="node-head-row">
+          <div className="typetog">
+            <button data-t="say" title='convert to a say goal' onClick={()=>onChange(convertNode(node,"say"))}>{Icon.say} Say</button>
+            <button data-t="ask" title='convert to an ask goal' onClick={()=>onChange(convertNode(node,"ask"))}>{Icon.ask} Ask</button>
+            <button data-t="group" className="on" title='"goal_type":"group"'>{Icon.folder} Group</button>
+          </div>
+          <div style={{flex:1}}/>
+          <Menu trigger={<button className="btn icon ghost">{Icon.dots}</button>}>
+            {close=>(<>
+              <div className="menu-sec">Add</div>
+              <MItem icon={Icon.cond} label={node.condition!==null?"Edit condition":"Add condition"}
+                tip='"conditions": "..."' onClick={()=>{ up({condition:node.condition??""}); close(); }} />
+              <MItem icon={Icon.bolt} label="Triggers" toggle={node.triggers.enabled}
+                tip='"triggers": ["..."], "negative_triggers": ["..."]' onClick={()=>upTrig({enabled:!node.triggers.enabled})} />
+              <div className="hr" style={{margin:"6px 4px"}}/>
+              <MItem icon={Icon.trash} label="Delete group" danger onClick={()=>{ onDelete(); close(); }} />
+            </>)}
+          </Menu>
+        </div>
+        <div className="name-row"><input className="name-in" title='"name":"<group name>"' placeholder="Group name…" value={node.name} onChange={e=>up({name:e.target.value})} /></div>
+        <div className="badges" style={{marginTop:10}}>
+          <span className="badge accent">{Icon.folder} group container</span>
+          {node.triggers.enabled && <span className="badge" style={{background:"var(--say-soft)",color:"var(--say)",borderColor:"transparent"}}>{Icon.bolt} triggers</span>}
+        </div>
+        {node.condition!==null && (
+          <div className="cond-pill">{Icon.cond}
+            <input title='"conditions":"..."' value={node.condition} placeholder="group condition  e.g.  stage = qualified"
+              onChange={e=>up({condition:e.target.value})} />
+            <span className="x" onClick={()=>up({condition:null})}>{Icon.x}</span>
+          </div>
+        )}
+      </div>
+      {node.triggers.enabled && (
+        <Section icon={Icon.bolt} color="#2e8af6" title="Triggers" open={openTrig} onToggle={()=>setOpenTrig(o=>!o)}>
+          <Field label="Positive triggers" desc="User intents that activate this group reactively."
+            json={`"triggers": [${node.triggers.positive.map(t=>JSON.stringify(t)).join(", ")}]`}>
+            <ChipInput items={node.triggers.positive} onChange={t=>upTrig({positive:t})} placeholder="user intent…" />
+          </Field>
+          <Field label="Negative triggers" style={{marginBottom:0}}
+            desc="User intents that should NOT activate this group."
+            json={`"negative_triggers": [${node.triggers.negative.map(t=>JSON.stringify(t)).join(", ")}]`}>
+            <ChipInput items={node.triggers.negative} onChange={t=>upTrig({negative:t})} placeholder="user intent to exclude…" />
+          </Field>
+        </Section>
+      )}
+      <Section icon={Icon.folder} color="#5b5bf6" title="Sub-goals" count={node.children.length}
+        open={openSub} onToggle={()=>setOpenSub(o=>!o)}>
+        {node.children.length===0 && <div className="empty" style={{paddingBottom:10}}>No sub-goals yet.</div>}
+        {node.children.map(c=>(
+          <div key={c.id} className="msg" style={{cursor:"pointer",display:"flex",alignItems:"center",gap:8,padding:"9px 11px"}} onClick={()=>onSelect(c.id)}>
+            <span className={"cn-ic "+(c.type||"say")} style={{width:22,height:22}}>{c.type==="ask"?Icon.ask:Icon.say}</span>
+            <span style={{flex:1,fontWeight:600,fontSize:13}}>{c.name||"Untitled goal"}</span>
+            <span style={{color:"var(--muted)"}}>{Icon.chev}</span>
+          </div>
+        ))}
+        <button className="add-row" onClick={()=>onAddChild(node.id)}>{Icon.plus} Add sub-goal</button>
+      </Section>
+      <Section icon={Icon.tools} color="#1fae62" title="Fulfillment" count={node.tools.length}
+        open={openTools} onToggle={()=>setOpenTools(o=>!o)}>
+        {node.tools.length===0 && <div className="empty" style={{paddingBottom:12}}>No fulfillment actions yet.</div>}
+        {fulfillment.length>0 && <div className="tool-group-label">{Icon.clock} Fulfillment actions</div>}
+        {fulfillment.map(t=><ToolCard key={t.id} tool={t} onDelete={()=>up({tools:node.tools.filter(x=>x.id!==t.id)})} />)}
+        {llm.length>0 && <div className="tool-group-label">{Icon.bolt} LLM tools</div>}
+        {llm.map(t=><ToolCard key={t.id} tool={t} onDelete={()=>up({tools:node.tools.filter(x=>x.id!==t.id)})} />)}
+        <button className="add-row" onClick={()=>setAddingTool(true)}>{Icon.plus} Add tool</button>
+      </Section>
+      {addingTool && <AddToolModal goalNames={[]} onClose={()=>setAddingTool(false)}
+        onAdd={t=>up({tools:[...node.tools,{...t,id:uid()}]})} />}
+    </div>
+  );
+}
+
+/* ============================= PRESETS ============================= */
+const seqFrom    = p => ({fromId:p.id, key:"seq", type:"seq", label:"add"});
+const mkMsg      = (text, opts={}) => ({...newMessage(), text, ...opts});
+const mkTrans    = (over={}) => ({...newTransition(), ...over});
+const mkTool     = (over={}) => ({...over, id:uid()});
+function mkNode(over={}){
+  const base = newNode(over.type||"say");
+  const {value, adv, triggers, objection, refusal, ...rest} = over;
+  const mergedValue = {...base.value, ...(value||{})};
+  // don't carry the default yes/no choices onto value types where they make no sense
+  if(value && value.type && !["approval","selection"].includes(value.type) && !value.choices) mergedValue.choices = [];
+  return {...base, ...rest,
+    value:mergedValue,
+    adv:{...base.adv, ...(adv||{})},
+    triggers:{...base.triggers, ...(triggers||{})},
+    objection:{...base.objection, ...(objection||{})},
+    refusal:{...base.refusal, ...(refusal||{})}};
+}
+
+function presetInsurance(){
+  const g1 = mkNode({type:"ask", name:"good time to talk", x:90, y:70,
+    messages:[mkMsg("Hi {contact_name}, this is {%agent_name%} from {%company_name%} on a recorded line. Is now a good time to talk?")],
+    value:{type:"approval", choices:[newChoice("yes"), newChoice("no")]},
+    objection:{enabled:true, attempts:2, condition:"good time to talk = no", messages:[mkMsg("It'll only take a minute of your time.")]}});
+  const g2 = mkNode({type:"ask", name:"looking for insurance", x:90, y:380, edgeFrom:seqFrom(g1),
+    messages:[mkMsg("Are you interested in insuring your property?")],
+    value:{type:"approval", choices:[newChoice("yes"), Object.assign(newChoice("no"),{ack:"I understand."})]},
+    refusal:{enabled:true, items:["I'd like to confirm you're interested before we continue."]}});
+  g2.transitions = [mkTrans({name:"not interested", target:"hang up", prompt:"user clearly states they are not interested at all"})];
+  const g3 = mkNode({type:"ask", name:"number of employees", x:90, y:690, edgeFrom:seqFrom(g2),
+    messages:[mkMsg("Roughly how many employees does your business have?")],
+    value:{type:"number", range:true, rangeMin:"1", rangeMax:"5000"},
+    condition:"looking for insurance = yes"});
+  const g4 = mkNode({type:"say", name:"wrap up", x:90, y:920, edgeFrom:seqFrom(g3),
+    messages:[mkMsg("Great — a licensed agent will reach out shortly with your quote. Thanks for your time!", {forced:true})],
+    tools:[mkTool({kind:"timing", timing:"completed", actions:[{type:"call_result", call_result:"converted"},
+      {type:"webhook", url:"https://crm.example.com/leads/{chat_id}"}]})]});
+  return [g1,g2,g3,g4];
+}
+
+function presetSupport(){
+  const g1 = mkNode({type:"say", name:"troubleshoot issue", x:90, y:70,
+    messages:[mkMsg("Help the user diagnose and resolve their connectivity issue step by step. Ask clarifying questions and suggest concrete fixes one at a time.", {mode:"prompt"})],
+    adv:{repeat:true},
+    triggers:{enabled:true, positive:["my internet is down","I can't connect","it's not working"], negative:["billing question"]},
+    objection:{enabled:true, attempts:3, condition:"", messages:[mkMsg("I know it's frustrating — let's try one more thing.")]}});
+  const g2 = mkNode({type:"say", name:"close ticket", x:430, y:430, edgeFrom:{fromId:g1.id, key:"trans:placeholder", type:"trans", label:"resolved"},
+    messages:[mkMsg("Glad that worked! I'll close out this ticket. Have a great day.")],
+    tools:[mkTool({kind:"timing", timing:"completed", actions:[{type:"call_result", call_result:"qualified"}]})]});
+  const tr1 = mkTrans({name:"resolved", target:"close ticket", prompt:"user confirms the issue is fixed"});
+  const tr2 = mkTrans({name:"needs human", target:"transfer to customer", prompt:"user asks for a human, or the issue cannot be resolved",
+    properties:[{name:"reason", type:"string", description:"why the user needs a human agent"}]});
+  g1.transitions = [tr1, tr2];
+  g2.edgeFrom = {fromId:g1.id, key:"trans:"+tr1.id, type:"trans", label:"resolved"};
+  return [g1,g2];
+}
+
+function presetBooking(){
+  const g1 = mkNode({type:"ask", name:"contact_email", x:90, y:70,
+    messages:[mkMsg("What's the best email to send your confirmation to?")],
+    value:{type:"email"}});
+  const g2 = mkNode({type:"ask", name:"preferred time", x:90, y:300, edgeFrom:seqFrom(g1),
+    messages:[mkMsg("What time of day works best — morning, afternoon, or evening?")],
+    value:{type:"selection", choices:[newChoice("morning"), newChoice("afternoon"), newChoice("evening")]}});
+  const g3 = mkNode({type:"say", name:"confirm booking", x:90, y:600, edgeFrom:seqFrom(g2),
+    messages:[mkMsg("Perfect — you're booked for the {preferred time}. A confirmation is on its way to {contact_email}!")],
+    tools:[mkTool({kind:"llm", tool_name:"create_booking", description:"Create the calendar booking for the selected time slot and email.",
+      properties:[
+        {name:"slot", type:"string", description:"the selected time of day (morning/afternoon/evening)"},
+        {name:"email", type:"string", description:"the contact's confirmation email"},
+        {name:"send_sms", type:"boolean", description:"whether to also send an SMS reminder"}],
+      actions:[{type:"text_message", message:"Your appointment is confirmed for {preferred time}."}]})]});
+  return [g1,g2,g3];
+}
+
+const PRESETS = [
+  {name:"Insurance lead qualification", desc:"Outbound voice — qualify & convert", build:presetInsurance},
+  {name:"Support troubleshooting",      desc:"Generative behavior, triggers & objections", build:presetSupport},
+  {name:"Appointment booking",          desc:"Collect email, pick a time, confirm", build:presetBooking},
+  {name:"Blank canvas",                 desc:"Start from a single empty goal", build:()=>[{...newNode("say"), x:90, y:90}]},
+];
+
+/* ============================= APP ============================= */
+function App(){
+  const [nodes,setNodes]=useState(()=>[{...newNode("say"), x:90, y:90}]);
+  const [sel,setSel]=useState(nodes[0].id);
+  const [tab,setTab]=useState("edit");   // right-panel tab: edit | json
+  const allNames = allNodeNames(nodes);
+  const selNode = findNodeTree(nodes, sel);
+
+  const updateNode = (id,nn)=>setNodes(ns=>mapNodeTree(ns, id, ()=>nn));
+  const moveNode = (id,x,y)=>setNodes(ns=>mapNodeTree(ns, id, n=>({...n,x,y})));
+  const delNode = id=>{ setNodes(ns=>removeNodeTree(ns, id)); if(sel===id) setSel(null); };
+
+  const addGoal = ()=>{
+    const maxX = Math.max(0, ...nodes.map(n=>n.x));
+    const n = {...newNode("say"), x:maxX+CN_W+90, y:90};
+    setNodes(ns=>[...ns,n]); setSel(n.id); setTab("edit");
+  };
+  const addGroup = ()=>{
+    const maxX = Math.max(0, ...nodes.map(n=>n.x));
+    const g = {...newGroup(), minimized:false, x:maxX+CN_W+90, y:90};
+    setNodes(ns=>[...ns,g]); setSel(g.id); setTab("edit");
+  };
+  // Add a node connected from one of a node's anchors (sequence 'add' / choice / transition).
+  const addFrom = (parent, anchor)=>{
+    // a choice anchor adds the new goal *inside* that choice (a choice-group container)
+    if(anchor.type==="choice"){
+      const choiceId = anchor.key.slice("choice:".length);
+      const existing = nodes.find(n=>n.kind==="group" && n.choiceOf && n.choiceOf.parentId===parent.id && n.choiceOf.choiceId===choiceId);
+      const child = newNode("say");
+      if(existing){
+        setNodes(ns=>mapNodeTree(ns, existing.id, g=>({...g, children:[...g.children, child]})));
+      }else{
+        const peers = nodes.filter(n=>n.choiceOf && n.choiceOf.parentId===parent.id).length;
+        const grp = {...newGroup(), minimized:false, name:anchor.label,
+          choiceOf:{parentId:parent.id, choiceId},
+          x: parent.x + CN_W + 120, y: parent.y + peers*210,
+          edgeFrom:{fromId:parent.id, key:anchor.key, type:"choice", label:anchor.label},
+          children:[child]};
+        setNodes(ns=>[...ns, grp]);
+      }
+      setSel(child.id); setTab("edit");
+      return;
+    }
+    const children = nodes.filter(n=>n.edgeFrom && n.edgeFrom.fromId===parent.id);
+    const n = {...newNode("say"),
+      x: parent.x + (anchor.type==="seq" ? 0 : CN_W + 120),
+      y: parent.y + 250 + children.length*42,
+      edgeFrom:{fromId:parent.id, key:anchor.key, type:anchor.type, label:anchor.label}};
+    setNodes(ns=>[...ns,n]); setSel(n.id); setTab("edit");
+  };
+  // Add a child goal inside a group container.
+  const addChild = (groupId)=>{
+    const child = newNode("say");
+    setNodes(ns=>mapNodeTree(ns, groupId, g=>({...g, children:[...g.children, child]})));
+    setSel(child.id); setTab("edit");
+  };
+  const setMinimized = (id, val)=>setNodes(ns=>mapNodeTree(ns, id, g=>({...g, minimized:val})));
+
+  const loadPreset = (p)=>{ const ns=p.build(); setNodes(ns); setSel(ns[0].id); setTab("edit"); };
+
+  return (
+    <div className="app">
+      <div className="topbar">
+        <div className="brand">
+          <span className="logo">{Icon.bolt}</span>
+          <div>AI Script Flow <small>· node config mock</small></div>
+        </div>
+        <div className="spacer"/>
+        <Menu align="right" minW={260} trigger={<button className="btn">{Icon.star} Presets {Icon.caret}</button>}>
+          {close=>(<>
+            <div className="menu-sec">Load a sample script</div>
+            {PRESETS.map(p=>(
+              <MItem key={p.name} icon={Icon.bolt}
+                label={<span><span style={{display:"block",fontWeight:600}}>{p.name}</span><span style={{display:"block",fontSize:11,color:"var(--muted)",fontWeight:500}}>{p.desc}</span></span>}
+                onClick={()=>{ loadPreset(p); close(); }} />
+            ))}
+          </>)}
+        </Menu>
+        <button className="btn" onClick={addGroup}>{Icon.folder} Add group</button>
+        <button className="btn primary" onClick={addGoal}>{Icon.plus} Add goal</button>
+      </div>
+      <div className="workspace">
+        <Canvas nodes={nodes} selectedId={sel} onSelect={setSel} onMoveNode={moveNode} onAnchor={addFrom}
+          onAddChild={addChild} onSetMinimized={setMinimized} />
+        <div className="panel">
+          <div className="panel-tabs">
+            <button className={"panel-tab"+(tab==="edit"?" on":"")} onClick={()=>setTab("edit")}>Configure</button>
+            <button className={"panel-tab"+(tab==="json"?" on":"")} onClick={()=>setTab("json")}>{Icon.collect} JSON</button>
+            <div style={{flex:1}}/>
+            {selNode && <button className="btn icon ghost" title="Delete" onClick={()=>delNode(selNode.id)}>{Icon.trash}</button>}
+          </div>
+          <div className="panel-body">
+            {!selNode ? (
+              <div className="panel-empty">Select a node on the canvas to configure it,<br/>or use the anchors below a node to branch out.</div>
+            ) : tab==="json" ? (
+              <JsonDrawer node={selNode} allNodes={nodes} onClose={()=>setTab("edit")} />
+            ) : selNode.kind==="group" ? (
+              <GroupEditor key={selNode.id} node={selNode}
+                onChange={nn=>updateNode(selNode.id,nn)} onDelete={()=>delNode(selNode.id)}
+                onAddChild={addChild} onSelect={setSel} />
+            ) : (
+              <NodeEditor key={selNode.id} node={selNode} allGoalNames={allNames}
+                onChange={nn=>updateNode(selNode.id,nn)} onDelete={()=>delNode(selNode.id)}
+                onAddChild={addChild} onSelect={setSel} />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
