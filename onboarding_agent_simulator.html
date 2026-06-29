@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise AI Voice Onboarding Agent Simulator</title>
+    <!-- Tailwind CSS for high fidelity standalone UI execution -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-icons/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER BAR -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 p-2 rounded-lg text-white font-bold text-xl tracking-wider">V</div>
+            <div>
+                <h1 class="text-md font-semibold text-slate-100">VoiceAI Agent System</h1>
+                <p class="text-xs text-slate-400">Teammate Presentation & Architecture Validation Simulator</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs font-mono text-slate-300">SYSTEM: SIMULATOR_ACTIVE</span>
+        </div>
+    </header>
+
+    <!-- CORE INTERFACE DIVISION -->
+    <div class="flex flex-1 overflow-hidden w-full">
+        
+        <!-- SIDEBAR PANEL: PARAMETERS & INITIALIZATION -->
+        <aside class="w-96 bg-slate-900 border-r border-slate-800 p-5 flex flex-col justify-between overflow-y-auto shrink-0">
+            <div class="space-y-6">
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">1. Simulator Ingestion Control</h2>
+                    <p class="text-xs text-slate-400">Configure parameters before starting the conversation to test the agent's parsing logic.</p>
+                </div>
+
+                <!-- SETUP FORM inputs -->
+                <div class="space-y-4" id="setup-form-container">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Company Name</label>
+                        <input type="text" id="param-company" value="SolarFlow Inc." class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Name of Agent Being Built</label>
+                        <input type="text" id="param-agent-name" value="Solar Closing Assistant" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Target Corporate Website</label>
+                        <input type="text" id="param-website" value="https://www.solarflowpanels.com" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Paste Playbook / Knowledge Source Snippet (Optional)</label>
+                        <textarea id="param-playbook" rows="4" placeholder="Paste text here to simulate an uploaded file asset (e.g., policy constraints, pricing structures)..." class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">Enterprise Playbook Extractions:
+- Policy: Minimum monthly electric bill required for quote is $150.
+- Competitor Defense: If client mentions lower rates from competitors, pivot instantly to our unlimited timeframe operational insurance policy.</textarea>
+                    </div>
+
+                    <button id="btn-initialize-system" onclick="initializeSimulation()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-2.5 px-4 rounded transition-all cursor-pointer shadow-lg shadow-blue-900/20 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play text-xs"></i>
+                        <span>Ingest & Initialize Agent</span>
+                    </button>
+                </div>
+
+                <!-- STATE VIEW TRACKER CONTAINER -->
+                <div id="state-tracker-container" class="hidden space-y-4">
+                    <div class="bg-slate-950 rounded-lg p-3.5 border border-slate-800">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wide mb-2 flex items-center justify-between">
+                            <span>Global Requirement Matrix</span>
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400" id="matrix-progress">0/10</span>
+                        </h3>
+                        
+                        <!-- LIST OF NODES TRACKER -->
+                        <div class="space-y-1.5 font-mono text-[11px]" id="requirement-nodes-list">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 rounded-lg p-3 border border-slate-800/80 space-y-1.5 text-xs">
+                        <div class="text-slate-400 font-medium text-[11px] uppercase tracking-wider">Active State Extraction:</div>
+                        <div class="text-slate-300"><strong class="text-slate-400">Target Co:</strong> <span id="lbl-state-company">-</span></div>
+                        <div class="text-slate-300"><strong class="text-slate-400">System Goal:</strong> <span id="lbl-state-goal">Analyzing...</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESET PANEL BUTTON -->
+            <div id="reset-container" class="hidden border-t border-slate-800 pt-4">
+                <button onclick="resetSimulation()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs py-2 rounded transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>Reset Matrix & Forms</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CHAT & CONVERSATIONAL INTERACTIVE WORKSPACE -->
+        <main class="flex-1 bg-slate-950 flex flex-col justify-between overflow-hidden relative">
+            
+            <!-- OVERLAY SPLASH PANEL BEFORE INITIALIZATION -->
+            <div id="splash-overlay" class="absolute inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-300">
+                <div class="bg-blue-600/10 border border-blue-500/20 text-blue-400 p-4 rounded-full mb-4 animate-bounce">
+                    <i class="fa-solid fa-robot text-4xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white mb-2">Voice Configuration Onboarding Simulator</h2>
+                <p class="text-slate-400 max-w-md text-sm mb-6">
+                    Fill out the parameters schema on the left menu (representing registration and uploaded asset metrics), then click Ingest to start the live dialogue flow mock.
+                </p>
+                <button onclick="initializeSimulation()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2.5 px-6 rounded transition-all cursor-pointer shadow-lg shadow-blue-900/40">
+                    Use Preloaded Parameters
+                </button>
+            </div>
+
+            <!-- SIMULATOR EXECUTION MESSAGES LOG -->
+            <div id="chat-messages-box" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Tool parsing alert -->
+                <div id="tool-alert" class="hidden bg-slate-900 border border-blue-500/30 rounded-xl p-4 animate-pulse">
+                    <div class="flex space-x-3">
+                        <div class="text-blue-400 mt-0.5"><i class="fa-solid fa-magnifying-glass-chart text-lg"></i></div>
+                        <div class="space-y-1 w-full">
+                            <div class="text-sm font-semibold text-blue-400 flex justify-between items-center">
+                                <span>Background Tooling Core Running...</span>
+                                <span class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded">STATUS: EXECUTING</span>
+                            </div>
+                            <p class="text-xs text-slate-300" id="tool-alert-text">Simulating web crawling over website database logs and text parsing over playbook structures...</p>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
+                                <div class="bg-blue-500 h-1.5 rounded-full w-0 transition-all duration-1000" id="tool-progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Chat Stream Nodes injection location -->
+                <div id="interactive-chat-nodes" class="space-y-6"></div>
+            </div>
+
+            <!-- CHAT INTERACTIVE SELECTION BAR (INPUT REPLACEMENT) -->
+            <div id="chat-input-controls" class="bg-slate-900 border-t border-slate-800 p-5 space-y-4 shrink-0 hidden">
+                
+                <!-- SMART SUGGESTED OPTION PICKERS -->
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400 block mb-2">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Predictive Recommended Answers (Dynamic Contextual Matrix):
+                    </span>
+                    <div id="suggested-buttons-row" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                        <!-- Filled via javascript updates -->
+                    </div>
+                </div>
+
+                <!-- MANUAL OVERRIDE TEXT BAR -->
+                <div class="flex items-center space-x-3 pt-2 border-t border-slate-800/60">
+                    <input type="text" id="manual-user-input" placeholder="Type custom programmatic instruction or test input response..." class="flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-blue-500" onkeydown="if(event.key === 'Enter') submitManualText()">
+                    <button onclick="submitManualText()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-1.5 cursor-pointer">
+                        <span>Send</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MAIN JAVASCRIPT ARCHITECTURE ENGINE -->
+    <script>
+        // Data Structures for the Dynamic Configuration Simulation Matrix
+        const REQUIREMENT_MATRIX = [
+            { id: "objective", name: "Primary Objective", status: "PENDING" },
+            { id: "context", name: "Industry & Role Context", status: "PENDING" },
+            { id: "direction", name: "Inbound vs. Outbound", status: "PENDING" },
+            { id: "qualification", name: "Qualification Fields", status: "PENDING" },
+            { id: "routing", name: "Routing Signals", status: "PENDING" },
+            { id: "conditional", name: "Conditional Action Hook", status: "PENDING" },
+            { id: "objection", name: "Objection Handling", status: "PENDING" },
+            { id: "knowledge", name: "Knowledge Base / FAQs", status: "PENDING" },
+            { id: "handoff", name: "Handoff Payload", status: "PENDING" },
+            { id: "guardrails", name: "Guardrails & Follow-up", status: "PENDING" }
+        ];
+
+        let activeStepIndex = 0;
+        let sessionData = {
+            company: "",
+            agentName: "",
+            website: "",
+            hasPlaybook: false,
+            playbookContent: "",
+            collectedParams: {}
+        };
+
+        // Dialog Blueprint Matrix representing dynamic AI behavior models
+        const DIALOGUE_TREE = [
+            {
+                stepId: "objective",
+                nodeCheck: "objective",
+                question: "Welcome! Let's build your voice agent automation matrix. Looking across your target company infrastructure, what is the primary goal of this voice system?",
+                suggestions: [
+                    "Instantly call inbound website form leads to qualify and book meetings into calendar slots.",
+                    "Cold outbound calling targeting clean database listings to capture prospective real estate interest.",
+                    "Automated proactive outbound notifications regarding late invoice collections with direct routing capabilities."
+                ],
+                updateState: (input, data) => {
+                    data.collectedParams.objective = input;
+                    // Automatically infer inbound vs outbound based on selection structure
+                    if(input.toLowerCase().includes("inbound")) {
+                        REQUIREMENT_MATRIX.find(n => n.id === "direction").status = "AUTO-SOLVED";
+                        data.collectedParams.direction = "Inbound";
+                    } else {
+                        REQUIREMENT_MATRIX.find(n => n.id === "direction").status = "AUTO-SOLVED";
+                        data.collectedParams.direction = "Outbound";
+                    }
+                }
+            },
+            {
+                stepId: "qualification",
+                nodeCheck: "qualification",
+                question: "Excellent selection. Let's calibrate your System Qualification Matrix. To parse fields properly, what are the primary verification checkpoints your voice agent must capture from callers?",
+                suggestions: [
+                    "Confirm caller is explicit property homeowner and validates utility billing thresholds cross $150 threshold.",
+                    "Verify corporate executive title authority and ensure immediate target launch timeline is under 90 days.",
+                    "Validate account security digits, confirm active physical residential installation address, and check identification status."
+                ],
+                updateState: (input, data) => {
+                    data.collectedParams.qualification = input;
+                }
+            },
+            {
+                stepId: "routing",
+                nodeCheck: "routing",
+                question: "Dynamic parameters mapped. Now let's establish your Routing Triggers. Based on the responses collected above, what specific threshold rules dictate an active human call-routing action versus a soft automation end?",
+                suggestions: [
+                    "If caller passes $150 bill verification threshold and agrees to cost structure, run an immediate Live SIP Transfer to our sales floor.",
+                    "If caller confirms authority but budget bounds fail to match, drop CRM data tagging logs and push calendar links via outbox SMS pipelines.",
+                    "If client profile parameters fail basic compliance checks, elegantly execute script exit routines without tying up phone trunking paths."
+                ],
+                updateState: (input, data) => {
+                    data.collectedParams.routing = input;
+                }
+            },
+            {
+                stepId: "objection",
+                nodeCheck: "objection",
+                question: "Understood. The state analyzer has processed your uploaded parameters. It detected pre-configured guidelines regarding pricing objection and competitor handling strategies. Would you like to lock this setup in or add layered rules?",
+                suggestions: [
+                    "Confirm pre-loaded rules: Execute Value Pivot first, drop into Utility Bill Comparison on secondary friction, and deploy Industry Authority on competitor mentions.",
+                    "Append layered constraints: If prospect demonstrates hard rejection, pivot immediately into automated follow-up calendar request protocol.",
+                    "Override configuration: Disregard playbook data structures and let's craft custom raw script dialogue instructions from scratch."
+                ],
+                updateState: (input, data) => {
+                    data.collectedParams.objection = "Tiered Response (Value Pivot -> Savings Matching) + Authority Insurance Anchor.";
+                    REQUIREMENT_MATRIX.find(n => n.id === "knowledge").status = "AUTO-SOLVED";
+                    data.collectedParams.knowledge = "Parsed out of active company asset playbook upload logs.";
+                }
+            },
+            {
+                stepId: "handoff",
+                nodeCheck: "handoff",
+                question: "Perfect, mapping this out. Let's configure the Handoff Payload. At the precise moment the voice agent bridges a verified caller to your live human reps, what system payload summary must the human receive or hear?",
+                suggestions: [
+                    "Transmit full data payload bundle via API webhook (Name, Verified Homeowner flag, and Electric Bill threshold confirmation status).",
+                    "Deliver an automated audio whisper-tone stating: 'Live transfer from Inbound Widget: Prospect pre-qualified and ready for proposal routing.'",
+                    "Do not trigger advanced webhooks; simply clear line paths and sync CRM data parameters directly into standard lead fields asynchronously."
+                ],
+                updateState: (input, data) => {
+                    data.collectedParams.handoff = input;
+                    // Auto-solve remaining low-priority structures to simulate flow wrap-up
+                    REQUIREMENT_MATRIX.find(n => n.id === "conditional").status = "AUTO-SOLVED";
+                    REQUIREMENT_MATRIX.find(n => n.id === "guardrails").status = "AUTO-SOLVED";
+                    data.collectedParams.conditional = "Injected system calendar scheduling webhooks.";
+                    data.collectedParams.guardrails = "Negative parameters active: Prevent absolute pricing finality statements.";
+                }
+            }
+        ];
+
+        function renderRequirementTracker() {
+            const container = document.getElementById("requirement-nodes-list");
+            container.innerHTML = "";
+            let solvedCount = 0;
+
+            REQUIREMENT_MATRIX.forEach(node => {
+                let statusColor = "text-amber-500";
+                let icon = '<i class="fa-regular fa-circle text-[10px] mr-1.5"></i>';
+                
+                if (node.status === "COMPLETE") {
+                    statusColor = "text-emerald-400 font-semibold";
+                    icon = '<i class="fa-solid fa-circle-check text-[10px] mr-1.5 text-emerald-400"></i>';
+                    solvedCount++;
+                } else if (node.status === "AUTO-SOLVED") {
+                    statusColor = "text-blue-400 font-medium";
+                    icon = '<i class="fa-solid fa-wand-magic-sparkles text-[10px] mr-1.5 text-blue-400"></i>';
+                    solvedCount++;
+                }
+
+                container.innerHTML += `
+                    <div class="flex items-center justify-between border-b border-slate-900 pb-1">
+                        <span class="text-slate-300">${icon}${node.name}</span>
+                        <span class="${statusColor}">${node.status}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById("matrix-progress").innerText = `${solvedCount}/10 Completed`;
+        }
+
+        function initializeSimulation() {
+            // Read Ingest inputs
+            sessionData.company = document.getElementById("param-company").value || "Generic Corp";
+            sessionData.agentName = document.getElementById("param-agent-name").value || "AI Consultant Agent";
+            sessionData.website = document.getElementById("param-website").value || "None Provided";
+            sessionData.playbookContent = document.getElementById("param-playbook").value;
+            sessionData.hasPlaybook = sessionData.playbookContent.trim().length > 0;
+
+            // Update UI elements
+            document.getElementById("lbl-state-company").innerText = sessionData.company;
+            document.getElementById("lbl-state-goal").innerText = "Awaiting Primary Objective...";
+            
+            // Hide overlay, toggle side panels
+            document.getElementById("splash-overlay").classList.add("opacity-0");
+            setTimeout(() => {
+                document.getElementById("splash-overlay").classList.add("hidden");
+            }, 300);
+
+            document.getElementById("setup-form-container").classList.add("hidden");
+            document.getElementById("state-tracker-container").classList.remove("hidden");
+            document.getElementById("reset-container").classList.remove("hidden");
+            document.getElementById("chat-input-controls").classList.remove("hidden");
+
+            // Trigger simulated backgrounds parsing metrics
+            executeBackgroundScraperTools();
+        }
+
+        function executeBackgroundScraperTools() {
+            const alertBox = document.getElementById("tool-alert");
+            const progressBar = document.getElementById("tool-progress-bar");
+            alertBox.classList.remove("hidden");
+            progressBar.style.width = "0%";
+
+            let statusTexts = [
+                "Analyzing structural elements of website: " + sessionData.website + "...",
+                "Scanning document vector blocks for business logic models...",
+                "Matching compliance rules against core voice engine templates... System initialized."
+            ];
+            
+            let currentTextIdx = 0;
+            const textInterval = setInterval(() => {
+                if(currentTextIdx < statusTexts.length) {
+                    document.getElementById("tool-alert-text").innerText = statusTexts[currentTextIdx];
+                    progressBar.style.width = ((currentTextIdx + 1) * 33.3) + "%";
+                    currentTextIdx++;
+                }
+            }, 800);
+
+            setTimeout(() => {
+                clearInterval(textInterval);
+                alertBox.classList.add("hidden");
+                
+                // If there's a playbook, let's flip context context status
+                if(sessionData.hasPlaybook) {
+                    REQUIREMENT_MATRIX.find(n => n.id === "context").status = "AUTO-SOLVED";
+                }
+                
+                renderRequirementTracker();
+                launchDialogueStep(0);
+            }, 2600);
+        }
+
+        function launchDialogueStep(index) {
+            if(index >= DIALOGUE_TREE.length) {
+                compileFinalOnboardingAssets();
+                return;
+            }
+
+            activeStepIndex = index;
+            const nodeData = DIALOGUE_TREE[index];
+            
+            // Inject AI chat output
+            injectChatMessage("agent", nodeData.question);
+
+            // Populate predictive button arrays
+            const buttonRow = document.getElementById("suggested-buttons-row");
+            buttonRow.innerHTML = "";
+            
+            nodeData.suggestions.forEach((suggestedText, idx) => {
+                buttonRow.innerHTML += `
+                    <button onclick="selectSuggestedAnswer(${idx})" class="text-left bg-slate-800 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs p-3 rounded-lg transition-all shadow duration-150 active:scale-[0.98] cursor-pointer hover:border-blue-500/50">
+                        <div class="font-semibold text-blue-400 mb-0.5">Option ${String.fromCharCode(65 + idx)}</div>
+                        <div class="line-clamp-2">${suggestedText}</div>
+                    </button>
+                `;
+            });
+        }
+
+        function selectSuggestedAnswer(suggestionIndex) {
+            const activeNode = DIALOGUE_TREE[activeStepIndex];
+            const textSelected = activeNode.suggestions[suggestionIndex];
+            
+            // Render user choice message block
+            injectChatMessage("user", textSelected);
+            
+            // Process parameter logic additions
+            activeNode.updateState(textSelected, sessionData);
+            REQUIREMENT_MATRIX.find(n => n.id === activeNode.nodeCheck).status = "COMPLETE";
+            
+            // Refresh matrix panel
+            renderRequirementTracker();
+            
+            // Advance state machine loop
+            setTimeout(() => {
+                launchDialogueStep(activeStepIndex + 1);
+            }, 600);
+        }
+
+        function submitManualText() {
+            const inputField = document.getElementById("manual-user-input");
+            const rawText = inputField.value.trim();
+            if(!rawText) return;
+
+            injectChatMessage("user", rawText);
+            inputField.value = "";
+
+            const activeNode = DIALOGUE_TREE[activeStepIndex];
+            activeNode.updateState(rawText, sessionData);
+            REQUIREMENT_MATRIX.find(n => n.id === activeNode.nodeCheck).status = "COMPLETE";
+            
+            renderRequirementTracker();
+
+            setTimeout(() => {
+                launchDialogueStep(activeStepIndex + 1);
+            }, 600);
+        }
+
+        function injectChatMessage(sender, text) {
+            const box = document.getElementById("interactive-chat-nodes");
+            
+            if (sender === "agent") {
+                box.innerHTML += `
+                    <div class="flex space-x-3 max-w-3xl">
+                        <div class="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-md">AI</div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 shadow-sm">
+                            <p class="text-xs font-mono text-slate-400 mb-1">Onboarding Engine Assistant</p>
+                            <div class="text-sm text-slate-200 leading-relaxed">${text}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                box.innerHTML += `
+                    <div class="flex space-x-3 max-w-2xl ml-auto justify-end">
+                        <div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tr-none p-3.5 shadow-sm">
+                            <p class="text-xs font-mono text-slate-400 mb-1 text-right">User Response (Enterprise Client)</p>
+                            <div class="text-sm text-slate-100">${text}</div>
+                        </div>
+                        <div class="bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">USR</div>
+                    </div>
+                `;
+            }
+            
+            // Instant scroll execution hook
+            const msgBox = document.getElementById("chat-messages-box");
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+
+        function compileFinalOnboardingAssets() {
+            // Set all remaining matrices nodes to complete status
+            REQUIREMENT_MATRIX.forEach(n => { if(n.status === "PENDING") n.status = "COMPLETE"; });
+            renderRequirementTracker();
+
+            // Strip functional panel access
+            document.getElementById("chat-input-controls").innerHTML = `
+                <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-4 text-center">
+                    <div class="text-emerald-400 font-bold mb-1"><i class="fa-solid fa-circle-check mr-1"></i> Onboarding Profile Successfully Compiled</div>
+                    <p class="text-xs text-slate-400">All information system metrics mapped and synced downstream into target compiler array architecture models.</p>
+                </div>
+            `;
+
+            // Structural JSON object generation for presentation block injection
+            const mockSystemPrompt = `You are a professional voice system prompt configured for ${sessionData.company} running under identity name ${sessionData.agentName}. Core Operational Vector: ${sessionData.collectedParams.objective || 'Lead gen execution'}. Mandatory qualification script parameters to validate: ${sessionData.collectedParams.qualification || 'Standard metrics'}. Security / Routing signals rule: ${sessionData.collectedParams.routing || 'Direct transfer lines'}. Objection counter strategy profile: ${sessionData.collectedParams.objection || 'Standard model'}.`;
+            
+            const payloadStructure = {
+                compiler_metadata: {
+                    timestamp: new Date().toISOString(),
+                    system_version: "2026.4.12",
+                    target_identity: sessionData.agentName
+                },
+                global_configuration_payload: {
+                    meta_parameters: {
+                        company_context: sessionData.company,
+                        system_routing_intent: "AUTOMATED_QUALIFICATION_HOOK",
+                        channel_direction_mode: sessionData.collectedParams.direction || "Inbound"
+                    },
+                    prompt_assembly: {
+                        system_prompt_raw: mockSystemPrompt
+                    },
+                    telephony_routing_directives: {
+                        action_on_match: "SIP_WARM_TRANSFER",
+                        whisper_data_stream: sessionData.collectedParams.handoff || "Standard data fields transmission alert."
+                    }
+                }
+            };
+
+            const targetBox = document.getElementById("interactive-chat-nodes");
+            targetBox.innerHTML += `
+                <div class="space-y-6 pt-4 border-t border-slate-800">
+                    <!-- BLOCK 1: THE PROGRAMMATIC BULLET SUMMARY REQUESTED -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-xl">
+                        <h3 class="text-sm font-bold text-emerald-400 flex items-center">
+                            <i class="fa-solid fa-clipboard-list mr-2"></i> Executive Collected Profile Digest (Teammate Operational View)
+                        </h3>
+                        <ul class="space-y-2 text-xs text-slate-300 list-disc pl-5">
+                            <li><strong>Target Company / Asset Base:</strong> ${sessionData.company} (${sessionData.website})</li>
+                            <li><strong>Voice Agent Identity:</strong> Active profile running under title parameters [${sessionData.agentName}]</li>
+                            <li><strong>Primary Engagement Type:</strong> Configured for strict [${sessionData.collectedParams.direction || 'Inbound'}] interaction models.</li>
+                            <li><strong>Structural Intent:</strong> ${sessionData.collectedParams.objective}</li>
+                            <li><strong>Qualification Parameters:</strong> ${sessionData.collectedParams.qualification}</li>
+                            <li><strong>Live Routing Blueprint Constraints:</strong> ${sessionData.collectedParams.routing}</li>
+                            <li><strong>Friction / Objection Script Controls:</strong> ${sessionData.collectedParams.objection}</li>
+                            <li><strong>Agent Handoff Metric Stack:</strong> ${sessionData.collectedParams.handoff}</li>
+                        </ul>
+                    </div>
+
+                    <!-- BLOCK 2: SYSTEM PAYLOAD BLOCKS FOR CODE PIPELINE DEPLOYMENT -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2 shadow-xl">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-blue-400 flex items-center font-mono">
+                                <i class="fa-solid fa-code mr-2"></i> Structured Output Configuration Payload (JSON)
+                            </h3>
+                            <span class="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-400">COMPILER_READY</span>
+                        </div>
+                        <p class="text-xs text-slate-400">This JSON layout maps exactly to standard voice synthesis setups across modern enterprise architectures.</p>
+                        <pre class="bg-slate-950 p-3.5 rounded-lg border border-slate-800 text-[11px] font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap">${JSON.stringify(payloadStructure, null, 2)}</pre>
+                    </div>
+                </div>
+            `;
+
+            // Instant scroll execution down to compiled block
+            const msgBox = document.getElementById("chat-messages-box");
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+
+        function resetSimulation() {
+            activeStepIndex = 0;
+            sessionData = {
+                company: "",
+                agentName: "",
+                website: "",
+                hasPlaybook: false,
+                playbookContent: "",
+                collectedParams: {}
+            };
+            
+            REQUIREMENT_MATRIX.forEach(n => n.status = "PENDING");
+            
+            document.getElementById("interactive-chat-nodes").innerHTML = "";
+            document.getElementById("setup-form-container").classList.remove("hidden");
+            document.getElementById("state-tracker-container").classList.add("hidden");
+            document.getElementById("reset-container").classList.add("hidden");
+            
+            // Reinject original action layout box elements
+            document.getElementById("chat-input-controls").innerHTML = `
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400 block mb-2">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Predictive Recommended Answers (Dynamic Contextual Matrix):
+                    </span>
+                    <div id="suggested-buttons-row" class="grid grid-cols-1 md:grid-cols-2 gap-2.5"></div>
+                </div>
+                <div class="flex items-center space-x-3 pt-2 border-t border-slate-800/60">
+                    <input type="text" id="manual-user-input" placeholder="Type custom programmatic instruction or test input response..." class="flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-blue-500" onkeydown="if(event.key === 'Enter') submitManualText()">
+                    <button onclick="submitManualText()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-1.5 cursor-pointer">
+                        <span>Send</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            `;
+            document.getElementById("chat-input-controls").classList.add("hidden");
+            document.getElementById("splash-overlay").classList.remove("hidden", "opacity-0");
+        }
+    </script>
+</body>
+</html>
