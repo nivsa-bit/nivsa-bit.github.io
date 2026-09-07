@@ -490,6 +490,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
     var annualNet = annualList - discount;
 
     /* --- reflect computed values back into the inputs --- */
+    $('rateDisp').textContent = '$' + MODEL_RATE.toFixed(2);
     $('baseAuto').textContent = money(baseMo);
     $('baseTier').textContent = enterpriseTier ? 'Enterprise · custom' : tier.name;
     $('agentFee').textContent = '+' + money(agentMo) + '/mo';
@@ -552,7 +553,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
                                              : 'annual commitment, paid monthly'),
       '------------------------------------------',
       'Agents:                  ' + d.agents,
-      'Committed minutes:       ' + d.minsMo.toLocaleString('en-US') + ' /mo @ $0.022/min',
+      'Committed minutes:       ' + d.minsMo.toLocaleString('en-US') + ' /mo @ $' + MODEL_RATE.toFixed(2) + '/min',
       'Professional services:   ' + d.psHours + ' hrs/mo @ $225/hr = ' + money(d.psMo) + ' /mo',
       'Concurrency:             ' + money(d.concMo) + ' /mo',
       'Spam remediation:        ' + (d.spamMo ? 'included ($300/mo)' : 'not included'),
