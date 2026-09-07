@@ -267,7 +267,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
       <!-- platform fee -->
       <div class="card">
         <h2>Platform fee <span class="tag rec">recurring / yr</span></h2>
-        <p class="hint">The recurring core: tiered base (by minutes) + agents + minutes + concurrency + telephony + experimentation + services.</p>
+        <p class="hint">The recurring core: tiered base (by minutes) + minutes + concurrency + telephony + experimentation + services.</p>
 
         <div class="row">
           <div class="lab">Base platform fee<span class="sub">Auto-set by committed minutes <span class="tierBadge" id="baseTier">Starter</span></span></div>
@@ -275,11 +275,8 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
         </div>
 
         <div class="row">
-          <div class="lab">Number of agents<span class="sub">3 included · <span id="agentNote">+$500/mo per agent above 3</span></span></div>
-          <div class="ctrl">
-            <input type="number" id="agents" value="3" min="3" step="1" title="minimum 3 agents" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other">
-            <span class="unit" id="agentFee" style="width:auto">+$0/mo</span>
-          </div>
+          <div class="lab">Number of agents<span class="lock">included</span><span class="sub">3 agents are included in the platform fee</span></div>
+          <div class="ctrl"><span class="fixedval" id="agentsDisp">3 agents</span></div>
         </div>
 
         <div class="row">
@@ -407,8 +404,8 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
   var PS_RATE        = 225;     // $/hr — fixed
   var PS_MIN_HOURS   = 4;       // hours floor
   var PS_MIN_MO      = 900;     // dollar floor — matches the 4 hr @ $225 minimum exactly
-  var AGENTS_MIN     = 3;
-  var AGENT_ADD_MO   = 500;     // per agent above 3
+  var AGENTS_INCL    = 3;       // included in the platform fee; per-agent
+                                // pricing above 3 is removed for now
   var SPAM_MO        = 150;
   var IMPL_MIN       = 2500;
   var UPFRONT_DISC   = 0.20;    // applied to recurring only
@@ -449,7 +446,6 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
       calc();
     });
   }
-  clampOnChange('agents',  AGENTS_MIN);
   clampOnChange('psHours', PS_MIN_HOURS);
   clampOnChange('impl',    IMPL_MIN);
   clampOnChange('numCount', 0);
@@ -472,8 +468,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
     var enterpriseTier = (tier.mo === null);
     var baseMo = enterpriseTier ? 3500 : tier.mo;
 
-    var agents   = Math.max(AGENTS_MIN, num('agents'));
-    var agentMo  = Math.max(0, agents - AGENTS_MIN) * AGENT_ADD_MO;
+    var agents   = AGENTS_INCL;
 
     var minuteMo = minsMo * MODEL_RATE;
     var concMo   = $('conc').value === '-1' ? Math.max(0, num('concCustom')) : parseFloat($('conc').value);
@@ -483,7 +478,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
     var psRaw    = psHours * PS_RATE;
     var psMo     = Math.max(PS_MIN_MO, psRaw);   // $900/mo floor — safety net only
 
-    var monthly = baseMo + agentMo + minuteMo + concMo + teleMo + spamMo + EXP_MO + psMo;
+    var monthly = baseMo + minuteMo + concMo + teleMo + spamMo + EXP_MO + psMo;
     var annualList = monthly * 12;
 
     var discount = billing === 'upfront' ? annualList * UPFRONT_DISC : 0;
@@ -493,7 +488,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
     $('rateDisp').textContent = '$' + MODEL_RATE.toFixed(2);
     $('baseAuto').textContent = money(baseMo);
     $('baseTier').textContent = enterpriseTier ? 'Enterprise · custom' : tier.name;
-    $('agentFee').textContent = '+' + money(agentMo) + '/mo';
+    $('agentsDisp').textContent = agents + ' agents';
     $('spamPriceNote').textContent = money(SPAM_MO) + '/mo';
     $('spamState').textContent = spamMo ? 'On · ' + money(SPAM_MO) + '/mo' : 'Off';
     $('psFloorNote').textContent = money(psMo) + '/mo';
@@ -553,7 +548,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
       'Billing: ' + (d.billing === 'upfront' ? 'annual commitment, paid upfront (20% off recurring)'
                                              : 'annual commitment, paid monthly'),
       '------------------------------------------',
-      'Agents:                  ' + d.agents,
+      'Agents:                  ' + d.agents + ' (included)',
       'Committed minutes:       ' + d.minsMo.toLocaleString('en-US') + ' /mo @ $' + MODEL_RATE.toFixed(2) + '/min',
       'Professional services:   ' + d.psHours + ' hrs/mo @ $225/hr = ' + money(d.psMo) + ' /mo',
       'Concurrency:             ' + money(d.concMo) + ' /mo',
@@ -592,7 +587,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
     }
   }
 
-  var DEFAULTS = { mins:2000, agents:3, numCount:2, psHours:4, impl:7500, teleSetup:2500, concCustom:1500 };
+  var DEFAULTS = { mins:2000, numCount:2, psHours:4, impl:7500, teleSetup:2500, concCustom:1500 };
 
   function resetAll(){
     for(var k in DEFAULTS){ if($(k)) $(k).value = DEFAULTS[k]; }
