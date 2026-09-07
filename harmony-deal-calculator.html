@@ -110,6 +110,25 @@ select{ font-family:"Hanken Grotesk",sans-serif; text-align:left; width:auto; mi
 input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:rgba(255,255,255,.06); }
 .seg button:focus-visible,.btn:focus-visible,.chk input:focus-visible{ outline:2px solid var(--warm-2); outline-offset:2px; }
 
+/* ---------- suppress password-manager injected icons ----------
+   LastPass ignores data-lpignore on number inputs and injects a host
+   div with a CLOSED shadow root next to the field, overlaying the
+   right-aligned digits. The shadow content is unreachable, so hide
+   the host instead. It sets display/position/height/width/float
+   inline with !important — inline !important beats a stylesheet
+   !important — so key off visibility/opacity/pointer-events, which
+   it does not set. visibility inherits into the shadow tree. */
+div[data-lastpass-icon-root],
+[data-lastpass-infield],
+com-1password-button,
+[data-dashlanecreated]{
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  display:none !important;   /* wins where display is not set inline */
+  width:0 !important; height:0 !important;
+}
+
 .pre{ color:var(--text-faint); font-family:"Roboto Mono",monospace; font-size:13px; }
 .unit{ color:var(--text-faint); font-size:12.5px; width:46px; }
 .autoval{ font-family:"Roboto Mono",monospace; font-size:14px; color:var(--text); }
