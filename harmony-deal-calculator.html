@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmony — Partner Deal Calculator</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --ink:#0d0b12; --ink-2:#14111b;
+  --surface:#181420; --surface-2:#1f1a29;
+  --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
+  --text:#f4efe9; --text-dim:#a59eaf; --text-faint:#6f6878;
+  --warm:#ff8a5c; --warm-2:#ffb486;
+  --cool:#5fe3c6; --cool-2:#8ff0dd;
+  --good:#5fe3c6; --bad:#ff7a8a; --warn:#ffcf8a;
+  --r:16px;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body{
+  background:
+    radial-gradient(60vw 40vw at 100% 0%, rgba(255,138,92,.06), transparent 60%),
+    radial-gradient(60vw 40vw at 0% 100%, rgba(95,227,198,.06), transparent 60%),
+    var(--ink);
+  color:var(--text);
+  font-family:"Hanken Grotesk",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+  padding:32px 20px 64px;
+  min-height:100vh;
+}
+
+.wrap{ max-width:1080px; margin:0 auto; }
+
+/* ---------- header ---------- */
+.top{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:8px; flex-wrap:wrap; }
+.brand{ display:flex; align-items:center; gap:12px; }
+
+.eq{ display:flex; align-items:flex-end; gap:3px; height:22px; }
+.eq span{
+  width:3px; border-radius:3px;
+  background:linear-gradient(var(--cool),var(--warm));
+  animation:bnc 1.1s ease-in-out infinite;
+}
+.eq span:nth-child(1){ height:40%;  animation-delay:0s; }
+.eq span:nth-child(2){ height:90%;  animation-delay:.18s; }
+.eq span:nth-child(3){ height:60%;  animation-delay:.34s; }
+.eq span:nth-child(4){ height:100%; animation-delay:.5s; }
+.eq span:nth-child(5){ height:48%;  animation-delay:.66s; }
+
+@keyframes bnc{ 0%,100%{ transform:scaleY(.35); } 50%{ transform:scaleY(1); } }
+@media (prefers-reduced-motion:reduce){ .eq span{ animation:none; } }
+
+.wordmark{ font-family:Fraunces,serif; font-weight:500; font-size:21px; }
+.wordmark em{ font-style:italic; color:var(--warm-2); }
+
+.pill{
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--text-dim); border:1px solid var(--line);
+  padding:5px 11px; border-radius:100px;
+}
+
+h1{ font-family:Fraunces,serif; font-weight:400; font-size:30px; letter-spacing:-.01em; margin:18px 0 4px; }
+.lede{ color:var(--text-dim); font-size:15px; margin-bottom:16px; max-width:680px; }
+
+/* ---------- minimum-contract notice ---------- */
+.notice{
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  border:1px solid rgba(255,180,134,.30);
+  background:rgba(255,138,92,.07);
+  border-radius:12px; padding:12px 15px; margin-bottom:24px;
+  font-size:13.5px; color:var(--text-dim);
+}
+.notice b{ color:var(--warm-2); font-family:"Roboto Mono",monospace; font-weight:600; }
+
+/* ---------- layout ---------- */
+.cols{ display:grid; grid-template-columns:1fr 372px; gap:22px; align-items:start; }
+
+.card{
+  background:linear-gradient(180deg,var(--surface),var(--ink-2));
+  border:1px solid var(--line); border-radius:var(--r);
+  padding:22px 22px 8px; margin-bottom:18px;
+}
+.card h2{ font-size:12px; letter-spacing:.15em; text-transform:uppercase; color:var(--warm-2); margin-bottom:4px; }
+.card .hint{ color:var(--text-faint); font-size:12.5px; margin-bottom:14px; }
+
+/* ---------- rows / controls ---------- */
+.row{
+  display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;
+  padding:11px 0; border-top:1px solid var(--line-soft);
+}
+.row:first-of-type{ border-top:none; }
+.row .lab{ font-size:14.5px; }
+.row .sub{ display:block; color:var(--text-faint); font-size:12px; margin-top:2px; }
+.row .ctrl{ display:flex; align-items:center; gap:8px; justify-content:flex-end; }
+
+input[type=number],select{
+  font-family:"Roboto Mono",monospace; font-size:14px; color:var(--text);
+  background:rgba(255,255,255,.04); border:1px solid var(--line);
+  border-radius:9px; padding:9px 11px; width:118px; text-align:right;
+  transition:border-color .2s, background .2s;
+}
+select{ font-family:"Hanken Grotesk",sans-serif; text-align:left; width:auto; min-width:140px; }
+input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:rgba(255,255,255,.06); }
+.seg button:focus-visible,.btn:focus-visible,.chk input:focus-visible{ outline:2px solid var(--warm-2); outline-offset:2px; }
+
+.pre{ color:var(--text-faint); font-family:"Roboto Mono",monospace; font-size:13px; }
+.unit{ color:var(--text-faint); font-size:12.5px; width:46px; }
+.autoval{ font-family:"Roboto Mono",monospace; font-size:14px; color:var(--text); }
+
+/* locked / fixed values */
+.fixedval{
+  font-family:"Roboto Mono",monospace; font-size:14px; color:var(--text-dim);
+  background:rgba(255,255,255,.02); border:1px dashed var(--line);
+  border-radius:9px; padding:8px 11px; text-align:right;
+}
+.lock{
+  font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--text-faint); border:1px solid var(--line);
+  padding:1px 7px; border-radius:5px; margin-left:6px; white-space:nowrap;
+}
+
+.tierBadge{
+  font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--cool-2); background:rgba(95,227,198,.10);
+  border:1px solid rgba(95,227,198,.28);
+  padding:1px 7px; border-radius:5px; margin-left:6px;
+}
+
+.seg{
+  display:inline-flex; padding:3px; gap:3px; border-radius:10px;
+  background:rgba(255,255,255,.04); border:1px solid var(--line);
+}
+.seg button{
+  font-family:"Hanken Grotesk",sans-serif; font-size:13px; font-weight:600;
+  color:var(--text-dim); background:none; border:none; cursor:pointer;
+  padding:7px 13px; border-radius:8px; transition:all .2s;
+}
+.seg button.on{ background:linear-gradient(100deg,var(--warm),var(--cool)); color:#161019; }
+
+/* checkbox */
+.chk{ display:inline-flex; align-items:center; gap:9px; cursor:pointer; font-size:13px; color:var(--text-dim); }
+.chk input{ width:18px; height:18px; accent-color:var(--cool); cursor:pointer; }
+
+.tag{ font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; padding:2px 7px; border-radius:5px; margin-left:8px; vertical-align:middle; }
+.tag.rec{ color:var(--cool-2); background:rgba(95,227,198,.10); border:1px solid rgba(95,227,198,.25); }
+.tag.one{ color:var(--warm-2); background:rgba(255,138,92,.10); border:1px solid rgba(255,138,92,.25); }
+
+/* ---------- summary ---------- */
+.summary{
+  position:sticky; top:24px;
+  background:
+    radial-gradient(140% 80% at 100% 0%, rgba(255,138,92,.10), transparent 55%),
+    radial-gradient(120% 80% at 0% 100%, rgba(95,227,198,.09), transparent 55%),
+    linear-gradient(180deg,var(--surface-2),var(--ink-2));
+  border:1px solid rgba(255,180,134,.22); border-radius:20px; padding:24px;
+}
+.summary h2{ font-size:12px; letter-spacing:.15em; text-transform:uppercase; color:var(--warm-2); margin-bottom:16px; }
+
+.sline{ display:flex; justify-content:space-between; align-items:baseline; padding:9px 0; font-size:14px; gap:12px; }
+.sline .k{ color:var(--text-dim); }
+.sline .v{ font-family:"Roboto Mono",monospace; font-weight:500; }
+.sline.sub .k,.sline.sub .v{ color:var(--text-faint); font-size:13px; }
+.sline.disc .k,.sline.disc .v{ color:var(--cool-2); font-size:13px; }
+.sdiv{ height:1px; background:var(--line); margin:8px 0; }
+
+.acv{
+  margin-top:12px; padding:18px; border-radius:14px;
+  border:1px solid var(--line); background:rgba(255,255,255,.03);
+  text-align:center; transition:all .3s;
+}
+.acv .albl{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--text-dim); }
+.acv .anum{ font-family:Fraunces,serif; font-size:40px; line-height:1.05; margin:6px 0 2px; }
+.acv .anote{ font-size:12.5px; color:var(--text-faint); }
+.acv.ok{ border-color:rgba(95,227,198,.45); background:rgba(95,227,198,.07); }
+.acv.ok .anum{ color:var(--cool-2); }
+.acv.under{ border-color:rgba(255,122,138,.45); background:rgba(255,122,138,.07); }
+.acv.under .anum{ color:var(--bad); }
+
+.floor{ font-size:12.5px; margin-top:10px; padding:8px 10px; border-radius:8px; text-align:center; }
+.floor.ok{ color:var(--good); }
+.floor.under{ color:var(--bad); background:rgba(255,122,138,.08); font-weight:600; }
+
+.btns{ display:flex; gap:9px; margin-top:18px; }
+.btn{
+  flex:1; padding:11px; border-radius:10px;
+  font-family:"Hanken Grotesk",sans-serif; font-size:13.5px; font-weight:600;
+  cursor:pointer; border:1px solid var(--line);
+  background:rgba(255,255,255,.04); color:var(--text); transition:all .2s;
+}
+.btn:hover{ border-color:rgba(255,255,255,.30); background:rgba(255,255,255,.08); }
+.btn.primary{ border:none; background:linear-gradient(100deg,var(--warm),var(--cool)); color:#161019; }
+.btn:disabled{ opacity:.38; cursor:not-allowed; filter:grayscale(.7); }
+.btn:disabled:hover{ border-color:var(--line); background:rgba(255,255,255,.04); }
+
+.foot{ color:var(--text-faint); font-size:12px; margin-top:22px; text-align:center; }
+
+.toast{
+  position:fixed; bottom:26px; left:50%;
+  transform:translateX(-50%) translateY(20px); opacity:0;
+  background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+  padding:11px 18px; border-radius:10px; font-size:13.5px;
+  transition:all .3s; pointer-events:none;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+@media (max-width:880px){
+  .cols{ grid-template-columns:1fr; }
+  .summary{ position:static; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="eq"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="wordmark">Harmon<em>y</em></div>
+    </div>
+    <span class="pill">Partner · Deal Calculator</span>
+  </div>
+
+  <h1>Enterprise deal calculator</h1>
+  <p class="lede">Build a quote and see ACV/TCV in real time. Fields marked <span class="lock">fixed</span> are set by Harmony and can't be changed. Everything else is adjustable within the stated floors.</p>
+
+  <div class="notice">
+    <span>Minimum contract value <b>$20,000 / year</b></span>
+    <span style="color:var(--text-faint)">— deals below this floor are not accepted and can't be submitted.</span>
+  </div>
+
+  <div class="cols">
+    <!-- LEFT: inputs -->
+    <div>
+      <!-- deal terms -->
+      <div class="card">
+        <h2>Deal terms</h2>
+        <p class="hint">ACV = TCV ÷ contract years. One-time fees are amortized across the term.</p>
+
+        <div class="row">
+          <div class="lab">Contract length</div>
+          <div class="ctrl">
+            <div class="seg" id="termSeg">
+              <button data-y="1" class="on">1 yr</button>
+              <button data-y="2">2 yr</button>
+              <button data-y="3">3 yr</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Billing cycle<span class="sub">Annual commitment either way — upfront payment earns 20% off recurring</span></div>
+          <div class="ctrl">
+            <div class="seg" id="billSeg">
+              <button data-b="monthly" class="on">Monthly</button>
+              <button data-b="upfront">Annual upfront −20%</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- platform fee -->
+      <div class="card">
+        <h2>Platform fee <span class="tag rec">recurring / yr</span></h2>
+        <p class="hint">The recurring core: tiered base (by minutes) + agents + minutes + concurrency + telephony + experimentation + services.</p>
+
+        <div class="row">
+          <div class="lab">Base platform fee<span class="sub">Auto-set by committed minutes <span class="tierBadge" id="baseTier">Starter</span></span></div>
+          <div class="ctrl"><span class="autoval" id="baseAuto">$300</span><span class="unit">/mo</span></div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Number of agents<span class="sub">3 included · <span id="agentNote">+$500/mo per agent above 3</span></span></div>
+          <div class="ctrl">
+            <input type="number" id="agents" value="3" min="3" step="1" title="minimum 3 agents">
+            <span class="unit" id="agentFee" style="width:auto">+$0/mo</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Committed minutes<span class="sub">Per month — drives your base tier</span></div>
+          <div class="ctrl"><input type="number" id="mins" value="2000" step="500"><span class="unit">/mo</span></div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Model rate<span class="lock">fixed</span><span class="sub">Per-minute rate applied to the committed bucket</span></div>
+          <div class="ctrl"><span class="fixedval" id="rateDisp">$0.22</span><span class="unit">/min</span></div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Concurrency tier<span class="sub">Per month</span></div>
+          <div class="ctrl">
+            <select id="conc">
+              <option value="0">Included (≤25)</option>
+              <option value="500" selected>50 concurrent — $500/mo</option>
+              <option value="1000">100 concurrent — $1,000/mo</option>
+              <option value="2000">250 concurrent — $2,000/mo</option>
+              <option value="-1">Custom…</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" id="concCustomRow" style="display:none;">
+          <div class="lab">Custom concurrency fee<span class="sub">Per month</span></div>
+          <div class="ctrl"><span class="pre">$</span><input type="number" id="concCustom" value="1500" min="0" step="100"><span class="unit">/mo</span></div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Telephony — recurring<span class="sub">Numbers × $10 / number / mo <span class="lock">price fixed</span></span></div>
+          <div class="ctrl">
+            <input type="number" id="numCount" value="2" min="0" step="1" title="number of DIDs">
+            <span class="pre">×</span><span class="fixedval" id="numCostDisp">$10</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Spam remediation<span class="sub">Number reputation monitoring &amp; remediation · $300/mo</span></div>
+          <div class="ctrl">
+            <label class="chk"><input type="checkbox" id="spam"><span id="spamState">Off</span></label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Experimentation &amp; Insights<span class="lock">included</span><span class="sub">Part of the enterprise tier · dashboards are always free</span></div>
+          <div class="ctrl"><span class="fixedval">$500</span><span class="unit">/mo</span></div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Professional services<span class="sub">4 hrs / mo minimum · $225/hr <span class="lock">rate fixed</span> · <span id="psFloorNote">$900/mo</span></span></div>
+          <div class="ctrl">
+            <input type="number" id="psHours" value="4" min="4" step="1" title="hours / month — minimum 4">
+            <span class="pre">hrs ×</span><span class="fixedval" id="psRateDisp">$225</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- one-time -->
+      <div class="card">
+        <h2>One-time fees <span class="tag one">one-time</span></h2>
+        <p class="hint">Charged once at kickoff. Counted in TCV, then amortized into ACV across the term.</p>
+
+        <div class="row">
+          <div class="lab">White-glove implementation<span class="sub">Floor $2,500 · reference tiers: $7,500 standard · $15,000 complex · $30,000 enterprise</span></div>
+          <div class="ctrl"><span class="pre">$</span><input type="number" id="impl" value="7500" min="2500" step="500"></div>
+        </div>
+
+        <div class="row">
+          <div class="lab">Telephony setup<span class="sub">One-time provisioning</span></div>
+          <div class="ctrl"><span class="pre">$</span><input type="number" id="teleSetup" value="2500" min="0" step="500"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: summary -->
+    <div>
+      <div class="summary" id="summary">
+        <h2>Deal summary</h2>
+
+        <div class="sline"><span class="k">Monthly recurring</span><span class="v" id="oMonthly">$0</span></div>
+        <div class="sline sub"><span class="k">↳ Recurring telephony / mo</span><span class="v" id="oTeleMo">$0</span></div>
+        <div class="sline sub"><span class="k">↳ Professional services / mo</span><span class="v" id="oPsMo">$0</span></div>
+        <div class="sline sub"><span class="k">× 12 months</span><span class="v">×12</span></div>
+        <div class="sline"><span class="k">Yearly recurring <span style="color:var(--text-faint)" id="oListLbl"></span></span><span class="v" id="oAnnualList">$0</span></div>
+
+        <div class="sline disc" id="discRow" style="display:none;">
+          <span class="k">Annual upfront discount (20%)</span><span class="v" id="oDisc">−$0</span>
+        </div>
+        <div class="sline" id="netRow" style="display:none;">
+          <span class="k">Net yearly recurring</span><span class="v" id="oAnnualNet">$0</span>
+        </div>
+
+        <div class="sdiv"></div>
+        <div class="sline"><span class="k">One-time fees</span><span class="v" id="oOnce">$0</span></div>
+        <div class="sline"><span class="k">Year-1 total</span><span class="v" id="oYear1">$0</span></div>
+        <div class="sline"><span class="k">TCV <span style="color:var(--text-faint)" id="oTermLbl">(1 yr)</span></span><span class="v" id="oTCV">$0</span></div>
+
+        <div class="acv ok" id="acvBox">
+          <div class="albl">ACV — annualized</div>
+          <div class="anum" id="oACV">$0</div>
+          <div class="anote" id="oACVmo">≈ $0 / mo · TCV ÷ contract years</div>
+        </div>
+        <div class="floor ok" id="floor">—</div>
+
+        <div class="btns">
+          <button class="btn" id="btnReset">Reset</button>
+          <button class="btn primary" id="btnCopy">Copy summary</button>
+        </div>
+      </div>
+      <p class="foot">Rates are set by Harmony. Questions on a specific deal go to Deal Desk.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+  /* ---------- fixed, non-negotiable values ---------- */
+  var FLOOR          = 20000;   // minimum ACV
+  var MODEL_RATE     = 0.22;    // $/min — fixed
+  var NUM_COST       = 10;      // $/number/mo — fixed
+  var EXP_MO         = 500;     // Experimentation & Insights — fixed, included
+  var PS_RATE        = 225;     // $/hr — fixed
+  var PS_MIN_HOURS   = 4;       // hours floor
+  var PS_MIN_MO      = 900;     // dollar floor — matches the 4 hr @ $225 minimum exactly
+  var AGENTS_MIN     = 3;
+  var AGENT_ADD_MO   = 500;     // per agent above 3
+  var SPAM_MO        = 300;
+  var IMPL_MIN       = 2500;
+  var UPFRONT_DISC   = 0.20;    // applied to recurring only
+
+  var years = 1;
+  var billing = 'monthly';      // 'monthly' | 'upfront'
+
+  function $(id){ return document.getElementById(id); }
+  function num(id){ var v = parseFloat($(id).value); return isNaN(v) ? 0 : v; }
+  function money(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+
+  /* ---------- segmented controls ---------- */
+  $('termSeg').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    years = parseInt(b.getAttribute('data-y'),10);
+    Array.prototype.forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('on', x===b); });
+    calc();
+  });
+
+  $('billSeg').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    billing = b.getAttribute('data-b');
+    Array.prototype.forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('on', x===b); });
+    calc();
+  });
+
+  /* ---------- conditional custom concurrency row ---------- */
+  $('conc').addEventListener('change', function(){
+    $('concCustomRow').style.display = this.value === '-1' ? 'grid' : 'none';
+    calc();
+  });
+
+  /* ---------- clamp floors on commit, not mid-typing ---------- */
+  function clampOnChange(id, min){
+    $(id).addEventListener('change', function(){
+      var v = parseFloat(this.value);
+      if(isNaN(v) || v < min){ this.value = min; }
+      calc();
+    });
+  }
+  clampOnChange('agents',  AGENTS_MIN);
+  clampOnChange('psHours', PS_MIN_HOURS);
+  clampOnChange('impl',    IMPL_MIN);
+  clampOnChange('numCount', 0);
+  clampOnChange('concCustom', 0);
+  clampOnChange('teleSetup', 0);
+  clampOnChange('mins', 0);
+
+  /* ---------- base tier by committed minutes ---------- */
+  function baseTier(mins){
+    if(mins <= 2000)  return { name:'Starter', mo:300 };
+    if(mins <= 10000) return { name:'Growth',  mo:750 };
+    if(mins <= 50000) return { name:'Scale',   mo:1800 };
+    return { name:'Enterprise', mo:null };   // null = custom / Deal Desk
+  }
+
+  function calc(){
+    /* --- recurring, built monthly then ×12 --- */
+    var minsMo = Math.max(0, num('mins'));
+    var tier = baseTier(minsMo);
+    var enterpriseTier = (tier.mo === null);
+    var baseMo = enterpriseTier ? 3500 : tier.mo;
+
+    var agents   = Math.max(AGENTS_MIN, num('agents'));
+    var agentMo  = Math.max(0, agents - AGENTS_MIN) * AGENT_ADD_MO;
+
+    var minuteMo = minsMo * MODEL_RATE;
+    var concMo   = $('conc').value === '-1' ? Math.max(0, num('concCustom')) : parseFloat($('conc').value);
+    var teleMo   = Math.max(0, num('numCount')) * NUM_COST;
+    var spamMo   = $('spam').checked ? SPAM_MO : 0;
+    var psHours  = Math.max(PS_MIN_HOURS, num('psHours'));
+    var psRaw    = psHours * PS_RATE;
+    var psMo     = Math.max(PS_MIN_MO, psRaw);   // $900/mo floor — safety net only
+
+    var monthly = baseMo + agentMo + minuteMo + concMo + teleMo + spamMo + EXP_MO + psMo;
+    var annualList = monthly * 12;
+
+    var discount = billing === 'upfront' ? annualList * UPFRONT_DISC : 0;
+    var annualNet = annualList - discount;
+
+    /* --- reflect computed values back into the inputs --- */
+    $('baseAuto').textContent = money(baseMo);
+    $('baseTier').textContent = enterpriseTier ? 'Enterprise · custom' : tier.name;
+    $('agentFee').textContent = '+' + money(agentMo) + '/mo';
+    $('spamState').textContent = spamMo ? 'On · $300/mo' : 'Off';
+    $('psFloorNote').textContent = money(psMo) + '/mo';
+
+    /* --- one-time --- */
+    var impl = Math.max(IMPL_MIN, num('impl'));
+    var onetime = impl + Math.max(0, num('teleSetup'));
+
+    /* --- rollups (discount applies to recurring, not one-time) --- */
+    var tcv   = annualNet * years + onetime;
+    var acv   = tcv / years;
+    var year1 = annualNet + onetime;
+
+    /* --- summary --- */
+    $('oMonthly').textContent = money(monthly);
+    $('oTeleMo').textContent  = money(teleMo);
+    $('oPsMo').textContent    = money(psMo);
+    $('oAnnualList').textContent = money(annualList);
+    $('oListLbl').textContent = billing === 'upfront' ? '(list)' : '';
+    $('discRow').style.display = billing === 'upfront' ? 'flex' : 'none';
+    $('netRow').style.display  = billing === 'upfront' ? 'flex' : 'none';
+    $('oDisc').textContent    = '−' + money(discount);
+    $('oAnnualNet').textContent = money(annualNet);
+    $('oOnce').textContent    = money(onetime);
+    $('oYear1').textContent   = money(year1);
+    $('oTCV').textContent     = money(tcv);
+    $('oTermLbl').textContent = '(' + years + ' yr)';
+    $('oACV').textContent     = money(acv);
+    $('oACVmo').textContent   = '≈ ' + money(acv/12) + ' / mo · TCV ÷ contract years';
+
+    /* --- floor gate: below $20K the deal cannot be submitted --- */
+    var box = $('acvBox'), fl = $('floor'), cleared = acv >= FLOOR;
+    if(cleared){
+      box.className = 'acv ok'; fl.className = 'floor ok';
+      fl.textContent = '✓ Clears the $20,000 minimum (+' + money(acv-FLOOR) + ')';
+    } else {
+      box.className = 'acv under'; fl.className = 'floor under';
+      fl.textContent = '✗ ' + money(FLOOR-acv) + ' below the $20,000 minimum — not submittable';
+    }
+    $('btnCopy').disabled = !cleared;
+    $('btnCopy').title = cleared ? '' : 'Deal must reach $20,000 ACV before it can be shared';
+
+    window._deal = { years:years, billing:billing, agents:agents, minsMo:minsMo,
+      monthly:monthly, teleMo:teleMo, concMo:concMo, spamMo:spamMo,
+      psHours:psHours, psMo:psMo,
+      annualList:annualList, discount:discount, annualNet:annualNet,
+      onetime:onetime, impl:impl, year1:year1, tcv:tcv, acv:acv, cleared:cleared };
+  }
+
+  function copySummary(){
+    var d = window._deal;
+    if(!d || !d.cleared) return;
+
+    var lines = [
+      'HARMONY ENTERPRISE — DEAL SUMMARY',
+      'Contract length: ' + d.years + ' year(s)',
+      'Billing: ' + (d.billing === 'upfront' ? 'annual commitment, paid upfront (20% off recurring)'
+                                             : 'annual commitment, paid monthly'),
+      '------------------------------------------',
+      'Agents:                  ' + d.agents,
+      'Committed minutes:       ' + d.minsMo.toLocaleString('en-US') + ' /mo @ $0.022/min',
+      'Professional services:   ' + d.psHours + ' hrs/mo @ $225/hr = ' + money(d.psMo) + ' /mo',
+      'Concurrency:             ' + money(d.concMo) + ' /mo',
+      'Spam remediation:        ' + (d.spamMo ? 'included ($300/mo)' : 'not included'),
+      '------------------------------------------',
+      'Monthly recurring:       ' + money(d.monthly),
+      '  incl. telephony:       ' + money(d.teleMo) + ' /mo',
+      'Yearly recurring (list): ' + money(d.annualList)
+    ];
+
+    if(d.billing === 'upfront'){
+      lines.push('Upfront discount (20%):  −' + money(d.discount));
+      lines.push('Yearly recurring (net):  ' + money(d.annualNet));
+    }
+
+    lines.push(
+      'One-time fees:           ' + money(d.onetime),
+      'Year-1 total:            ' + money(d.year1),
+      'TCV (' + d.years + ' yr):              ' + money(d.tcv),
+      'ACV (annualized):        ' + money(d.acv) + ' (≈ ' + money(d.acv/12) + '/mo)',
+      'Minimum $20,000 — CLEARED'
+    );
+
+    var t = lines.join('\n');
+
+    function toast(){
+      var el = $('toast');
+      el.classList.add('show');
+      setTimeout(function(){ el.classList.remove('show'); }, 1700);
+    }
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(toast, function(){ alert(t); });
+    } else {
+      alert(t);
+    }
+  }
+
+  var DEFAULTS = { mins:2000, agents:3, numCount:2, psHours:4, impl:7500, teleSetup:2500, concCustom:1500 };
+
+  function resetAll(){
+    for(var k in DEFAULTS){ if($(k)) $(k).value = DEFAULTS[k]; }
+    $('spam').checked = false;
+    $('conc').value = '500';
+    $('concCustomRow').style.display = 'none';
+    years = 1; billing = 'monthly';
+    Array.prototype.forEach.call($('termSeg').querySelectorAll('button'), function(x){
+      x.classList.toggle('on', x.getAttribute('data-y')==='1');
+    });
+    Array.prototype.forEach.call($('billSeg').querySelectorAll('button'), function(x){
+      x.classList.toggle('on', x.getAttribute('data-b')==='monthly');
+    });
+    calc();
+  }
+
+  $('btnReset').addEventListener('click', resetAll);
+  $('btnCopy').addEventListener('click', copySummary);
+
+  document.addEventListener('input', function(e){ if(e.target.matches('input,select')) calc(); });
+  calc();
+</script>
+</body>
+</html>
