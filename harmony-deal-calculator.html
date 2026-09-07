@@ -277,14 +277,14 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
         <div class="row">
           <div class="lab">Number of agents<span class="sub">3 included · <span id="agentNote">+$500/mo per agent above 3</span></span></div>
           <div class="ctrl">
-            <input type="number" id="agents" value="3" min="3" step="1" title="minimum 3 agents">
+            <input type="number" id="agents" value="3" min="3" step="1" title="minimum 3 agents" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other">
             <span class="unit" id="agentFee" style="width:auto">+$0/mo</span>
           </div>
         </div>
 
         <div class="row">
           <div class="lab">Committed minutes<span class="sub">Per month — drives your base tier</span></div>
-          <div class="ctrl"><input type="number" id="mins" value="2000" step="500"><span class="unit">/mo</span></div>
+          <div class="ctrl"><input type="number" id="mins" value="2000" step="500" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"><span class="unit">/mo</span></div>
         </div>
 
         <div class="row">
@@ -295,7 +295,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
         <div class="row">
           <div class="lab">Concurrency tier<span class="sub">Per month</span></div>
           <div class="ctrl">
-            <select id="conc">
+            <select data-lpignore="true" data-form-type="other" id="conc">
               <option value="0">Included (≤25)</option>
               <option value="500" selected>50 concurrent — $500/mo</option>
               <option value="1000">100 concurrent — $1,000/mo</option>
@@ -307,13 +307,13 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
 
         <div class="row" id="concCustomRow" style="display:none;">
           <div class="lab">Custom concurrency fee<span class="sub">Per month</span></div>
-          <div class="ctrl"><span class="pre">$</span><input type="number" id="concCustom" value="1500" min="0" step="100"><span class="unit">/mo</span></div>
+          <div class="ctrl"><span class="pre">$</span><input type="number" id="concCustom" value="1500" min="0" step="100" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"><span class="unit">/mo</span></div>
         </div>
 
         <div class="row">
           <div class="lab">Telephony — recurring<span class="sub">Numbers × $10 / number / mo <span class="lock">price fixed</span></span></div>
           <div class="ctrl">
-            <input type="number" id="numCount" value="2" min="0" step="1" title="number of DIDs">
+            <input type="number" id="numCount" value="2" min="0" step="1" title="number of DIDs" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other">
             <span class="pre">×</span><span class="fixedval" id="numCostDisp">$10</span>
           </div>
         </div>
@@ -321,7 +321,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
         <div class="row">
           <div class="lab">Spam remediation<span class="sub">Number reputation monitoring &amp; remediation · $300/mo</span></div>
           <div class="ctrl">
-            <label class="chk"><input type="checkbox" id="spam"><span id="spamState">Off</span></label>
+            <label class="chk"><input type="checkbox" id="spam" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"><span id="spamState">Off</span></label>
           </div>
         </div>
 
@@ -333,7 +333,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
         <div class="row">
           <div class="lab">Professional services<span class="sub">4 hrs / mo minimum · $225/hr <span class="lock">rate fixed</span> · <span id="psFloorNote">$900/mo</span></span></div>
           <div class="ctrl">
-            <input type="number" id="psHours" value="4" min="4" step="1" title="hours / month — minimum 4">
+            <input type="number" id="psHours" value="4" min="4" step="1" title="hours / month — minimum 4" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other">
             <span class="pre">hrs ×</span><span class="fixedval" id="psRateDisp">$225</span>
           </div>
         </div>
@@ -346,12 +346,12 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
 
         <div class="row">
           <div class="lab">White-glove implementation<span class="sub">Floor $2,500 · reference tiers: $7,500 standard · $15,000 complex · $30,000 enterprise</span></div>
-          <div class="ctrl"><span class="pre">$</span><input type="number" id="impl" value="7500" min="2500" step="500"></div>
+          <div class="ctrl"><span class="pre">$</span><input type="number" id="impl" value="7500" min="2500" step="500" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"></div>
         </div>
 
         <div class="row">
           <div class="lab">Telephony setup<span class="sub">One-time provisioning</span></div>
-          <div class="ctrl"><span class="pre">$</span><input type="number" id="teleSetup" value="2500" min="0" step="500"></div>
+          <div class="ctrl"><span class="pre">$</span><input type="number" id="teleSetup" value="2500" min="0" step="500" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"></div>
         </div>
       </div>
     </div>
