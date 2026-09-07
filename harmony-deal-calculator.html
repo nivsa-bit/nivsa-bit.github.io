@@ -319,7 +319,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
         </div>
 
         <div class="row">
-          <div class="lab">Spam remediation<span class="sub">Number reputation monitoring &amp; remediation · $300/mo</span></div>
+          <div class="lab">Spam remediation<span class="sub">Number reputation monitoring &amp; remediation · <span id="spamPriceNote"></span></span></div>
           <div class="ctrl">
             <label class="chk"><input type="checkbox" id="spam" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"><span id="spamState">Off</span></label>
           </div>
@@ -409,7 +409,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
   var PS_MIN_MO      = 900;     // dollar floor — matches the 4 hr @ $225 minimum exactly
   var AGENTS_MIN     = 3;
   var AGENT_ADD_MO   = 500;     // per agent above 3
-  var SPAM_MO        = 300;
+  var SPAM_MO        = 150;
   var IMPL_MIN       = 2500;
   var UPFRONT_DISC   = 0.20;    // applied to recurring only
 
@@ -494,7 +494,8 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
     $('baseAuto').textContent = money(baseMo);
     $('baseTier').textContent = enterpriseTier ? 'Enterprise · custom' : tier.name;
     $('agentFee').textContent = '+' + money(agentMo) + '/mo';
-    $('spamState').textContent = spamMo ? 'On · $300/mo' : 'Off';
+    $('spamPriceNote').textContent = money(SPAM_MO) + '/mo';
+    $('spamState').textContent = spamMo ? 'On · ' + money(SPAM_MO) + '/mo' : 'Off';
     $('psFloorNote').textContent = money(psMo) + '/mo';
 
     /* --- one-time --- */
@@ -556,7 +557,7 @@ input:focus,select:focus{ outline:none; border-color:var(--warm-2); background:r
       'Committed minutes:       ' + d.minsMo.toLocaleString('en-US') + ' /mo @ $' + MODEL_RATE.toFixed(2) + '/min',
       'Professional services:   ' + d.psHours + ' hrs/mo @ $225/hr = ' + money(d.psMo) + ' /mo',
       'Concurrency:             ' + money(d.concMo) + ' /mo',
-      'Spam remediation:        ' + (d.spamMo ? 'included ($300/mo)' : 'not included'),
+      'Spam remediation:        ' + (d.spamMo ? 'included (' + money(SPAM_MO) + '/mo)' : 'not included'),
       '------------------------------------------',
       'Monthly recurring:       ' + money(d.monthly),
       '  incl. telephony:       ' + money(d.teleMo) + ' /mo',
